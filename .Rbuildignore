@@ -1,0 +1,7 @@
+^demUtils\.Rproj$
+^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^LICENSE\.md$
+^\.travis\.yml$
+^codecov\.yml$
