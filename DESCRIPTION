@@ -18,4 +18,7 @@ RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 Language: en-US
 Imports: 
-    data.table
+    data.table,
+    assertthat,
+    assertive,
+    assertable

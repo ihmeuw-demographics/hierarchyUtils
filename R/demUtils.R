@@ -10,4 +10,7 @@
 #'
 #' @docType package
 #' @name demUtils
+#'
+#' @importFrom utils capture.output
+#' @importFrom utils globalVariables
 NULL
