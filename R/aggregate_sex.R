@@ -24,15 +24,15 @@
 aggregate_sex <- function(dt, id_cols, value_cols) {
 
   # check `id_cols` argument
-  assertive::is_character(id_cols)
+  assertive::assert_is_character(id_cols)
   assertthat::assert_that("sex" %in% id_cols, msg = "`id_cols` must include 'sex'.")
   sex_collapse_cols <- id_cols[!id_cols %in% "sex"]
 
   # check `value_cols` argument
-  assertive::is_character(value_cols)
+  assertive::assert_is_character(value_cols)
 
   # check `dt` argument
-  assertive::is_data.table(dt)
+  assertive::assert_is_data.table(dt)
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }

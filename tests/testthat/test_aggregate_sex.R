@@ -21,6 +21,11 @@ test_that("check `aggregate_sex()` basic functionality works", {
 })
 
 test_that("check `aggregate_sex()` errors are thrown for different cases", {
+  # Check error thrown when wrong argument types are given
+  testthat::expect_error(aggregate_sex(input_dt, 5, value_cols))
+  testthat::expect_error(aggregate_sex(input_dt, id_cols, 5))
+  testthat::expect_error(aggregate_sex(data.frame(input_dt), id_cols, value_cols))
+
   # Check error thrown when `id_cols` + `value_cols` are not equal to cols in `dt`
   testthat::expect_error(aggregate_sex(input_dt, id_cols = setdiff(id_cols, "sex"), value_cols))
   testthat::expect_error(aggregate_sex(input_dt, id_cols = setdiff(id_cols, "location"), value_cols))
