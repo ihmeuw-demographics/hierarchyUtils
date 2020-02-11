@@ -1,7 +1,7 @@
 Package: demUtils
 Version: 0.0.0.9000
-Title: What the Package Does (One Line, Title Case)
-Description: What the package does (one paragraph).
+Title: Utility Functions for Common Demographics Data and Estimation Problems
+Description: The demUtils package provides utility functions for aggregation and scaling of demographics data and estimates.
 Authors@R: person("First", "Last", , "first.last@example.com", c("aut", "cre"))
 License: GPL-3
 Encoding: UTF-8
