@@ -36,6 +36,10 @@ test_that("check `aggregate_sex()` errors are thrown for different cases", {
   missing_female_dt <- input_dt[!(year == max(year) & sex == "female")]
   testthat::expect_error(suppressMessages(aggregate_sex(missing_female_dt, id_cols, value_cols)))
 
+  # check error thrown when rows of input dt are not unique
+  non_unique_input_dt <- rbind(input_dt, input_dt)
+  testthat::expect_error(aggregate_sex(non_unique_input_dt, id_cols, value_cols))
+
   # Check that `value_cols` are numeric columns in `dt`
   non_numeric_dt <- copy(input_dt)
   non_numeric_dt[, value1 := NULL]

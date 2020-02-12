@@ -13,6 +13,7 @@ aggregate_sex(dt, id_cols, value_cols)
 \item must include a column called 'sex', and only include observations for
 'female' and 'male' but not 'both'.
 \item each combination of \code{id_cols} (not including 'sex') must include a row for 'female' and 'male'.
+\item each combination of \code{id_cols} must uniquely identify each row.
 }}
 
 \item{id_cols}{character vector of id columns that uniquely identify each row
