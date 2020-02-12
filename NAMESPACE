@@ -2,6 +2,8 @@
 
 export(aggregate_sex)
 export(assert_is_unique_dt)
+export(calculate_age_end)
+export(calculate_age_int)
 export(is_unique_dt)
 import(data.table)
 importFrom(utils,capture.output)

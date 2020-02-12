@@ -3,4 +3,4 @@
 # https://www.r-bloggers.com/no-visible-binding-for-global-variable/
 # https://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
 # https://community.rstudio.com/t/how-to-solve-no-visible-binding-for-global-variable-note/28887
-utils::globalVariables(c("check", "sex"))
+utils::globalVariables(c("check", "sex", "age_start", "age_end", "age_int"))
