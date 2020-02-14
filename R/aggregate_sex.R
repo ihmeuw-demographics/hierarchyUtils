@@ -21,7 +21,6 @@
 #'                            value1 = 1, value2 = 2)
 #' output_dt <- aggregate_sex(dt = input_dt, id_cols = c("year", "sex"),
 #'                            value_cols = c("value1", "value2"))
-#'
 aggregate_sex <- function(dt, id_cols, value_cols) {
 
   # check `id_cols` argument

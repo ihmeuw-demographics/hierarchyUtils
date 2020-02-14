@@ -36,5 +36,4 @@ input_dt <- data.table::CJ(year = 2010:2020, sex = c("female", "male"),
                            value1 = 1, value2 = 2)
 output_dt <- aggregate_sex(dt = input_dt, id_cols = c("year", "sex"),
                            value_cols = c("value1", "value2"))
-
 }

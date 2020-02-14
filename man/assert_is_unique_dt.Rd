@@ -2,28 +2,29 @@
 % Please edit documentation in R/assert_is_unique_dt.R
 \name{assert_is_unique_dt}
 \alias{assert_is_unique_dt}
-\alias{is_unique_dt}
+\alias{identify_non_unique_dt}
 \title{Are the rows of the input data.table unique?}
 \usage{
-assert_is_unique_dt(dt, id_cols, severity = getOption("assertive.severity",
-  "stop"))
+assert_is_unique_dt(dt, id_cols)
 
-is_unique_dt(dt, id_cols)
+identify_non_unique_dt(dt, id_cols)
 }
 \arguments{
-\item{dt}{input data.table to check.}
+\item{dt}{input data.table to check.
+\itemize{
+\item must contain columns specified in \code{id_cols}.
+}}
 
 \item{id_cols}{character vector of id columns that uniquely identify each row
 of \code{dt}.}
-
-\item{severity}{How severe should the consequences of the assertion be?
-Either \code{"stop"}, \code{"warning"}, \code{"message"}, or \code{"none"}.}
 }
 \value{
 \itemize{
-\item \code{is_unique_dt} returns a logical.
-\item \code{assert_is_unique_dt} returns nothing but throws an error if \code{is_unique_dt}
-returns FALSE.
+\item \code{identify_non_unique_dt} returns a data.table with problematic rows only,
+includes a 'count' column identifying how many times each combination of id
+columns is in the dataset
+\item \code{assert_is_unique_dt} returns nothing but throws an error if \code{identify_non_unique_dt}
+returns a non empty data.table.
 }
 }
 \description{
@@ -36,6 +37,12 @@ input_dt <- data.table::data.table(location = "France", year = 2010,
                                    age_start = 0:95,
                                    value1 = 2, value2 = 4)
 id_cols <- c("location", "year", "sex", "age_start")
-is_unique_dt(input_dt, id_cols)
+non_unique_dt <- identify_non_unique_dt(input_dt, id_cols)
 assert_is_unique_dt(input_dt, id_cols)
+
+}
+\seealso{
+\code{assertable::assert_ids} to check that all unique combinations of
+specified id variables list, this is appropriate when you expect your dataset
+to be square.
 }

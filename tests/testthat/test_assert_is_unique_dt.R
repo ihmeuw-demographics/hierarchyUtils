@@ -11,13 +11,7 @@ input_dt2 <- data.table::data.table(location = "France", year = 2010,
 input_dt <- rbind(input_dt1, input_dt2)
 id_cols <- c("location", "year", "sex", "age_start")
 
-test_that("check `is_unique_dt()` basic functionality works", {
-  testthat::expect_true(is_unique_dt(input_dt1, id_cols))
-  testthat::expect_true(is_unique_dt(input_dt2, id_cols))
-  testthat::expect_false(is_unique_dt(input_dt, id_cols))
-})
-
-test_that("check `assert_is_unique_dt()` basic functionality works", {
+testthat::test_that("check `assert_is_unique_dt()` basic functionality works", {
   testthat::expect_silent(assert_is_unique_dt(input_dt1, id_cols))
   testthat::expect_silent(assert_is_unique_dt(input_dt2, id_cols))
   testthat::expect_error(assert_is_unique_dt(input_dt, id_cols))
