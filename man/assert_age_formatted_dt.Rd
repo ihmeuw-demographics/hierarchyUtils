@@ -62,7 +62,7 @@ input_dt <- data.table::data.table(year = 2016,
                                    age_end = c(seq(5, 95, 5), 125),
                                    value = 1)
 temp <- data.table::data.table(year = 2016, age_start = 7, age_end = 9, value = 1)
-input_dt <- rbind(input_dt, temp, use.names = T)
+input_dt <- rbind(input_dt, temp, use.names = TRUE)
 id_cols <- c("year", "age_start", "age_end")
 misformatted_dt <- identify_age_misformatted_dt(input_dt, id_cols)
 
