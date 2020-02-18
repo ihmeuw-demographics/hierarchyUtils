@@ -12,7 +12,6 @@ setkeyv(input_dt, id_cols)
 expected_dt <- data.table::CJ(location = "France", year = 2010:2020,
                               sex = c("both"),
                               value1 = 2, value2 = 4)
-expected_dt <- rbind(input_dt, expected_dt, use.names = T)
 setkeyv(expected_dt, id_cols)
 
 test_that("check `aggregate_sex()` basic functionality works", {

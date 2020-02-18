@@ -11,8 +11,8 @@
 #' * must include 'sex'.
 #' @param value_cols character vector of value columns to be aggregated.
 #'
-#' @return data.table with `id_cols` and `value_cols` columns, includes additional
-#' rows for both sexes combined.
+#' @return data.table with `id_cols` and `value_cols` columns for both sexes
+#'   combined aggregates.
 #'
 #' @export
 #'
@@ -59,8 +59,8 @@ aggregate_sex <- function(dt, id_cols, value_cols) {
   # calculate both sexes combined aggregate
   both_sexes_dt <- dt[, lapply(.SD, sum), .SDcols = value_cols, by = sex_collapse_cols]
   both_sexes_dt[, sex := "both"]
-  dt <- rbind(dt, both_sexes_dt, use.names = T)
-  setkeyv(dt, original_keys)
 
-  return(dt)
+  setcolorder(both_sexes_dt, names(dt))
+  setkeyv(both_sexes_dt, original_keys)
+  return(both_sexes_dt)
 }

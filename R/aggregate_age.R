@@ -11,8 +11,8 @@
 #' @param target_ages_dt data.table defining age groups to aggregate to.
 #' * must include 'age_start' and 'age_end' columns.
 #'
-#' @return data.table with `id_cols` and `value_cols` columns, includes
-#' additional rows for aggregate age groups combined.
+#' @return data.table with `id_cols` and `value_cols` columns for aggregate age
+#'   groups.
 #'
 #' @export
 #'
@@ -98,7 +98,7 @@ aggregate_age <- function(dt, id_cols, value_cols, target_ages_dt) {
     return(target_dt)
   })
   aggregated_dt <- rbindlist(aggregated_dt)
-  dt <- rbind(dt, aggregated_dt, use.names = T)
-  setkeyv(dt, id_cols)
-  return(dt)
+  setcolorder(aggregated_dt, names(dt))
+  setkeyv(aggregated_dt, id_cols)
+  return(aggregated_dt)
 }

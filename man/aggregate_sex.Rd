@@ -25,8 +25,8 @@ of \code{dt}.
 \item{value_cols}{character vector of value columns to be aggregated.}
 }
 \value{
-data.table with \code{id_cols} and \code{value_cols} columns, includes additional
-rows for both sexes combined.
+data.table with \code{id_cols} and \code{value_cols} columns for both sexes
+combined aggregates.
 }
 \description{
 Aggregate sex-specific counts to both sexes combined

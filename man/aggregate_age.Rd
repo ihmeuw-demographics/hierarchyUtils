@@ -28,8 +28,8 @@ of \code{dt}.
 }}
 }
 \value{
-data.table with \code{id_cols} and \code{value_cols} columns, includes
-additional rows for aggregate age groups combined.
+data.table with \code{id_cols} and \code{value_cols} columns for aggregate age
+groups.
 }
 \description{
 Aggregate age-specific counts to aggregate age groups

@@ -16,11 +16,10 @@ input_dt2 <- data.table::data.table(year = 2011,
                                     value1 = 1, value2= 2)
 input_dt <- rbind(input_dt1, input_dt2, use.names = T)
 
-help_test_aggregate_age <- function(input_dt, aggregated_dt, target_age_dt) {
+help_test_aggregate_age <- function(input_dt, expected_dt, target_age_dt) {
   # do aggregation
   output_dt <- aggregate_age(input_dt, id_cols, value_cols, target_age_dt)
   # set up expected output table
-  expected_dt <- rbind(input_dt, aggregated_dt, use.names = T)
   setkeyv(expected_dt, id_cols)
 
   testthat::expect_equal(output_dt, expected_dt)
@@ -28,25 +27,25 @@ help_test_aggregate_age <- function(input_dt, aggregated_dt, target_age_dt) {
 
 testthat::test_that("check `aggregate_age()` basic functionality works", {
   # test aggregation of single year age groups
-  aggregated_dt1 <- data.table(year = 2010,
+  expected_dt1 <- data.table(year = 2010,
                                age_start = c(0, 15, 85),
                                age_end = c(5, 60, 125),
                                value1 = c(5, 45, 11))
-  aggregated_dt1[, value2 := value1 * 2]
-  target_age_dt1 <- unique(aggregated_dt1[, list(age_start, age_end)])
-  help_test_aggregate_age(input_dt1, aggregated_dt1, target_age_dt1)
+  expected_dt1[, value2 := value1 * 2]
+  target_age_dt1 <- unique(expected_dt1[, list(age_start, age_end)])
+  help_test_aggregate_age(input_dt1, expected_dt1, target_age_dt1)
 
   # test aggregation of five year age groups
-  aggregated_dt2 <- data.table(year = 2011,
+  expected_dt2 <- data.table(year = 2011,
                                age_start = c(0, 15, 85),
                                age_end = c(5, 60, 125),
                                value1 = c(1, 9, 3))
-  aggregated_dt2[, value2 := value1 * 2]
-  target_age_dt2 <- unique(aggregated_dt2[, list(age_start, age_end)])
-  help_test_aggregate_age(input_dt2, aggregated_dt2, target_age_dt2)
+  expected_dt2[, value2 := value1 * 2]
+  target_age_dt2 <- unique(expected_dt2[, list(age_start, age_end)])
+  help_test_aggregate_age(input_dt2, expected_dt2, target_age_dt2)
 
   # test aggregation of both single and five year age groups at same time
-  aggregated_dt <- rbind(aggregated_dt1, aggregated_dt2, use.names = T)
-  target_age_dt <- unique(aggregated_dt[, list(age_start, age_end)])
-  help_test_aggregate_age(input_dt, aggregated_dt, target_age_dt)
+  expected_dt <- rbind(expected_dt1, expected_dt2, use.names = T)
+  target_age_dt <- unique(expected_dt[, list(age_start, age_end)])
+  help_test_aggregate_age(input_dt, expected_dt, target_age_dt)
 })
