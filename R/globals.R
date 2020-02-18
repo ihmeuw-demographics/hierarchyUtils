@@ -5,4 +5,4 @@
 # https://community.rstudio.com/t/how-to-solve-no-visible-binding-for-global-variable-note/28887
 utils::globalVariables(c("check", "sex", "age_start", "age_end", "age_int",
                          "overlapping", "check_ages", "error",
-                         "age_start_lead", "age_end_lag"))
+                         "age_start_lead", "age_end_lag", "available_age_starts"))
