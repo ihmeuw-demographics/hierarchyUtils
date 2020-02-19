@@ -95,3 +95,26 @@ test_that("check `calculate_age_end()` errors are thrown for different cases", {
   input_dt[, age_start := NA]
   testthat::expect_error(calculate_age_int(input_dt))
 })
+
+test_that("check `calculate_age_name()` basic functionality works", {
+  input_dt <- create_input_dt()
+  calculate_age_end(input_dt, id_cols, terminal_age_end = 125)
+  testthat::expect_silent(calculate_age_name(input_dt, format = "interval"))
+
+  input_dt <- create_input_dt()
+  calculate_age_end(input_dt, id_cols, terminal_age_end = 125)
+  testthat::expect_silent(calculate_age_name(input_dt, format = "to", terminal_format = "plus"))
+
+  input_dt <- create_input_dt()
+  calculate_age_end(input_dt, id_cols, terminal_age_end = 125)
+  testthat::expect_silent(calculate_age_name(input_dt, format = "to", terminal_format = "+"))
+
+  input_dt <- create_input_dt()
+  calculate_age_end(input_dt, id_cols, terminal_age_end = 125)
+  testthat::expect_silent(calculate_age_name(input_dt, format = "dash", terminal_format = "plus"))
+
+  input_dt <- create_input_dt()
+  calculate_age_end(input_dt, id_cols, terminal_age_end = 125)
+  testthat::expect_silent(calculate_age_name(input_dt, format = "dash", terminal_format = "+"))
+
+})

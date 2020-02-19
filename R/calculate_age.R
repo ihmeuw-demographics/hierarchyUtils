@@ -88,3 +88,67 @@ calculate_age_int <- function(dt) {
 
   return(invisible(NULL))
 }
+
+#' Calculate the age group name for each age group in dataset
+#'
+#' @param dt data.table with age-specific data.
+#' * must contain numeric columns called 'age_start' and 'age_end'.
+#' @param format formatting style for the age group names.
+#' * must be one of 'interval', 'to', or 'dash'.
+#' @param terminal_format formatting style for the terminal age group names.
+#' * only used when `format` is not equal to interval.
+#' * must be one of 'plus' or '+'.
+#' @inheritParams calculate_age_end
+#'
+#' @return modifies `dt` in place by creating a new numeric column called
+#' 'age_name'.
+#'
+#' @export
+#'
+#' @examples
+#' input_dt <- data.table::data.table(location = "France", year = 2010,
+#'                                    sex = "female",
+#'                                    age_start = 0:95,
+#'                                    age_end = c(1:95, 125),
+#'                                    value1 = 1, value2 = 2)
+#' calculate_age_name(input_dt, format = "interval")
+calculate_age_name <- function(dt,
+                               format = "interval",
+                               terminal_format = "plus",
+                               terminal_age_end = 125L) {
+
+  # check `format` argument
+  assertthat::is.string(format)
+  checkmate::assertChoice(format, choices = c("interval", "to", "dash"))
+
+  # check `terminal_format` argument
+  assertthat::is.string(terminal_format)
+  checkmate::assertChoice(terminal_format, choices = c("plus", "+"))
+
+  # check `terminal_age_end` argument
+  assertive::assert_is_numeric(terminal_age_end)
+
+  # check `dt` argument
+  assertive::assert_is_data.table(dt)
+  capture.output(assertable::assert_colnames(dt, c("age_start", "age_end"), only_colnames = F))
+  assertive::assert_is_numeric(dt[["age_start"]])
+  assertive::assert_all_are_not_na(dt[["age_start"]])
+  assertive::assert_is_numeric(dt[["age_end"]])
+
+  if (format == "to") {
+    dt[, age_name := paste0(age_start, " to ", age_end)]
+  } else if (format == "dash") {
+    dt[, age_name := paste0(age_start, "-", age_end)]
+  } else if (format == "interval") {
+    dt[, age_name := paste0("[", age_start, ", ", age_end, ")")]
+  }
+
+  if (format == "interval") {
+    dt[age_end == terminal_age_end, age_name := paste0("[", age_start, ", Inf]")]
+  } else {
+    terminal_string <- ifelse(terminal_format == "plus", " plus", "+")
+    dt[age_end == terminal_age_end, age_name := paste0(age_start, terminal_string)]
+  }
+
+  return(invisible(NULL))
+}
