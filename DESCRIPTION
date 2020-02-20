@@ -21,4 +21,5 @@ Imports:
     data.table,
     assertthat,
     assertive,
-    assertable
+    assertable,
+    checkmate
