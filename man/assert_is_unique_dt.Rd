@@ -39,7 +39,6 @@ input_dt <- data.table::data.table(location = "France", year = 2010,
 id_cols <- c("location", "year", "sex", "age_start")
 non_unique_dt <- identify_non_unique_dt(input_dt, id_cols)
 assert_is_unique_dt(input_dt, id_cols)
-
 }
 \seealso{
 \code{assertable::assert_ids} to check that all unique combinations of

@@ -44,7 +44,6 @@
 #'
 #' \dontrun{
 #' assert_age_formatted_dt(input_dt, id_cols)}
-#'
 assert_age_formatted_dt <- function(dt, id_cols, first_age_start = 0, terminal_age_end = 125) {
 
   age_format_errors_dt <- identify_age_misformatted_dt(dt, id_cols, first_age_start, terminal_age_end)

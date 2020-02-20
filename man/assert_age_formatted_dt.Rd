@@ -68,5 +68,4 @@ misformatted_dt <- identify_age_misformatted_dt(input_dt, id_cols)
 
 \dontrun{
 assert_age_formatted_dt(input_dt, id_cols)}
-
 }

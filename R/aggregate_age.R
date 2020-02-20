@@ -27,7 +27,6 @@
 #'                            id_cols = c("year", "age_start", "age_end"),
 #'                            value_cols = c("value1", "value2"),
 #'                            target_ages_dt = target_dt)
-#'
 aggregate_age <- function(dt, id_cols, value_cols, target_ages_dt) {
 
   # Validate arguments ------------------------------------------------------

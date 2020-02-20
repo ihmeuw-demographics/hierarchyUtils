@@ -29,7 +29,6 @@
 #' id_cols <- c("location", "year", "sex", "age_start")
 #' non_unique_dt <- identify_non_unique_dt(input_dt, id_cols)
 #' assert_is_unique_dt(input_dt, id_cols)
-#'
 assert_is_unique_dt <- function(dt, id_cols) {
 
   non_unique_dt <- identify_non_unique_dt(dt, id_cols)
