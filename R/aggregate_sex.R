@@ -23,10 +23,11 @@
 #'                            value_cols = c("value1", "value2"))
 aggregate_sex <- function(dt, id_cols, value_cols) {
 
+  # Validate arguments ------------------------------------------------------
+
   # check `id_cols` argument
   assertive::assert_is_character(id_cols)
   assertthat::assert_that("sex" %in% id_cols, msg = "`id_cols` must include 'sex'.")
-  sex_collapse_cols <- id_cols[!id_cols %in% "sex"]
 
   # check `value_cols` argument
   assertive::assert_is_character(value_cols)
@@ -42,6 +43,10 @@ aggregate_sex <- function(dt, id_cols, value_cols) {
                             test_val = expected_sexes, quiet = T)
   assert_is_unique_dt(dt, id_cols)
 
+  # Check that each combination of `id_cols` includes each sex --------------
+
+  sex_collapse_cols <- id_cols[!id_cols %in% "sex"]
+
   # check that each combination of `id_cols` (not including 'sex') includes a row for 'female' and 'male'
   dt[, check := identical(sort(sex), sort(expected_sexes)), by = sex_collapse_cols]
   if(!all(dt$check)) {
@@ -52,6 +57,8 @@ aggregate_sex <- function(dt, id_cols, value_cols) {
     stop("each combination of `id_cols` (not including 'sex') must include a row for 'female' and 'male'.")
   }
   dt[, check := NULL]
+
+  # Sum to both sexes combined ----------------------------------------------
 
   original_keys <- key(dt)
   if (is.null(original_keys)) original_keys <- id_cols

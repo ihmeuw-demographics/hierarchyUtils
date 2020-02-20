@@ -31,6 +31,7 @@
 #' assert_is_unique_dt(input_dt, id_cols)
 #'
 assert_is_unique_dt <- function(dt, id_cols) {
+
   non_unique_dt <- identify_non_unique_dt(dt, id_cols)
   is_unique_dt <- nrow(non_unique_dt) == 0
 
@@ -41,6 +42,9 @@ assert_is_unique_dt <- function(dt, id_cols) {
 #' @rdname assert_is_unique_dt
 #' @export
 identify_non_unique_dt <- function(dt, id_cols) {
+
+  # Validate arguments ------------------------------------------------------
+
   # check `id_cols` argument
   assertive::assert_is_character(id_cols)
 
@@ -48,9 +52,12 @@ identify_non_unique_dt <- function(dt, id_cols) {
   assertive::assert_is_data.table(dt)
   capture.output(assertable::assert_colnames(dt, id_cols, only_colnames = F))
 
-  # count rows for each combination `id_cols`
+  # Count number of rows in each combination of `id_cols` -------------------
+
   check_unique_dt <- dt[, list(check = .N), by = id_cols]
   check_unique_dt <- check_unique_dt[check > 1]
 
+  setcolorder(check_unique_dt, c(id_cols, "check"))
+  setkeyv(check_unique_dt, c(id_cols, "check"))
   return(check_unique_dt)
 }

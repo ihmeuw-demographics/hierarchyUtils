@@ -30,6 +30,8 @@
 #'
 aggregate_age <- function(dt, id_cols, value_cols, target_ages_dt) {
 
+  # Validate arguments ------------------------------------------------------
+
   # check `id_cols` argument
   assertive::assert_is_character(id_cols)
   assertthat::assert_that("age_start" %in% id_cols & "age_end" %in% id_cols,
@@ -51,15 +53,20 @@ aggregate_age <- function(dt, id_cols, value_cols, target_ages_dt) {
   capture.output(assertable::assert_colnames(dt, c("age_start", "age_end"), only_colnames = F))
   assert_is_unique_dt(target_ages_dt, id_cols = c("age_start", "age_end"))
 
-  setkeyv(dt, id_cols)
-  by_id_cols <- id_cols[!id_cols %in% c("age_start", "age_end")]
+
+  # Determine unique age groupings ------------------------------------------
 
   # rather than aggregating each id_col grouping separately,
   # faster to aggregate by each unique set of groups in the dt
 
+  setkeyv(dt, id_cols)
+  by_id_cols <- id_cols[!id_cols %in% c("age_start", "age_end")]
+
   # determine unique sets of age groups present in dt
   age_groups <- dt[, list(available_age_starts = paste(sort(unique(age_start)), collapse = ",")), by = by_id_cols]
   unique_age_groupings <- unique(age_groups[, c("available_age_starts"), with = F])
+
+  # Sum to aggregate age groupings ------------------------------------------
 
   # aggregate each unique age grouping separately
   aggregated_dt <- lapply(1:nrow(unique_age_groupings), function(i) {
@@ -98,6 +105,7 @@ aggregate_age <- function(dt, id_cols, value_cols, target_ages_dt) {
     return(target_dt)
   })
   aggregated_dt <- rbindlist(aggregated_dt)
+
   setcolorder(aggregated_dt, names(dt))
   setkeyv(aggregated_dt, id_cols)
   return(aggregated_dt)

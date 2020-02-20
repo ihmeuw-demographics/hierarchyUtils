@@ -58,6 +58,8 @@ assert_age_formatted_dt <- function(dt, id_cols, first_age_start = 0, terminal_a
 #' @export
 identify_age_misformatted_dt <- function(dt, id_cols, first_age_start = 0, terminal_age_end = 125) {
 
+  # Validate arguments ------------------------------------------------------
+
   # check `id_cols` argument
   assertive::assert_is_character(id_cols)
   assertthat::assert_that("age_start" %in% id_cols, msg = "`id_cols` must include 'age_start'.")
@@ -78,10 +80,12 @@ identify_age_misformatted_dt <- function(dt, id_cols, first_age_start = 0, termi
   assertive::assert_all_are_not_na(dt[["age_end"]])
   assert_is_unique_dt(dt, id_cols)
 
+  # Check for and drop overlapping age groups -------------------------------
+
   setkeyv(dt, id_cols)
   by_id_cols <- id_cols[!id_cols %in% c("age_start", "age_end")]
 
-  # determine if any age aggregate age groups are included in the dtset and drop them if they exist
+  # determine if any age aggregate age groups are included in the dataset and drop them if they exist
   check_overlapping_ages <- dt[, list(check_ages = list(sort(unique(c(age_start, age_end))))), by = by_id_cols]
   dt <- merge(dt, check_overlapping_ages, by = by_id_cols, all = T)
   dt[, overlapping := any(between(check_ages[[1]], age_start, age_end, incbounds = F)), by = id_cols]
@@ -94,6 +98,8 @@ identify_age_misformatted_dt <- function(dt, id_cols, first_age_start = 0, termi
   dt <- merge(dt, overlapping_age_groups, by = id_cols, all = T)
   dt <- dt[is.na(error)]
   dt[, error := NULL]
+
+  # Identify missing age ranges ---------------------------------------------
 
   ## determine which age ranges are missing from datatset
   dt[, age_start_lead := data.table::shift(age_start, type = "lead", fill = terminal_age_end), by = by_id_cols] # this should be equal to original age_end
@@ -113,10 +119,9 @@ identify_age_misformatted_dt <- function(dt, id_cols, first_age_start = 0, termi
   missing_age_ranges <- missing_age_ranges[age_start < age_end] # drop these overlaps that are identified later instead
   missing_age_ranges[, error := "missing"]
 
-  # combine together any overlapping age dt points
+  # combine together errors
   age_format_errors <- rbind(missing_age_ranges, overlapping_age_groups, use.names = T)
   setcolorder(age_format_errors, c(id_cols, "error"))
   setkeyv(age_format_errors, c(id_cols, "error"))
-
   return(age_format_errors)
 }

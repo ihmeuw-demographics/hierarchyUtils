@@ -35,6 +35,8 @@
 #' calculate_age_end(input_dt, id_cols, terminal_age_end = 125)
 calculate_age_end <- function(dt, id_cols, terminal_age_end = 125L) {
 
+  # Validate arguments ------------------------------------------------------
+
   # check `id_cols` argument
   assertive::assert_is_character(id_cols)
   assertthat::assert_that("age_start" %in% id_cols, msg = "`id_cols` must include 'age_start'.")
@@ -49,12 +51,15 @@ calculate_age_end <- function(dt, id_cols, terminal_age_end = 125L) {
   assertive::assert_all_are_not_na(dt[["age_start"]])
   assert_is_unique_dt(dt, id_cols)
 
+  # Calculate age end column ------------------------------------------------
+
   setkeyv(dt, id_cols)
   by_id_cols <- id_cols[!id_cols %in% "age_start"]
+
   dt[, age_end := data.table::shift(age_start, type = "lead", fill = terminal_age_end),
      by = by_id_cols]
-  setkeyv(dt, c(id_cols, "age_end"))
 
+  setkeyv(dt, c(id_cols, "age_end"))
   return(invisible(NULL))
 }
 
@@ -77,12 +82,16 @@ calculate_age_end <- function(dt, id_cols, terminal_age_end = 125L) {
 #' calculate_age_int(input_dt)
 calculate_age_int <- function(dt) {
 
+  # Validate arguments ------------------------------------------------------
+
   # check `dt` argument
   assertive::assert_is_data.table(dt)
   capture.output(assertable::assert_colnames(dt, c("age_start", "age_end"), only_colnames = F))
   assertive::assert_is_numeric(dt[["age_start"]])
   assertive::assert_all_are_not_na(dt[["age_start"]])
   assertive::assert_is_numeric(dt[["age_end"]])
+
+  # Calculate age interval column -------------------------------------------
 
   dt[, age_int := age_end - age_start]
 
@@ -117,6 +126,8 @@ calculate_age_name <- function(dt,
                                terminal_format = "plus",
                                terminal_age_end = 125L) {
 
+  # Validate arguments ------------------------------------------------------
+
   # check `format` argument
   assertthat::is.string(format)
   checkmate::assertChoice(format, choices = c("interval", "to", "dash"))
@@ -134,6 +145,8 @@ calculate_age_name <- function(dt,
   assertive::assert_is_numeric(dt[["age_start"]])
   assertive::assert_all_are_not_na(dt[["age_start"]])
   assertive::assert_is_numeric(dt[["age_end"]])
+
+  # Calculate age name column -----------------------------------------------
 
   if (format == "to") {
     dt[, age_name := paste0(age_start, " to ", age_end)]
