@@ -1,12 +1,19 @@
-#' demUtils: A package with utility functions for common demographics data and estimation problems
+#' @title demUtils: A package with utility functions for common demographics
+#' data and estimation problems
 #'
-#' The demUtils package provides two categories of important functions:
-#' aggregation and scaling.
+#' @description Demographics data is often organized by categorical and numeric
+#' variables like location, sex, age, race, ethnicity, education, marital
+#' status, etc. The demUtils package provides helpful functions for formatting,
+#' aggregating, scaling, and other related tasks.
 #'
+#' @section formatting functions:
+#' These functions standardize how categorical and numeric variables are stored.
 #' @section aggregate functions:
-#' The aggregate functions aggregate counts of events by sex, age and/or location.
+#' These functions sum counts from a more detailed level of a variable to an
+#' aggregate level.
 #' @section scale functions:
-#' The scale functions scale counts by sex, age and/or location to an aggregate.
+#' These functions scale counts from a more detailed level of a variable to an
+#' aggregate level.
 #'
 #' @docType package
 #' @name demUtils

@@ -1,7 +1,10 @@
 Package: demUtils
 Version: 0.0.0.9000
-Title: Utility Functions for Common Demographics Data and Estimation Problems
-Description: The demUtils package provides utility functions for aggregation and scaling of demographics data and estimates.
+Title: Utility Functions for Common Demographics Data Problems
+Description: Demographics data is often organized by categorical and numeric
+    variables like location, sex, age, race, ethnicity, education, marital
+    status, etc. The demUtils package provides helpful functions for formatting,
+    aggregating, scaling, and other related tasks.
 Authors@R: c(person("Charlton", "Callender", email = "chacalle@uw.edu", role = "aut"),
              person("Grant", "Nguyen", email = "gngu@uw.edu", role = "aut"),
              person("Katie", "Paulson", email = "krpaul@uw.edu", role = "aut"),
