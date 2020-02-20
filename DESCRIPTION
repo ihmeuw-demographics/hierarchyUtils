@@ -2,7 +2,12 @@ Package: demUtils
 Version: 0.0.0.9000
 Title: Utility Functions for Common Demographics Data and Estimation Problems
 Description: The demUtils package provides utility functions for aggregation and scaling of demographics data and estimates.
-Authors@R: person("First", "Last", , "first.last@example.com", c("aut", "cre"))
+Authors@R: c(person("Charlton", "Callender", email = "chacalle@uw.edu", role = "aut"),
+             person("Grant", "Nguyen", email = "gngu@uw.edu", role = "aut"),
+             person("Katie", "Paulson", email = "krpaul@uw.edu", role = "aut"),
+             person("Spencer", "Pease", email = "spease@uw.edu", role = "aut"),
+             person("Haidong", "Wang", email = "haidong@uw.edu", role = "cre"),
+             person("Institute for Health Metrics and Evaluation", role = c("cph", "fnd")))
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
