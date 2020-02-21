@@ -1,15 +1,15 @@
-#' Aggregate age-specific counts to aggregate age groups
+#' Sum age-specific counts to aggregate age groups
 #'
 #' @param dt data.table with data to be aggregated.
-#' * must only contain columns specified in `id_cols` and `value_cols`.
-#' * must include 'age_start' and 'age_end' columns.
-#' * each combination of `id_cols` must uniquely identify each row.
+#'   * must only contain columns specified in `id_cols` and `value_cols`.
+#'   * must include 'age_start' and 'age_end' columns.
+#'   * each combination of `id_cols` must uniquely identify each row.
 #' @param id_cols character vector of id columns that uniquely identify each row
-#' of `dt`.
-#' * must include 'age_start' and 'age_end'.
+#'   of `dt`.
+#'   * must include 'age_start' and 'age_end'.
 #' @param value_cols character vector of value columns to be aggregated.
 #' @param target_ages_dt data.table defining age groups to aggregate to.
-#' * must include 'age_start' and 'age_end' columns.
+#'   * must include 'age_start' and 'age_end' columns.
 #'
 #' @return data.table with `id_cols` and `value_cols` columns for aggregate age
 #'   groups.

@@ -4,22 +4,22 @@
 #' combination of the id columns.
 #'
 #' @param dt input data.table to check.
-#' * must contain columns specified in `id_cols`.
+#'   * must contain columns specified in `id_cols`.
 #' @param id_cols character vector of id columns that uniquely identify each row
-#' of `dt`.
+#'   of `dt`.
 #'
 #' @return
-#' * `identify_non_unique_dt` returns a data.table with problematic rows only,
-#' includes a 'count' column identifying how many times each combination of id
-#' columns is in the dataset
-#' * `assert_is_unique_dt` returns nothing but throws an error if `identify_non_unique_dt`
-#' returns a non empty data.table.
+#'   * `identify_non_unique_dt` returns a data.table with problematic rows only,
+#'   includes a 'count' column identifying how many times each combination of id
+#'   columns is in the dataset
+#'   * `assert_is_unique_dt` returns nothing but throws an error if `identify_non_unique_dt`
+#'   returns a non empty data.table.
 #'
 #' @export
 #'
 #' @seealso `assertable::assert_ids` to check that all unique combinations of
-#' specified id variables list, this is appropriate when you expect your dataset
-#' to be square.
+#'   specified id variables list, this is appropriate when you expect your dataset
+#'   to be square.
 #'
 #' @examples
 #' input_dt <- data.table::data.table(location = "France", year = 2010,

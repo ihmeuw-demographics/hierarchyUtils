@@ -2,7 +2,7 @@
 % Please edit documentation in R/aggregate_age.R
 \name{aggregate_age}
 \alias{aggregate_age}
-\title{Aggregate age-specific counts to aggregate age groups}
+\title{Sum age-specific counts to aggregate age groups}
 \usage{
 aggregate_age(dt, id_cols, value_cols, target_ages_dt)
 }
@@ -32,7 +32,7 @@ data.table with \code{id_cols} and \code{value_cols} columns for aggregate age
 groups.
 }
 \description{
-Aggregate age-specific counts to aggregate age groups
+Sum age-specific counts to aggregate age groups
 }
 \examples{
 input_dt <- data.table::data.table(year = 2010,

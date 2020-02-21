@@ -15,8 +15,8 @@ identify_age_misformatted_dt(dt, id_cols, first_age_start = 0,
 \item{dt}{input data.table to check.
 \itemize{
 \item must contain columns specified in \code{id_cols}.
-\item must include numeric columns called 'age_start' and 'age_end' that contain
-no missing values.
+\item must include numeric columns called 'age_start' and 'age_end' that
+contain no missing values.
 \item each combination of \code{id_cols} must uniquely identify each row.
 }}
 

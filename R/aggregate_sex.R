@@ -1,13 +1,14 @@
 #' Aggregate sex-specific counts to both sexes combined
 #'
 #' @param dt data.table with data to be aggregated.
-#' * must only contain columns specified in `id_cols` and `value_cols`.
-#' * must include a column called 'sex', and only include observations for
-#' 'female' and 'male' but not 'both'.
-#' * each combination of `id_cols` (not including 'sex') must include a row for 'female' and 'male'.
-#' * each combination of `id_cols` must uniquely identify each row.
+#'   * must only contain columns specified in `id_cols` and `value_cols`.
+#'   * must include a column called 'sex', and only include observations for
+#'   'female' and 'male' but not 'both'.
+#'   * each combination of `id_cols` (not including 'sex') must include a row
+#'   for 'female' and 'male'.
+#'   * each combination of `id_cols` must uniquely identify each row.
 #' @param id_cols character vector of id columns that uniquely identify each row
-#' of `dt`.
+#'   of `dt`.
 #' * must include 'sex'.
 #' @param value_cols character vector of value columns to be aggregated.
 #'

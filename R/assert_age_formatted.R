@@ -12,22 +12,22 @@
 #' of the dataset that are problematic.
 #'
 #' @param dt input data.table to check.
-#' * must contain columns specified in `id_cols`.
-#' * must include numeric columns called 'age_start' and 'age_end' that contain
-#' no missing values.
-#' * each combination of `id_cols` must uniquely identify each row.
+#'   * must contain columns specified in `id_cols`.
+#'   * must include numeric columns called 'age_start' and 'age_end' that
+#'   contain no missing values.
+#'   * each combination of `id_cols` must uniquely identify each row.
 #' @param id_cols character vector of id columns that uniquely identify each row
-#' of `dt`.
-#' * must include 'age_start' and 'age_end'.
+#'   of `dt`.
+#'   * must include 'age_start' and 'age_end'.
 #' @param first_age_start the numeric 'age_start' value for the first age group.
 #' @inheritParams calculate_age_end
 #'
 #' @return
-#' * `identify_age_misformatted_dt` returns a data.table with problematic age
-#' groups only, includes a column 'error' that identifies 'missing' or
-#' 'overlapping' age ranges.
-#' * `assert_age_formatted_dt` returns nothing but throws an error if
-#' `identify_age_misformatted_dt` returns a non empty data.table.
+#'   * `identify_age_misformatted_dt` returns a data.table with problematic age
+#'   groups only, includes a column 'error' that identifies 'missing' or
+#'   'overlapping' age ranges.
+#'   * `assert_age_formatted_dt` returns nothing but throws an error if
+#'   `identify_age_misformatted_dt` returns a non empty data.table.
 #'
 #' @export
 #'

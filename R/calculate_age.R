@@ -10,18 +10,18 @@
 #' dataset.
 #'
 #' @param dt data.table with age-specific data.
-#' * must contain columns specified in `id_cols`.
-#' * must include a numeric column called 'age_start' that contains no missing
-#' values.
-#' * each combination of `id_cols` must uniquely identify each row.
+#'   * must contain columns specified in `id_cols`.
+#'   * must include a numeric column called 'age_start' that contains no missing
+#'   values.
+#'   * each combination of `id_cols` must uniquely identify each row.
 #' @param id_cols character vector of id columns that uniquely identify each row
-#' of `dt`.
-#' * must include 'age_start'.
+#'   of `dt`.
+#'   * must include 'age_start'.
 #' @param terminal_age_end the numeric 'age_end' value for the terminal age
-#' group.
+#'   group.
 #'
 #' @return modifies `dt` in place by creating a new numeric column called
-#' 'age_end'.
+#'   'age_end'.
 #'
 #' @export
 #'
