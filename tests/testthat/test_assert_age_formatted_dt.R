@@ -1,5 +1,3 @@
-testthat::context("assert_age_formatted_dt() tests")
-
 id_cols <- c("year", "age_start", "age_end")
 
 ## correctly formatted data

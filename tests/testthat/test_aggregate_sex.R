@@ -1,5 +1,3 @@
-testthat::context("aggregate_sex() tests")
-
 # set up standard input data.table
 input_dt <- data.table::CJ(location = "France", year = 2010:2020,
                            sex = c("female", "male"),

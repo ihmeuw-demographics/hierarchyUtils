@@ -1,5 +1,3 @@
-testthat::context("aggregate_age() tests")
-
 library(data.table)
 
 id_cols <- c("year", "age_start", "age_end")

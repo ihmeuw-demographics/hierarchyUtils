@@ -1,5 +1,3 @@
-testthat::context("calculate_age_*() tests")
-
 # set up standard input data.table
 create_input_dt <- function() {
   input_dt1 <- data.table::data.table(location = "France", year = 2010,

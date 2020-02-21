@@ -1,5 +1,3 @@
-testthat::context("assert_is_unique_dt() tests")
-
 input_dt1 <- data.table::data.table(location = "France", year = 2010,
                                     sex = "female",
                                     age_start = 0:95,
