@@ -29,5 +29,5 @@ Imports:
     data.table,
     assertthat,
     assertive,
-    assertable,
+    assertable (>= 0.2.7),
     checkmate

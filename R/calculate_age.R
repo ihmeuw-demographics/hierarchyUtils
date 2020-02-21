@@ -46,7 +46,7 @@ calculate_age_end <- function(dt, id_cols, terminal_age_end = 125L) {
 
   # check `dt` argument
   assertive::assert_is_data.table(dt)
-  capture.output(assertable::assert_colnames(dt, id_cols, only_colnames = F))
+  assertable::assert_colnames(dt, id_cols, only_colnames = F, quiet = T)
   assertive::assert_is_numeric(dt[["age_start"]])
   assertive::assert_all_are_not_na(dt[["age_start"]])
   assert_is_unique_dt(dt, id_cols)

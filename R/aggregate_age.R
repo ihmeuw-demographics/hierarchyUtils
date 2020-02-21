@@ -44,12 +44,12 @@ aggregate_age <- function(dt, id_cols, value_cols, target_ages_dt) {
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }
-  capture.output(assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T))
+  assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T, quiet = T)
   assert_is_unique_dt(dt, id_cols)
 
   # check `target_ages_dt` argument
   assertive::assert_is_data.table(target_ages_dt)
-  capture.output(assertable::assert_colnames(dt, c("age_start", "age_end"), only_colnames = F))
+  assertable::assert_colnames(dt, c("age_start", "age_end"), only_colnames = F, quiet = T)
   assert_is_unique_dt(target_ages_dt, id_cols = c("age_start", "age_end"))
 
 

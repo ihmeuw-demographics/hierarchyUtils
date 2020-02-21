@@ -38,7 +38,7 @@ aggregate_sex <- function(dt, id_cols, value_cols) {
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }
-  capture.output(assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T))
+  assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T, quiet = T)
   expected_sexes <- c("female", "male")
   assertable::assert_values(dt, colnames = "sex", test = "in",
                             test_val = expected_sexes, quiet = T)

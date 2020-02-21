@@ -72,7 +72,7 @@ identify_age_misformatted_dt <- function(dt, id_cols, first_age_start = 0, termi
 
   # check `dt` argument
   assertive::assert_is_data.table(dt)
-  capture.output(assertable::assert_colnames(dt, id_cols, only_colnames = F))
+  assertable::assert_colnames(dt, id_cols, only_colnames = F, quiet = T)
   assertive::assert_is_numeric(dt[["age_start"]])
   assertive::assert_all_are_not_na(dt[["age_start"]])
   assertive::assert_is_numeric(dt[["age_end"]])

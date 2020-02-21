@@ -49,7 +49,7 @@ identify_non_unique_dt <- function(dt, id_cols) {
 
   # check `dt` argument
   assertive::assert_is_data.table(dt)
-  capture.output(assertable::assert_colnames(dt, id_cols, only_colnames = F))
+  assertable::assert_colnames(dt, id_cols, only_colnames = F, quiet = T)
 
   # Count number of rows in each combination of `id_cols` -------------------
 
