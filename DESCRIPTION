@@ -20,15 +20,18 @@ Suggests:
     knitr,
     rmarkdown,
     spelling,
-    covr
+    covr,
+    networkD3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
 Language: en-US
+Depends: R (>= 2.10)
 Imports: 
     data.table,
     assertthat,
     assertive,
     assertable (>= 0.2.7),
-    checkmate
+    checkmate,
+    data.tree,
     intervals

@@ -1,0 +1,403 @@
+#' @title Create a data.tree object to be used for aggregating or scaling
+#'   categorical data
+#'
+#' @inheritParams agg
+#' @param node_exists \[`character()`\]\cr
+#'   names of nodes in the mapping that data exists for.
+#'
+#' @details
+#' When [vis_tree()] is used to visualize a tree returned by
+#' [create_agg_tree()] then nodes with data directly provided are colored green,
+#' nodes where aggregation is possible are colored blue, and missing nodes
+#' without data directly provided and where aggregation is impossible because of
+#' the missing nodes are colored red.
+#'
+#' When [vis_tree()] is used to visualize a tree returned by
+#' [create_scale_tree()] then nodes with data directly provided and that can be
+#' scaled are colored green, nodes with data directly provided but that can not
+#' be scaled are colored blue and nodes without data directly provided
+#'
+#' @return [create_agg_tree()] and [create_scale_tree()] return a
+#'   \[`data.tree()`\] with fields for whether each node has data available
+#'   ('exists') and whether aggregation to or scaling of each node is possible
+#'   ('agg_possible' or 'scale_possible'). For [create_scale_tree()], also
+#'   includes a field for whether children of each node can be scaled
+#'   ('scale_children_possible').
+#'
+#'   [vis_tree()] uses [networkD3::diagonalNetwork()] to create 'D3' network
+#'   graphs.
+#'
+#' @examples
+#' # aggregation example where all present day locations exist except for Tehran
+#' locations_present <- iran_mapping[!grepl("[0-9]+", child) &
+#'                                    child != "Tehran", child]
+#' agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present)
+#' vis_tree(agg_tree)
+#'
+#' # scaling example where all present day locations exist without collapsing
+#' locations_present <- c(iran_mapping[!grepl("[0-9]+", child), child], "Iran")
+#' scale_tree <- create_scale_tree(iran_mapping,
+#'                                 node_exists = locations_present)
+#' vis_tree(scale_tree)
+#'
+#' # scaling example where all present day locations exist and collapsing tree
+#' scale_tree <- create_scale_tree(iran_mapping,
+#'                                 node_exists = locations_present,
+#'                                 collapse = TRUE)
+#' vis_tree(scale_tree)
+#'
+#' @export
+#' @rdname create_tree
+create_agg_tree <- function(mapping, node_exists) {
+
+  tree <- create_base_tree(mapping, node_exists)
+
+  # check which groups we can aggregate to given the values already available
+  check_agg_possible <- function(x) {
+    if (data.tree::isLeaf(x)) {
+      return(data.tree::GetAttribute(x, "exists"))
+    }
+
+    # if not a leaf check that all children have data or can themselves be
+    # aggregated to
+    values <- sapply(x$children, function(child) {
+      return(data.tree::GetAttribute(child, "exists") |
+               data.tree::GetAttribute(child, "agg_possible"))
+    })
+    return(unname(all(values)))
+  }
+  tree$Do(function(x) x$agg_possible <- check_agg_possible(x),
+          traversal = "post-order")
+
+  return(tree)
+}
+
+#' @export
+#' @rdname create_tree
+create_scale_tree <- function(mapping, node_exists, collapse_missing = FALSE) {
+
+  tree <- create_base_tree(mapping, node_exists)
+
+  if (collapse_missing) collapse_tree(tree)
+
+  # check which groups we can scale given the values available
+  check_scale_possible <- function(x) {
+    if (data.tree::isRoot(x)) {
+      return (FALSE)
+    } else { # check that the node, parent, and all its siblings values available
+      siblings <- sapply(x$siblings, function(sibling) {
+        return(data.tree::GetAttribute(sibling, "exists"))
+      })
+      return(data.tree::GetAttribute(x, "exists") &
+               data.tree::GetAttribute(x$parent, "exists") & all(siblings))
+    }
+  }
+  tree$Do(function(x) x$scale_possible <- check_scale_possible(x),
+          traversal = "pre-order")
+
+  # check which nodes can have their children nodes scaled and themselves exist
+  check_children_scale_possible <- function(x) {
+    if (data.tree::isLeaf(x)) {
+      return (FALSE)
+    } else { # check that all its children can be scaled values available
+      children <- sapply(x$children, function(child) {
+        return(data.tree::GetAttribute(child, "scale_possible"))
+      })
+      return(data.tree::GetAttribute(x, "exists") & all(children))
+    }
+  }
+  tree$Do(function(x) x$scale_children_possible <- check_children_scale_possible(x),
+          traversal = "pre-order")
+
+  return(tree)
+}
+
+#' @title Create a data.tree object using a mapping of levels of a categorical
+#'   variable
+#'
+#' @inheritParams create_agg_tree
+#'
+#' @return \[`data.tree()`\] with field for whether each node has data
+#'   available ('exists').
+create_base_tree <- function(mapping, node_exists) {
+
+  # create overall tree with entire mapping
+  tree <- data.tree::FromDataFrameNetwork(mapping)
+
+  # mark groups we have values for already
+  tree$Set(exists = tree$Get('name') %in% node_exists)
+
+  return(tree)
+}
+
+#' @title Collapse the data.tree so that intermediate nodes without data are
+#'   removed
+#'
+#' @param tree \[`data.tree()`\]\cr
+#'   As returned by [create_base_tree()] with information about where data
+#'   exists for different levels of the categorical variables.
+#'
+#' @return \[`data.tree()`\] with field for whether each node has data
+#'   available ('exists').
+collapse_tree <- function(tree) {
+
+  collapse <- function(x) {
+    # collapse node where value doesn't exist in dataset
+    if (!x$exists) {
+      for (child in rev(x$children)) {
+        # move children up a level to sibling of current node
+        x$AddSiblingNode(child)
+      }
+      # actually remove current node
+      x$parent$RemoveChild(x$name)
+    }
+  }
+
+  tree$Do(function(x) collapse(x), traversal = "post-order",
+          filterFun = function(x) data.tree::isNotLeaf(x) &
+            data.tree::isNotRoot(x))
+  return(tree)
+}
+
+#' @param tree \[`data.tree()`\] as returned by [create_agg_tree()] or
+#'   [create_scale_tree()].
+#'
+#' @export
+#' @rdname create_tree
+vis_tree <- function(tree) {
+
+  if (!requireNamespace("networkD3", quietly = TRUE)) {
+    stop("Package \"networkD3\" needed for this function to work.
+         Please install it.",
+         call. = FALSE)
+  }
+
+  # determine whether this is an aggregate or scale tree
+  type <- "agg"
+  if ("scale_possible" %in% tree$fieldsAll) type <- "scale"
+
+  # create node attribute for three types of nodes
+  group_node <- function(x) {
+    if (type == "agg") {
+      if (data.tree::GetAttribute(x, "exists")) {
+        return("Value Provided")
+      } else if (data.tree::GetAttribute(x, "agg_possible")) {
+        return("Possible")
+      }
+
+    } else if (type == "scale") {
+      if (data.tree::GetAttribute(x, "exists")) {
+        if (data.tree::GetAttribute(x, "scale_children_possible")) {
+          return("Possible")
+        } else {
+          return("Value Provided")
+        }
+      }
+    }
+    return("Not Possible")
+  }
+  tree$Do(function(x) x$vis_group_node <- group_node(x))
+
+  # create colour function to be passed to networkD3::diagonalNetwork
+  colours <- data.table(vis_group = c("Value Provided", "Possible",
+                                      "Not Possible"),
+                        colour = c("green", "blue", "red"))
+  colours[, vis_group := paste0('"', vis_group)]
+  colours[, colour := paste0(colour, '"')]
+  colours[, full := paste0(vis_group, '" : "', colour)]
+  colour_function <- networkD3::JS(paste0("function(d, i) { return {",
+                                          paste(colours$full, collapse = ", "),
+                                          "} [d.data.vis_group_node]; }"))
+
+  # convert to networkD3::diagonalNetwork input List
+  target_list <- data.tree::ToListExplicit(tree, unname = TRUE)
+  tree$Do(function(node) node$RemoveAttribute("vis_group_node"))
+
+  networkD3::diagonalNetwork(List = target_list,
+                             nodeColour = colour_function,
+                             nodeStroke = colour_function)
+}
+
+#' @title Identify names of problematic nodes in categorical trees
+#'
+#' @description Identify names of problematic nodes that are making aggregation
+#'   or scaling not possible because they are missing or the aggregates are
+#'   already present.
+#'
+#' @inheritParams vis_tree
+#'
+#' @return \[`character()`\] vector with the names of the problematic nodes.
+#'
+#' @rdname problematic_tree_nodes
+identify_missing_agg <- function(tree) {
+
+  # identify each leaf node that is missing which makes aggregation to some
+  # nodes impossible
+  missing_nodes <- tree$Get(
+    "name",
+    filterFun = function(x) data.tree::isLeaf(x) &
+      !data.tree::GetAttribute(x, "exists")
+  )
+  if (!is.null(missing_nodes)) missing_nodes <- sort(unname(missing_nodes))
+  return(missing_nodes)
+}
+
+#' @rdname problematic_tree_nodes
+identify_missing_scale <- function(tree) {
+
+  # identify each node that is missing which causes scaling of itself or
+  # children to not be possible
+  missing_nodes <- tree$Get(
+    "name",
+    filterFun = function(x) !data.tree::GetAttribute(x, "exists") &
+      (!data.tree::GetAttribute(x, "scale_possible") |
+         !data.tree::GetAttribute(x, "scale_children_possible"))
+  )
+  if (!is.null(missing_nodes)) missing_nodes <- sort(unname(missing_nodes))
+  return(missing_nodes)
+}
+
+#' @rdname problematic_tree_nodes
+identify_present_agg <- function(tree) {
+
+  # identify each non leaf node that is present already when any of its
+  # children's nodes are present
+
+  # identify each nonleaf (and its subtree) where data exists
+  check_subtrees <- data.tree::Traverse(
+    tree, traversal = "post-order",
+    filterFun = function(x) {
+      data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "exists")
+    }
+  )
+
+  # check whether each subtree's parent has any children (or lower nodes) with
+  # data available
+  present_nodes <- lapply(check_subtrees, function(subtree) {
+    subtree_exists <- subtree$Get("exists")
+    lower_node_exists <- subtree_exists[names(subtree_exists) != subtree$name]
+    if (any(lower_node_exists)) {
+      return(subtree$name)
+    }
+    return(NULL)
+  })
+  present_nodes <- unlist(present_nodes)
+
+  return(present_nodes)
+}
+
+#' @title Create a list of subtrees that can be used during aggregation or
+#'   scaling
+#'
+#' @description
+#' Use [data.tree::Traverse()] to create a list of subtrees that are to be used
+#' during aggregation or scaling.
+#'
+#' For aggregation, traverses in post-order so that aggregation starts from
+#' the bottom of the tree and goes up. For scaling, traverses in pre-order so
+#' that scaling starts from the top of the tree and goes down.
+#'
+#' Only includes nodes that can be aggregated to or scaled.
+#'
+#' @inheritParams create_agg_tree
+#'
+#' @rdname create_subtrees
+create_agg_subtrees <- function(mapping, node_exists) {
+
+  tree <- create_agg_tree(mapping, node_exists)
+
+  # identify each nonleaf where aggregation is possible and its subtree
+  subtrees <- data.tree::Traverse(
+    tree, traversal = "post-order",
+    filterFun = function(x) {
+      data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "agg_possible")
+    }
+  )
+  return(subtrees)
+}
+
+#' @rdname create_subtrees
+create_scale_subtrees <- function(mapping, node_exists, collapse_missing) {
+
+  tree <- create_scale_tree(mapping, node_exists, collapse_missing)
+
+  # identify each nonleaf (and its subtree) where scaling of children nodes is possible
+  subtrees <- data.tree::Traverse(
+    tree, traversal = "pre-order",
+    filterFun = function(x) {
+      data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "scale_children_possible")
+    }
+  )
+  return(subtrees)
+}
+
+#' Aggregate or scale one subtree's children values to the parent level
+#'
+#' @inheritParams agg
+#' @inheritParams identify_unique_groupings
+#' @param subtree one subtree of the list returned by [create_agg_subtrees()] or
+#'   [create_scale_subtrees()].
+#'
+#' @return \[`data.table()`\] with same input columns for requested aggregates
+#' or with scaled values for the given `subtree`. [scale_subtree()] changes the
+#' name of the `value_cols` to `{value_cols}_scaled`.
+#'
+#' @rdname agg_scale_subtree
+agg_subtree <- function(dt,
+                        by_id_cols,
+                        value_cols,
+                        col_stem,
+                        agg_function,
+                        subtree) {
+  parent <- subtree$name
+  children <- names(subtree$children)
+
+  children_dt <- dt[get(col_stem) %in% children]
+  parent_dt <- children_dt[, lapply(.SD, agg_function), .SDcols = value_cols,
+                           by = by_id_cols]
+  parent_dt[, col_stem := parent]
+  setnames(parent_dt, "col_stem", col_stem)
+  return(parent_dt)
+}
+
+#' @rdname agg_scale_subtree
+scale_subtree <- function(dt,
+                          by_id_cols,
+                          value_cols,
+                          col_stem,
+                          agg_function,
+                          subtree) {
+  parent <- subtree$name
+  children <- names(subtree$children)
+
+  parent_dt <- dt[get(col_stem) %in% parent]
+  children_dt <- dt[get(col_stem) %in% children]
+
+  agg_value_cols <- paste0(value_cols, "_agg")
+  scaling_factor_value_cols <- paste0(value_cols, "_sf")
+  scaled_value_cols <- paste0(value_cols, "_scaled")
+
+  # aggregate children to parent level
+  sum_children_dt <- agg_subtree(children_dt, by_id_cols, value_cols,
+                                 col_stem, agg_function, subtree)
+  setnames(sum_children_dt, value_cols, agg_value_cols)
+
+  # combine aggregate child node values and original parent node values
+  sf_dt <- merge(parent_dt, sum_children_dt,
+                 by = c(by_id_cols, col_stem), all = T)
+
+  # calculate scaling factor
+  for (col in 1:length(value_cols)) {
+    sf_dt[, scaling_factor_value_cols[col] := get(value_cols[col]) / get(agg_value_cols[col])]
+  }
+  sf_dt <- sf_dt[, c(col_stem, value_cols, agg_value_cols) := NULL]
+
+  # calculate scaled child node values
+  scaled_dt <- merge(children_dt, sf_dt, by = by_id_cols, all = T)
+  for (col in 1:length(value_cols)) {
+    scaled_dt[, scaled_value_cols[col] := get(value_cols[col]) * get(scaling_factor_value_cols[col])]
+  }
+  scaled_dt[, c(value_cols, scaling_factor_value_cols) := NULL]
+
+  return(scaled_dt)
+}
