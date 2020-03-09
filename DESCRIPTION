@@ -31,3 +31,4 @@ Imports:
     assertive,
     assertable (>= 0.2.7),
     checkmate
+    intervals

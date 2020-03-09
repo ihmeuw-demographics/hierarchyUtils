@@ -1,20 +1,20 @@
 #' @title Generate columns to help describe numeric variable intervals
 #'
-#' @description demUtils assumes numeric variables are grouped into left-closed,
-#' right-open intervals. \eqn{a <= x < b}. Each interval can be described by
-#' their endpoints from which interval lengths and nicer formatted interval
-#' names can be created.
+#' @description demUtils assumes numeric interval variables are grouped into
+#' left-closed, right-open intervals. \eqn{a <= x < b}. Each interval can be
+#' described by their endpoints from which interval lengths and nicer formatted
+#' interval names can be created.
 #'
 #' @param dt \[`data.table()`\]\cr
-#'   `base_col`-specific data.
+#'   `col_stem`-specific data.
 #' @param id_cols \[`character()`\]\cr
 #'   ID columns that uniquely identify each row of `dt`. This must include
-#'   `{base_col}_start`.
-#' @param base_col \[`character(1)`\]\cr
+#'   `{col_stem}_start`.
+#' @param col_stem \[`character(1)`\]\cr
 #'   Base name of the numeric variable column. Does not include the '_start',
 #'   '_end' etc. suffix.
 #' @param right_most_endpoint \[`numeric(1)`\]\cr
-#'   Assumed right most endpoint of `{base_col}_end`. Default is \code{Inf}.
+#'   Assumed right most endpoint of `{col_stem}_end`. Default is \code{Inf}.
 #' @param format \[`character(1)`\]\cr
 #'   Formatting style for the interval names. Default is 'to'; can also be
 #'   'interval' or 'dash'.
@@ -24,24 +24,24 @@
 #'
 #' @return Invisibly returns reference to modified `dt`.
 #'
-#' @details `gen_end` generates a new column `{base_col}_end` for the
+#' @details `gen_end` generates a new column `{col_stem}_end` for the
 #' right-open endpoint of each interval from a series of left-closed endpoints
-#' `{base_col}_start`.
+#' `{col_stem}_start`.
 #'
 #' `gen_end` assumes that only the most detailed intervals are present in the
 #' input dataset; including overlapping intervals will not return expected
 #' results.
 #'
 #' Input data `dt` for `gen_end` must:
-#'   * Contain columns specified in `id_cols`.
-#'   * Contain a column called `{base_col}_start`.
+#'   * Contain all columns specified in `id_cols`.
+#'   * Have a column called `{col_stem}_start`.
 #'   * Have each row uniquely identified by each combination of `id_cols`.
 #'
-#' `gen_length` generates a new column `{base_col}_length` for the length of
+#' `gen_length` generates a new column `{col_stem}_length` for the length of
 #' each interval. Input data `dt` for `gen_length` must contain
-#' `{base_col}_start` and `{base_col}_end` columns.
+#' `{col_stem}_start` and `{col_stem}_end` columns.
 #'
-#' `gen_name` generates a new column `{base_col}_name` describing each interval.
+#' `gen_name` generates a new column `{col_stem}_name` describing each interval.
 #'
 #' Formatting style for intervals:
 #'   * \eqn{[a, b)} interval notation is used when `format = 'interval`.
@@ -59,24 +59,23 @@
 #'                                    age_start = 0:95,
 #'                                    value1 = 1, value2 = 2)
 #' id_cols <- c("location", "year", "sex", "age_start")
-#' gen_end(input_dt, id_cols, base_col = "age")
-#' gen_length(input_dt, base_col = "age")
-#' gen_name(input_dt, base_col = "age")
+#' gen_end(input_dt, id_cols, col_stem = "age")
+#' gen_length(input_dt, col_stem = "age")
+#' gen_name(input_dt, col_stem = "age")
 #'
 #' @export
-#'
 #' @rdname gen_interval_cols
-gen_end <- function(dt, id_cols, base_col, right_most_endpoint = Inf) {
+gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
 
   # Validate arguments ------------------------------------------------------
 
-  # check `base_col` argument
-  assertthat::assert_that(assertthat::is.string(base_col),
-                          !grepl("_(start|end)$", base_col),
-                          msg = "`base_col` must be a string that does not
+  # check `col_stem` argument
+  assertthat::assert_that(assertthat::is.string(col_stem),
+                          !grepl("_(start|end)$", col_stem),
+                          msg = "`col_stem` must be a string that does not
                           include the suffix '_start' or '_end'")
-  start_col <- paste0(base_col, "_start")
-  end_col <- paste0(base_col, "_end")
+  start_col <- paste0(col_stem, "_start")
+  end_col <- paste0(col_stem, "_end")
 
   # check extreme endpoints arguments
   assertthat::assert_that(assertthat::is.number(right_most_endpoint),
@@ -86,7 +85,7 @@ gen_end <- function(dt, id_cols, base_col, right_most_endpoint = Inf) {
   # check `id_cols` argument
   assertive::assert_is_character(id_cols)
   assertthat::assert_that(start_col %in% id_cols,
-                          msg = "`id_cols` must include `{base_col}_start`")
+                          msg = "`id_cols` must include `{col_stem}_start`")
 
   # check `dt` argument
   assertive::assert_is_data.table(dt)
@@ -140,20 +139,19 @@ gen_end <- function(dt, id_cols, base_col, right_most_endpoint = Inf) {
 }
 
 #' @export
-#'
 #' @rdname gen_interval_cols
-gen_length <- function(dt, base_col) {
+gen_length <- function(dt, col_stem) {
 
   # Validate arguments ------------------------------------------------------
 
-  # check `base_col` argument
-  assertthat::assert_that(assertthat::is.string(base_col),
-                          !grepl("_(start|end|length)$", base_col),
-                          msg = "`base_col` must be a string that does not
+  # check `col_stem` argument
+  assertthat::assert_that(assertthat::is.string(col_stem),
+                          !grepl("_(start|end|length)$", col_stem),
+                          msg = "`col_stem` must be a string that does not
                           include the suffix '_start', '_end', '_length'.")
-  start_col <- paste0(base_col, "_start")
-  end_col <- paste0(base_col, "_end")
-  length_col <- paste0(base_col, "_length")
+  start_col <- paste0(col_stem, "_start")
+  end_col <- paste0(col_stem, "_end")
+  length_col <- paste0(col_stem, "_length")
 
   # check `dt` argument
   assertive::assert_is_data.table(dt)
@@ -191,24 +189,23 @@ gen_length <- function(dt, base_col) {
 }
 
 #' @export
-#'
 #' @rdname gen_interval_cols
 gen_name <- function(dt,
-                     base_col,
+                     col_stem,
                      format = "to",
                      format_infinite = "plus",
                      right_most_endpoint = Inf) {
 
   # Validate arguments ------------------------------------------------------
 
-  # check `base_col` argument
-  assertthat::assert_that(assertthat::is.string(base_col),
-                          !grepl("_(start|end|name)$", base_col),
-                          msg = "`base_col` must be a string that does not
+  # check `col_stem` argument
+  assertthat::assert_that(assertthat::is.string(col_stem),
+                          !grepl("_(start|end|name)$", col_stem),
+                          msg = "`col_stem` must be a string that does not
                           include the suffix '_start', '_end' or '_name'")
-  start_col <- paste0(base_col, "_start")
-  end_col <- paste0(base_col, "_end")
-  name_col <- paste0(base_col, "_name")
+  start_col <- paste0(col_stem, "_start")
+  end_col <- paste0(col_stem, "_end")
+  name_col <- paste0(col_stem, "_name")
 
   # check `format` argument
   assertthat::assert_that(assertthat::is.string(format),
@@ -278,4 +275,87 @@ gen_name <- function(dt,
   data.table::setcolorder(dt, new_col_order)
 
   return(invisible(dt))
+}
+
+#' Identify missing or overlapping intervals
+#'
+#' @param ints_dt \[`data.table()`\]\cr
+#'   Unique intervals to check as returned by [subset_unique_grouping()].
+#'   Includes a column for the start of the interval and the end of the
+#'   interval.
+#' @param full_int_start \[`numeric(1)`\]\cr
+#'   Start of the complete interval that should be covered by the detailed
+#'   intervals in `ints_dt`.
+#' @param full_int_end \[`numeric(1)`\]\cr
+#'   End of the complete interval that should be covered by the detailed
+#'   intervals in `ints_dt`.
+#'
+#' @return  \[`data.table()`\] with columns for 'start' and 'end' of intervals
+#'   where intervals in `ints_dt` are missing or overlapping. If no intervals
+#'   are missing or overlapping then zero-row \[`data.table()`\] is returned.
+#'
+#' @rdname problematic_intervals
+identify_missing_intervals <- function(ints_dt,
+                                       full_int_start = 0,
+                                       full_int_end = Inf) {
+
+  assertive::is_data.table(ints_dt)
+  assertthat::is.number(full_int_start)
+  assertthat::is.number(full_int_end)
+
+  # create full interval that all sub intervals should span
+  full_int <- intervals::Intervals_full(
+    matrix(c(full_int_start, full_int_end), ncol = 2)
+  )
+
+  # create left-closed, right-open intervals
+  ints <- intervals::Intervals_full(as.matrix(ints_dt), closed = c(TRUE, FALSE))
+
+  # identify missing intervals
+  missing_ints <- intervals::interval_difference(full_int, ints)
+
+  missing_ints_dt <- data.table::as.data.table(missing_ints)
+  data.table::setnames(missing_ints_dt, c("start", "end"))
+  data.table::setkeyv(missing_ints_dt, c("start", "end"))
+  return(missing_ints_dt)
+}
+
+#' @rdname problematic_intervals
+identify_overlapping_intervals <- function(ints_dt,
+                                           full_int_start = 0,
+                                           full_int_end = Inf) {
+
+  assertive::is_data.table(ints_dt)
+  assertthat::is.number(full_int_start)
+  assertthat::is.number(full_int_end)
+
+  # create left-closed, right-open intervals
+  ints <- intervals::Intervals_full(as.matrix(ints_dt), closed = c(TRUE, FALSE))
+
+  # get list mapping between intervals if they overlap at all
+  overlaps <- intervals::interval_overlap(ints, ints)
+  names(overlaps) <- 1:length(overlaps)
+
+  # sort by number of intervals that each interval overlaps with so that we can
+  # identify the largest overlapping intervals first
+  overlaps <- overlaps[order(sapply(overlaps, length), decreasing=T)]
+
+  overlapping_indices <- c()
+  for (i in names(overlaps)) {
+    # remove match to itself
+    overlaps[[i]] <- overlaps[[i]][overlaps[[i]] != i]
+
+    # remove indices of overlapping intervals that have already been identified
+    overlaps[[i]] <- overlaps[[i]][!overlaps[[i]] %in% overlapping_indices]
+
+    if (length(overlaps[[i]]) > 0) {
+      overlapping_indices <- c(overlapping_indices, i)
+    }
+  }
+  overlapping_ints <- ints[as.integer(overlapping_indices)]
+
+  overlapping_ints_dt <- data.table::as.data.table(overlapping_ints)
+  data.table::setnames(overlapping_ints_dt, c("start", "end"))
+  data.table::setkeyv(overlapping_ints_dt, c("start", "end"))
+  return(overlapping_ints_dt)
 }
