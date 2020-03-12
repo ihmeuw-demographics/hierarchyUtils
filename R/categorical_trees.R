@@ -1,5 +1,5 @@
 #' @title Create a data.tree object to be used for aggregating or scaling
-#'   categorical data
+#'   categorical or interval data
 #'
 #' @inheritParams agg
 #' @param node_exists \[`character()`\]\cr
@@ -113,7 +113,7 @@ create_scale_tree <- function(mapping, node_exists, collapse_missing = FALSE) {
 }
 
 #' @title Create a data.tree object using a mapping of levels of a categorical
-#'   variable
+#'   or interval variable
 #'
 #' @inheritParams create_agg_tree
 #'
@@ -123,6 +123,19 @@ create_base_tree <- function(mapping, node_exists) {
 
   # create overall tree with entire mapping
   tree <- data.tree::FromDataFrameNetwork(mapping)
+
+  # simplify node names for aggregate intervals where nodes in tree are not
+  # unique and are formatted like "[0, Inf)/[0, 5)/[0, 1)"
+  if (any(grepl("/", (tree$Get("name"))))) {
+    filterFun <- function(x) x$level == lvl
+    for (lvl in 2:tree$height) {
+      # don't need the full path to each node as the name, just the last element
+      tree$Set(name = tstrsplit(tree$Get("name",
+                                         filterFun = filterFun),
+                                "/")[[lvl]],
+               filterFun = filterFun)
+    }
+  }
 
   # mark groups we have values for already
   tree$Set(exists = tree$Get('name') %in% node_exists)
@@ -347,16 +360,29 @@ agg_subtree <- function(dt,
                         by_id_cols,
                         value_cols,
                         col_stem,
+                        col_type,
                         agg_function,
                         subtree) {
+
   parent <- subtree$name
   children <- names(subtree$children)
 
   children_dt <- dt[get(col_stem) %in% children]
   parent_dt <- children_dt[, lapply(.SD, agg_function), .SDcols = value_cols,
                            by = by_id_cols]
-  parent_dt[, col_stem := parent]
-  setnames(parent_dt, "col_stem", col_stem)
+
+  # assign aggregate columns
+  if (col_type == "interval") {
+    # infer left and right endpoints of interval based on interval notation
+    # like "[0, Inf)" or "[0, 5)"
+    start <- as.numeric(gsub("^\\[|,\\s\\w+\\)", "", parent))
+    end <- as.numeric(gsub("^\\[[0-9]+,\\s|\\)", "", parent))
+    parent_dt[, paste0(col_stem, "_start") := start]
+    parent_dt[, paste0(col_stem, "_end") := end]
+  } else {
+    parent_dt[, col_stem := parent]
+    setnames(parent_dt, "col_stem", col_stem)
+  }
   return(parent_dt)
 }
 
@@ -365,32 +391,38 @@ scale_subtree <- function(dt,
                           by_id_cols,
                           value_cols,
                           col_stem,
+                          col_type,
                           agg_function,
                           subtree) {
   parent <- subtree$name
   children <- names(subtree$children)
 
-  parent_dt <- dt[get(col_stem) %in% parent]
-  children_dt <- dt[get(col_stem) %in% children]
-
+  cols <- col_stem
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
+  }
   agg_value_cols <- paste0(value_cols, "_agg")
   scaling_factor_value_cols <- paste0(value_cols, "_sf")
   scaled_value_cols <- paste0(value_cols, "_scaled")
 
+  parent_dt <- dt[get(col_stem) %in% parent]
+  children_dt <- dt[get(col_stem) %in% children]
+
   # aggregate children to parent level
   sum_children_dt <- agg_subtree(children_dt, by_id_cols, value_cols,
-                                 col_stem, agg_function, subtree)
+                                 col_stem, col_type, agg_function, subtree)
   setnames(sum_children_dt, value_cols, agg_value_cols)
 
   # combine aggregate child node values and original parent node values
   sf_dt <- merge(parent_dt, sum_children_dt,
-                 by = c(by_id_cols, col_stem), all = T)
+                 by = c(by_id_cols, cols), all = T)
 
   # calculate scaling factor
   for (col in 1:length(value_cols)) {
     sf_dt[, scaling_factor_value_cols[col] := get(value_cols[col]) / get(agg_value_cols[col])]
   }
-  sf_dt <- sf_dt[, c(col_stem, value_cols, agg_value_cols) := NULL]
+  sf_dt[, c(cols, value_cols, agg_value_cols) := NULL]
+  if (col_type == "interval") sf_dt[, c(col_stem) := NULL]
 
   # calculate scaled child node values
   scaled_dt <- merge(children_dt, sf_dt, by = by_id_cols, all = T)

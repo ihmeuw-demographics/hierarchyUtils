@@ -253,7 +253,7 @@ gen_name <- function(dt,
 
   if (format == "interval") {
     dt[get(end_col) == right_most_endpoint,
-       name_col := paste0("[", get(start_col), ", Inf]")]
+       name_col := paste0("[", get(start_col), ", Inf)")]
   } else {
     terminal_string <- ifelse(format_infinite == "plus", " plus", "+")
     dt[get(end_col) == right_most_endpoint,
@@ -275,6 +275,217 @@ gen_name <- function(dt,
   data.table::setcolorder(dt, new_col_order)
 
   return(invisible(dt))
+}
+
+#' @title Create a data.tree object to be used for aggregating or scaling
+#'   interval data
+#'
+#' @param data_intervals_dt \[`data.table()`\]\cr
+#'   Describes each interval present in the data. Includes a column for
+#'   `{col_stem}_start`, `{col_stem}_end`, and `col_stem`.
+#' @param agg_intervals_dt \[`data.table()`\]\cr
+#'   Describes each interval that needs to be aggregated to. Includes a column
+#'   for `{col_stem}_start`, `{col_stem}_end`, and `col_stem`.
+#' @inheritParams agg
+#'
+#' @details
+#' `create_agg_interval_tree()` returns a `data.tree()` with three levels. The
+#' root node is a place holder that covers the entire data interval. The second
+#' level contains each aggregate node that needs to be made and each of these
+#' aggregate node's have children nodes for the data intervals that are needed
+#' for aggregation.
+#'
+#' `create_scale_interval_tree()` returns a `data.tree()` with a variable number
+#' of levels dependent on the intervals available in the data. The root node
+#' also covers the entire data interval, this node may or may not actually be in
+#' `data_intervals_dt`. Each interval in `data_intervals_dt` is then positioned
+#' in the tree so that it is a sub-interval of its parent interval node.
+#'
+#' @return \[`data.tree()`\] where the 'name' field of each node is in interval
+#'   notation and describes each left-closed, right-open interval. Each node
+#'   also includes a field for the 'left' and 'right' endpoint.
+#'
+#' @rdname create_interval_tree
+create_agg_interval_tree <- function(data_intervals_dt,
+                                     agg_intervals_dt,
+                                     col_stem) {
+
+  cols <- paste0(col_stem, "_", c("start", "end"))
+
+  # create the root of the interval tree that covers the full interval
+  full_int_start <- min(data_intervals_dt[[cols[1]]])
+  full_int_end <- max(data_intervals_dt[[cols[2]]])
+  full_int_name <- paste0("[", full_int_start, ", ", full_int_end, ")")
+  interval_tree <- create_interval_node(full_int_start, full_int_end,
+                                        full_int_name)
+
+  # subset to aggregate intervals that can be made given available intervals
+  data_ints <- intervals::Intervals_full(
+    as.matrix(data_intervals_dt[, cols, with = F]),
+    closed = c(TRUE, FALSE)
+  )
+  data_ints <- intervals::interval_intersection(data_ints)
+  agg_ints <- intervals::Intervals_full(
+    as.matrix(agg_intervals_dt[, cols, with = F]),
+    closed = c(TRUE, FALSE)
+  )
+  included_ints <- intervals::interval_included(data_ints, agg_ints)
+  included_ints_rows <- included_ints[, 1]
+  agg_intervals_dt <- agg_intervals_dt[included_ints_rows]
+
+  # create each interval node and place in the full interval tree
+  for (i_agg in 1:nrow(agg_intervals_dt)) {
+    new_agg_node <- create_interval_node(agg_intervals_dt[i_agg, get(cols[1])],
+                                         agg_intervals_dt[i_agg, get(cols[2])],
+                                         agg_intervals_dt[i_agg, get(col_stem)])
+    # subset to data intervals that are in the aggregate interval
+    child_ints <- data_intervals_dt[get(cols[1]) >= new_agg_node$left &
+                                      get(cols[2]) <= new_agg_node$right]
+    for (i_sub in 1:nrow(child_ints)) {
+      new_child_node <- create_interval_node(child_ints[i_sub, get(cols[1])],
+                                             child_ints[i_sub, get(cols[2])],
+                                             child_ints[i_sub, get(col_stem)])
+      new_agg_node$AddChildNode(new_child_node)
+    }
+    interval_tree$AddChildNode(new_agg_node)
+  }
+  return(interval_tree)
+}
+
+#' @rdname create_interval_tree
+create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
+
+  cols <- paste0(col_stem, "_", c("start", "end"))
+
+  # create the root of the interval tree that covers the full interval
+  full_int_start <- min(data_intervals_dt[[cols[1]]])
+  full_int_end <- max(data_intervals_dt[[cols[2]]])
+  full_int_name <- paste0("[", full_int_start, ", ", full_int_end, ")")
+  interval_tree <- create_interval_node(full_int_start, full_int_end,
+                                        full_int_name)
+
+  # if the full interval is included in `data_intervals_dt` then drop it
+  # since the root interval node is already made above
+  if (nrow(data_intervals_dt[get(cols[1]) == full_int_start &
+                             get(cols[2]) == full_int_end]) > 0) {
+    data_intervals_dt <- data_intervals_dt[!(get(cols[1]) == full_int_start &
+                                               get(cols[2]) == full_int_end)]
+  }
+
+  # create each interval node and place in the full interval tree
+  for (i in 1:nrow(data_intervals_dt)) {
+    new_node <- create_interval_node(data_intervals_dt[i, get(cols[1])],
+                                     data_intervals_dt[i, get(cols[2])],
+                                     data_intervals_dt[i, get(col_stem)])
+    place_new_interval_node(interval_tree, new_node)
+  }
+  return(interval_tree)
+}
+
+#' @title Create a node for an interval tree
+#'
+#' @param start  \[`numeric(1)`\]\cr
+#'   the left endpoint of the interval tree node.
+#' @param end  \[`numeric(1)`\]\cr
+#'   the right endpoint of the interval tree node.
+#' @param name \[`character(1)`\]\cr
+#'   name of the node in interval notation.
+#'
+#' @return \[`data.tree()`\] node with 'name', 'left', 'right' fields.
+create_interval_node <- function(start, end, name) {
+  new_node <- data.tree::Node$new(name)
+  new_node$Set(left = start)
+  new_node$Set(right = end)
+  return(new_node)
+}
+
+#' @title Place a new interval node in an interval tree
+#'
+#' @description Recursive function to place a new interval node in an interval
+#'   tree.
+#'
+#' @param current_node \[`data.tree()`\]\cr
+#'   node of interval tree to put the `new_node` in.
+#' @param new_node \[`data.tree()`\]\cr
+#'   new interval node to place somewhere below `current_node`.
+#'
+#' @details
+#' Assumption is that `new_node` is a sub interval of `current_node` and
+#' this is double checked.
+#'
+#' `new_node` can be placed below `current_node` as:
+#' * another child node of `current_node`.
+#' * another child node of `current_node` but with one of `current_node`'s
+#'   children placed as a child of `new_node`.
+#' * somewhere below one of `current_node`'s children.
+#'
+#' @return Invisibly returns reference to modified `current_node` with
+#'   `new_node` placed as part of subtree.
+place_new_interval_node <- function(current_node, new_node) {
+
+  current_interval <- intervals::Intervals(c(current_node$left,
+                                             current_node$right),
+                                           closed = c(TRUE, FALSE))
+  new_interval <- intervals::Intervals(c(new_node$left,
+                                         new_node$right),
+                                       closed = c(TRUE, FALSE))
+
+  # check if new node is it part of current node
+  check_new_included <- intervals::interval_included(current_interval,
+                                                     new_interval)[[1]]
+  if (length(check_new_included) != 0) {
+
+    if (data.tree::isLeaf(current_node)) {
+      current_node$AddChildNode(new_node)
+
+    } else {
+      part_of_child_node <- FALSE
+      # TODO faster way to identify children nodes to check
+
+      # check if new node is a sub interval of any of current node's children
+      # or if new node is in between current node and current node's children
+      for (current_child_node in current_node$children) {
+        current_child_interval <- intervals::Intervals(
+          c(current_child_node$left,current_child_node$right),
+          closed = c(TRUE, FALSE)
+        )
+
+        # check if new node is parent interval of current child node
+        new_parent_interval <- intervals::interval_included(
+          new_interval,
+          current_child_interval
+        )
+        new_parent_interval <- length(new_parent_interval[[1]]) != 0
+
+        # check if new node is sub interval of current child node
+        new_sub_interval <- intervals::interval_included(
+          current_child_interval,
+          new_interval
+        )
+        new_sub_interval <- length(new_sub_interval[[1]]) != 0
+
+        if (new_parent_interval) {
+          # insert new node in between current node and current child node
+          current_node$RemoveChild(name = current_child_node$name)
+          new_node$AddChildNode(current_child_node)
+          current_node$AddChildNode(new_node)
+          part_of_child_node <- TRUE
+        } else if (new_sub_interval) {
+          # place new interval node somewhere below the current child node
+          place_new_interval_node(current_child_node, new_node)
+          part_of_child_node <- TRUE
+        }
+      }
+
+      # if wasn't part of any of the current children nodes then add a new child
+      if (!part_of_child_node) {
+        current_node$AddChildNode(new_node)
+      }
+    }
+  } else {
+    stop("`new_node` can't be placed in interval tree")
+  }
+  return(invisible(current_node))
 }
 
 #' Identify missing or overlapping intervals

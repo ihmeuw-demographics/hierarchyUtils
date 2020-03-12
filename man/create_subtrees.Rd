@@ -13,8 +13,9 @@ create_scale_subtrees(mapping, node_exists, collapse_missing)
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
 For 'categorical' variables, defines how different levels of the variable
-relate to each other. For 'interval' variables, used to specify intervals
-to aggregate to.}
+relate to each other. For aggregating 'interval' variables, it is used to
+specify intervals to aggregate to, while when scaling the mapping is
+inferred from the available intervals in \code{dt}.}
 
 \item{node_exists}{[\code{character()}]\cr
 names of nodes in the mapping that data exists for.}

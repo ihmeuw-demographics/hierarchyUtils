@@ -3,15 +3,16 @@
 \name{create_base_tree}
 \alias{create_base_tree}
 \title{Create a data.tree object using a mapping of levels of a categorical
-variable}
+or interval variable}
 \usage{
 create_base_tree(mapping, node_exists)
 }
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
 For 'categorical' variables, defines how different levels of the variable
-relate to each other. For 'interval' variables, used to specify intervals
-to aggregate to.}
+relate to each other. For aggregating 'interval' variables, it is used to
+specify intervals to aggregate to, while when scaling the mapping is
+inferred from the available intervals in \code{dt}.}
 
 \item{node_exists}{[\code{character()}]\cr
 names of nodes in the mapping that data exists for.}
@@ -22,5 +23,5 @@ available ('exists').
 }
 \description{
 Create a data.tree object using a mapping of levels of a categorical
-variable
+or interval variable
 }

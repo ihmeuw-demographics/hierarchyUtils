@@ -5,7 +5,7 @@
 \alias{create_scale_tree}
 \alias{vis_tree}
 \title{Create a data.tree object to be used for aggregating or scaling
-categorical data}
+categorical or interval data}
 \usage{
 create_agg_tree(mapping, node_exists)
 
@@ -16,8 +16,9 @@ vis_tree(tree)
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
 For 'categorical' variables, defines how different levels of the variable
-relate to each other. For 'interval' variables, used to specify intervals
-to aggregate to.}
+relate to each other. For aggregating 'interval' variables, it is used to
+specify intervals to aggregate to, while when scaling the mapping is
+inferred from the available intervals in \code{dt}.}
 
 \item{node_exists}{[\code{character()}]\cr
 names of nodes in the mapping that data exists for.}
@@ -43,7 +44,7 @@ graphs.
 }
 \description{
 Create a data.tree object to be used for aggregating or scaling
-categorical data
+categorical or interval data
 }
 \details{
 When \code{\link[=vis_tree]{vis_tree()}} is used to visualize a tree returned by
