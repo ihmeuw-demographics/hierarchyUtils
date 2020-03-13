@@ -31,40 +31,58 @@
 #' # aggregation example where all present day locations exist except for Tehran
 #' locations_present <- iran_mapping[!grepl("[0-9]+", child) &
 #'                                    child != "Tehran", child]
-#' agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present)
+#' agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present,
+#'                             col_type = "categorical")
 #' vis_tree(agg_tree)
 #'
 #' # scaling example where all present day locations exist without collapsing
 #' locations_present <- c(iran_mapping[!grepl("[0-9]+", child), child], "Iran")
 #' scale_tree <- create_scale_tree(iran_mapping,
-#'                                 node_exists = locations_present)
+#'                                 node_exists = locations_present,
+#'                                 col_type = "categorical")
 #' vis_tree(scale_tree)
 #'
 #' # scaling example where all present day locations exist and collapsing tree
 #' scale_tree <- create_scale_tree(iran_mapping,
 #'                                 node_exists = locations_present,
+#'                                 col_type = "categorical",
 #'                                 collapse = TRUE)
 #' vis_tree(scale_tree)
 #'
 #' @export
 #' @rdname create_tree
-create_agg_tree <- function(mapping, node_exists) {
+create_agg_tree <- function(mapping, node_exists, col_type) {
 
-  tree <- create_base_tree(mapping, node_exists)
+  tree <- create_base_tree(mapping, node_exists, col_type)
 
   # check which groups we can aggregate to given the values already available
   check_agg_possible <- function(x) {
     if (data.tree::isLeaf(x)) {
       return(data.tree::GetAttribute(x, "exists"))
+    } else {
+      # if an interval tree check that children nodes cover entire interval span
+      if (col_type == "interval") {
+        start <- sapply(x$children, function(child) {
+          return(data.tree::GetAttribute(child, "left"))
+        })
+        end <- sapply(x$children, function(child) {
+          return(data.tree::GetAttribute(child, "right"))
+        })
+        missing_intervals <- identify_missing_intervals(
+          data.table(start, end), x$left, x$right
+        )
+        if (nrow(missing_intervals) != 0) {
+          return(FALSE)
+        }
+      }
+      # if not a leaf check that all children have data or can themselves be
+      # aggregated to
+      values <- sapply(x$children, function(child) {
+        return(data.tree::GetAttribute(child, "exists") |
+                 data.tree::GetAttribute(child, "agg_possible"))
+      })
+      return(unname(all(values)))
     }
-
-    # if not a leaf check that all children have data or can themselves be
-    # aggregated to
-    values <- sapply(x$children, function(child) {
-      return(data.tree::GetAttribute(child, "exists") |
-               data.tree::GetAttribute(child, "agg_possible"))
-    })
-    return(unname(all(values)))
   }
   tree$Do(function(x) x$agg_possible <- check_agg_possible(x),
           traversal = "post-order")
@@ -74,17 +92,43 @@ create_agg_tree <- function(mapping, node_exists) {
 
 #' @export
 #' @rdname create_tree
-create_scale_tree <- function(mapping, node_exists, collapse_missing = FALSE) {
+create_scale_tree <- function(mapping,
+                              node_exists,
+                              col_type,
+                              collapse_missing = FALSE) {
 
-  tree <- create_base_tree(mapping, node_exists)
+  tree <- create_base_tree(mapping, node_exists, col_type)
 
-  if (collapse_missing) collapse_tree(tree)
+  if (collapse_missing & col_type == "categorical") collapse_tree(tree)
+
 
   # check which groups we can scale given the values available
   check_scale_possible <- function(x) {
     if (data.tree::isRoot(x)) {
       return (FALSE)
-    } else { # check that the node, parent, and all its siblings values available
+    } else {
+
+      # check that the node and its siblings cover the entire interval and don't
+      # overlap at all
+      if (col_type == "interval") {
+        start <- sapply(c(x, x$siblings), function(sib) {
+          return(data.tree::GetAttribute(sib, "left"))
+        })
+        end <- sapply(c(x, x$siblings), function(sib) {
+          return(data.tree::GetAttribute(sib, "right"))
+        })
+        missing_intervals <- identify_missing_intervals(
+          data.table(start, end), x$parent$left, x$parent$right
+        )
+        overlapping_intervals <- identify_overlapping_intervals(
+          data.table(start, end), x$parent$left, x$parent$right
+        )
+        if (nrow(missing_intervals) != 0 | nrow(overlapping_intervals) != 0) {
+          return(FALSE)
+        }
+      }
+
+      # check that the node, parent, and all its siblings values available
       siblings <- sapply(x$siblings, function(sibling) {
         return(data.tree::GetAttribute(sibling, "exists"))
       })
@@ -119,7 +163,7 @@ create_scale_tree <- function(mapping, node_exists, collapse_missing = FALSE) {
 #'
 #' @return \[`data.tree()`\] with field for whether each node has data
 #'   available ('exists').
-create_base_tree <- function(mapping, node_exists) {
+create_base_tree <- function(mapping, node_exists, col_type) {
 
   # create overall tree with entire mapping
   tree <- data.tree::FromDataFrameNetwork(mapping)
@@ -135,6 +179,13 @@ create_base_tree <- function(mapping, node_exists) {
                                 "/")[[lvl]],
                filterFun = filterFun)
     }
+  }
+
+  # create left and right endpoint fields for interval trees
+  if (col_type == "interval") {
+    parsed_name <- name_to_start_end(tree$Get("name"))
+    tree$Set(left = parsed_name$start)
+    tree$Set(right = parsed_name$end)
   }
 
   # mark groups we have values for already
@@ -315,9 +366,9 @@ identify_present_agg <- function(tree) {
 #' @inheritParams create_agg_tree
 #'
 #' @rdname create_subtrees
-create_agg_subtrees <- function(mapping, node_exists) {
+create_agg_subtrees <- function(mapping, node_exists, col_type) {
 
-  tree <- create_agg_tree(mapping, node_exists)
+  tree <- create_agg_tree(mapping, node_exists, col_type)
 
   # identify each nonleaf where aggregation is possible and its subtree
   subtrees <- data.tree::Traverse(
@@ -326,13 +377,24 @@ create_agg_subtrees <- function(mapping, node_exists) {
       data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "agg_possible")
     }
   )
+
+  # drop the last subtree since it is a mapping from the full interval to
+  # each aggregate which can't be used to aggregate. It is separately
+  # included as a subtree if needed
+  if (col_type == "interval" & tree$agg_possible) {
+    subtrees <- subtrees[-length(subtrees)]
+  }
+
   return(subtrees)
 }
 
 #' @rdname create_subtrees
-create_scale_subtrees <- function(mapping, node_exists, collapse_missing) {
+create_scale_subtrees <- function(mapping,
+                                  node_exists,
+                                  col_type,
+                                  collapse_missing) {
 
-  tree <- create_scale_tree(mapping, node_exists, collapse_missing)
+  tree <- create_scale_tree(mapping, node_exists, col_type, collapse_missing)
 
   # identify each nonleaf (and its subtree) where scaling of children nodes is possible
   subtrees <- data.tree::Traverse(
@@ -373,12 +435,7 @@ agg_subtree <- function(dt,
 
   # assign aggregate columns
   if (col_type == "interval") {
-    # infer left and right endpoints of interval based on interval notation
-    # like "[0, Inf)" or "[0, 5)"
-    start <- as.numeric(gsub("^\\[|,\\s\\w+\\)", "", parent))
-    end <- as.numeric(gsub("^\\[[0-9]+,\\s|\\)", "", parent))
-    parent_dt[, paste0(col_stem, "_start") := start]
-    parent_dt[, paste0(col_stem, "_end") := end]
+    parent_dt[, paste0(col_stem, c("_start", "_end")) := name_to_start_end(parent)]
   } else {
     parent_dt[, col_stem := parent]
     setnames(parent_dt, "col_stem", col_stem)

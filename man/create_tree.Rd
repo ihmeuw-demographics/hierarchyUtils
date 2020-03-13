@@ -7,9 +7,9 @@
 \title{Create a data.tree object to be used for aggregating or scaling
 categorical or interval data}
 \usage{
-create_agg_tree(mapping, node_exists)
+create_agg_tree(mapping, node_exists, col_type)
 
-create_scale_tree(mapping, node_exists, collapse_missing = FALSE)
+create_scale_tree(mapping, node_exists, col_type, collapse_missing = FALSE)
 
 vis_tree(tree)
 }
@@ -22,6 +22,10 @@ inferred from the available intervals in \code{dt}.}
 
 \item{node_exists}{[\code{character()}]\cr
 names of nodes in the mapping that data exists for.}
+
+\item{col_type}{[\code{character(1)}]\cr
+The type of variable that is being aggregated or scaled over. Can be either
+'categorical' or 'interval'.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling \code{categorical} data, whether to collapse missing intermediate
@@ -62,18 +66,21 @@ be scaled are colored blue and nodes without data directly provided
 # aggregation example where all present day locations exist except for Tehran
 locations_present <- iran_mapping[!grepl("[0-9]+", child) &
                                    child != "Tehran", child]
-agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present)
+agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present,
+                            col_type = "categorical")
 vis_tree(agg_tree)
 
 # scaling example where all present day locations exist without collapsing
 locations_present <- c(iran_mapping[!grepl("[0-9]+", child), child], "Iran")
 scale_tree <- create_scale_tree(iran_mapping,
-                                node_exists = locations_present)
+                                node_exists = locations_present,
+                                col_type = "categorical")
 vis_tree(scale_tree)
 
 # scaling example where all present day locations exist and collapsing tree
 scale_tree <- create_scale_tree(iran_mapping,
                                 node_exists = locations_present,
+                                col_type = "categorical",
                                 collapse = TRUE)
 vis_tree(scale_tree)
 

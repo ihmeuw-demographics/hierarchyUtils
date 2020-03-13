@@ -379,6 +379,9 @@ create_agg_interval_tree <- function(data_intervals_dt,
     }
     interval_tree$AddChildNode(new_agg_node)
   }
+
+  # TODO check each non-leaf node and fill in any missing child interval nodess
+
   return(interval_tree)
 }
 
@@ -409,6 +412,9 @@ create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
                                      data_intervals_dt[i, get(col_stem)])
     place_new_interval_node(interval_tree, new_node)
   }
+
+  # TODO check each non-leaf node and fill in any missing child interval nodess
+
   return(interval_tree)
 }
 
@@ -546,7 +552,7 @@ identify_missing_intervals <- function(ints_dt,
 
   # create full interval that all sub intervals should span
   full_int <- intervals::Intervals_full(
-    matrix(c(full_int_start, full_int_end), ncol = 2)
+    matrix(c(full_int_start, full_int_end), ncol = 2), closed = c(TRUE, FALSE)
   )
 
   # create left-closed, right-open intervals

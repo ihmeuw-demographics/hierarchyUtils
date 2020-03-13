@@ -6,9 +6,9 @@
 \title{Create a list of subtrees that can be used during aggregation or
 scaling}
 \usage{
-create_agg_subtrees(mapping, node_exists)
+create_agg_subtrees(mapping, node_exists, col_type)
 
-create_scale_subtrees(mapping, node_exists, collapse_missing)
+create_scale_subtrees(mapping, node_exists, col_type, collapse_missing)
 }
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
@@ -19,6 +19,10 @@ inferred from the available intervals in \code{dt}.}
 
 \item{node_exists}{[\code{character()}]\cr
 names of nodes in the mapping that data exists for.}
+
+\item{col_type}{[\code{character(1)}]\cr
+The type of variable that is being aggregated or scaled over. Can be either
+'categorical' or 'interval'.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling \code{categorical} data, whether to collapse missing intermediate
