@@ -277,6 +277,36 @@ gen_name <- function(dt,
   return(invisible(dt))
 }
 
+#' Parse interval notation name to interval endpoints
+#'
+#' @param name \[`character()`\]\cr
+#'   left-closed, right-open interval notation as described in `gen_name().
+#'
+#' @return \[`list()`\] with element for 'start' containing a numeric vector of
+#'  left-closed endpoints and another element for 'end' containing a numeric
+#'  vector of right-opens endpoints.
+#'
+#' @export
+name_to_start_end <- function(name) {
+
+  # Validate arguments ------------------------------------------------------
+
+  # check `name` argument
+  assertthat::assert_that(assertive::is_character(name),
+                          all(grepl("^\\[[0-9]+,\\s[Inf|0-9]+\\)", name)),
+                          msg = "`name` must be a character vector formatted in
+                          left-closed, right-open interval notation as described
+                          in `gen_name()`")
+
+  # Parse start and end of interval -----------------------------------------
+
+  start <- as.numeric(gsub("^\\[|,\\s\\w+\\)", "", name))
+  end <- as.numeric(gsub("^\\[[0-9]+,\\s|\\)", "", name))
+  result <- list(start = start,
+                 end = end)
+  return(result)
+}
+
 #' @title Create a data.tree object to be used for aggregating or scaling
 #'   interval data
 #'
