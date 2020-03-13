@@ -3,7 +3,6 @@
 \docType{package}
 \name{demUtils}
 \alias{demUtils}
-\alias{demUtils-package}
 \title{demUtils: A package with utility functions for common demographics
 data and estimation problems}
 \description{
@@ -12,20 +11,3 @@ variables like location, sex, age, race, ethnicity, education, marital
 status, etc. The demUtils package provides helpful functions for formatting,
 aggregating, scaling, and other related tasks.
 }
-\section{formatting functions}{
-
-These functions standardize how categorical and numeric variables are stored.
-}
-
-\section{aggregate functions}{
-
-These functions sum counts from a more detailed level of a variable to an
-aggregate level.
-}
-
-\section{scale functions}{
-
-These functions scale counts from a more detailed level of a variable to an
-aggregate level.
-}
-
