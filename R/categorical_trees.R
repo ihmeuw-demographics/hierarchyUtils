@@ -302,7 +302,9 @@ identify_missing_agg <- function(tree) {
     filterFun = function(x) data.tree::isLeaf(x) &
       !data.tree::GetAttribute(x, "exists")
   )
-  if (!is.null(missing_nodes)) missing_nodes <- sort(unname(missing_nodes))
+  if (!is.null(missing_nodes)) {
+    missing_nodes <- sort(unique(unname(missing_nodes)))
+  }
   return(missing_nodes)
 }
 

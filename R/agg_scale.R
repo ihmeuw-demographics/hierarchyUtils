@@ -604,41 +604,43 @@ identify_missing_dt_agg <- function(dt,
   groups <- identify_unique_groupings(dt, col_stem, col_type,
                                       by_id_cols)
 
+  if (col_type == "interval") {
+    mapping <- copy(mapping)
+    gen_name(mapping, col_stem = col_stem, format = "interval")
+    data.table::setnames(mapping, paste0(col_stem, "_name"), col_stem)
+  }
+
   missing_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
     grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
                                        col_type, by_id_cols)
 
-    if (col_type == "categorical") {
-      agg_tree <- create_agg_tree(mapping,
-                                  grouping$unique_cols[[cols]], col_type)
-      missing_nodes <- identify_missing_agg(agg_tree)
-
-      check_dt <- NULL
-      if (!is.null(missing_nodes)) {
-        # expand the groupings dataset to show the missing nodes
-        check_dt <- grouping$dt[, list(missing = missing_nodes),
-                                by = by_id_cols]
-        data.table::setnames(check_dt, "missing", cols[1])
-      }
-
-    } else if (col_type == "interval") {
-      check_dt <- lapply(1:nrow(mapping), function(i) {
-        start <- mapping[i, get(cols[1])]
-        end <- mapping[i, get(cols[2])]
-
-        missing_intervals <- identify_missing_intervals(
-          grouping$unique_cols[, c(cols), with = F],
-          start, end
-        )
-        data.table::setnames(missing_intervals, c("start", "end"), cols)
-        missing_intervals_dt <- grouping$dt[, data.table(missing_intervals),
-                                            by = by_id_cols]
-        return(missing_intervals_dt)
-      })
-      check_dt <- rbindlist(check_dt)
+    # create mapping from available interval variables
+    if (col_type == "interval") {
+      interval_tree <- create_agg_interval_tree(grouping$unique_cols,
+                                                mapping,
+                                                col_stem)
+      group_mapping <- data.tree::ToDataFrameNetwork(interval_tree)
     } else {
-      stop("can only aggregate 'categorical' or 'interval' data")
+      group_mapping <- copy(mapping)
+    }
+
+    agg_tree <- create_agg_tree(group_mapping,
+                                grouping$unique_cols[[col_stem]], col_type)
+    missing_nodes <- identify_missing_agg(agg_tree)
+
+    check_dt <- NULL
+    if (!is.null(missing_nodes)) {
+      # expand the groupings dataset to show the missing nodes
+      if (col_type == "categorical") {
+        check_dt <- grouping$dt[, list(missing = missing_nodes), by = by_id_cols]
+        data.table::setnames(check_dt, "missing", cols)
+      } else {
+        missing_nodes <- name_to_start_end(missing_nodes)
+        setDT(missing_nodes)
+        check_dt <- grouping$dt[, data.table(missing_nodes), by = by_id_cols]
+        data.table::setnames(check_dt, c("start", "end"), cols)
+      }
     }
     return(check_dt)
   })
@@ -688,50 +690,22 @@ identify_missing_dt_scale <- function(dt,
     }
 
     scale_tree <- create_scale_tree(mapping,
-                                    grouping$unique_cols[[col_stem]], col_type,
-                                    collapse_missing)
+                                    grouping$unique_cols[[col_stem]],
+                                    col_type, collapse_missing)
+    missing_nodes <- identify_missing_scale(scale_tree)
 
-    if (col_type == "categorical") {
-
-      check_dt <- NULL
-      missing_nodes <- identify_missing_scale(scale_tree)
-      if (!is.null(missing_nodes)) {
-        # expand the groupings dataset to show the missing nodes
-        check_dt <- grouping$dt[, list(missing = missing_nodes),
-                                by = by_id_cols]
-        data.table::setnames(check_dt, "missing", cols[1])
+    check_dt <- NULL
+    if (!is.null(missing_nodes)) {
+      # expand the groupings dataset to show the missing nodes
+      if (col_type == "categorical") {
+        check_dt <- grouping$dt[, list(missing = missing_nodes), by = by_id_cols]
+        data.table::setnames(check_dt, "missing", cols)
+      } else {
+        missing_nodes <- name_to_start_end(missing_nodes)
+        setDT(missing_nodes)
+        check_dt <- grouping$dt[, data.table(missing_nodes), by = by_id_cols]
+        data.table::setnames(check_dt, c("start", "end"), cols)
       }
-
-    } else if (col_type == "interval") {
-
-      # identify each nonleaf (and its subtree) where data exists
-      check_subtrees <- data.tree::Traverse(
-        scale_tree, filterFun = function(x) {
-          data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "exists")
-        }
-      )
-
-      # loop through each non-leaf node that exists and check if its leaf nodes
-      # cover the entire interval
-      check_dt <- lapply(check_subtrees, function(subtree) {
-
-        # get endpoints of subtree leaves
-        start <- subtree$Get("left",
-                             filterFun = function(x) data.tree::isLeaf(x))
-        end <- subtree$Get("right",
-                           filterFun = function(x) data.tree::isLeaf(x))
-
-        missing_intervals <- identify_missing_intervals(
-          data.table(start, end), subtree$left, subtree$right
-        )
-        data.table::setnames(missing_intervals, c("start", "end"), cols)
-        missing_intervals_dt <- grouping$dt[, data.table(missing_intervals),
-                                            by = by_id_cols]
-        return(missing_intervals_dt)
-      })
-      check_dt <- rbindlist(check_dt)
-    } else {
-      stop("can only scale 'categorical' or 'interval' data")
     }
     return(check_dt)
   })

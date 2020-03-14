@@ -343,25 +343,13 @@ create_agg_interval_tree <- function(data_intervals_dt,
   cols <- paste0(col_stem, "_", c("start", "end"))
 
   # create the root of the interval tree that covers the full interval
-  full_int_start <- min(data_intervals_dt[[cols[1]]])
-  full_int_end <- max(data_intervals_dt[[cols[2]]])
+  full_int_start <- min(data_intervals_dt[[cols[1]]],
+                        agg_intervals_dt[[cols[1]]])
+  full_int_end <- max(data_intervals_dt[[cols[2]]],
+                      agg_intervals_dt[[cols[2]]])
   full_int_name <- paste0("[", full_int_start, ", ", full_int_end, ")")
   interval_tree <- create_interval_node(full_int_start, full_int_end,
                                         full_int_name)
-
-  # subset to aggregate intervals that can be made given available intervals
-  data_ints <- intervals::Intervals_full(
-    as.matrix(data_intervals_dt[, cols, with = F]),
-    closed = c(TRUE, FALSE)
-  )
-  data_ints <- intervals::interval_intersection(data_ints)
-  agg_ints <- intervals::Intervals_full(
-    as.matrix(agg_intervals_dt[, cols, with = F]),
-    closed = c(TRUE, FALSE)
-  )
-  included_ints <- intervals::interval_included(data_ints, agg_ints)
-  included_ints_rows <- included_ints[, 1]
-  agg_intervals_dt <- agg_intervals_dt[included_ints_rows]
 
   # create each interval node and place in the full interval tree
   for (i_agg in 1:nrow(agg_intervals_dt)) {
@@ -371,16 +359,21 @@ create_agg_interval_tree <- function(data_intervals_dt,
     # subset to data intervals that are in the aggregate interval
     child_ints <- data_intervals_dt[get(cols[1]) >= new_agg_node$left &
                                       get(cols[2]) <= new_agg_node$right]
-    for (i_sub in 1:nrow(child_ints)) {
-      new_child_node <- create_interval_node(child_ints[i_sub, get(cols[1])],
-                                             child_ints[i_sub, get(cols[2])],
-                                             child_ints[i_sub, get(col_stem)])
-      new_agg_node$AddChildNode(new_child_node)
+    if (nrow(child_ints) > 0) {
+      for (i_sub in 1:nrow(child_ints)) {
+        new_child_node <- create_interval_node(child_ints[i_sub, get(cols[1])],
+                                               child_ints[i_sub, get(cols[2])],
+                                               child_ints[i_sub, get(col_stem)])
+        new_agg_node$AddChildNode(new_child_node)
+      }
     }
     interval_tree$AddChildNode(new_agg_node)
   }
 
-  # TODO check each non-leaf node and fill in any missing child interval nodess
+  # check each aggregate node (level 2) and fill in any missing child intervals
+  subtrees <- data.tree::Traverse(interval_tree,
+                                  filterFun = function(x) x$level == 2)
+  fill_missing_intervals(interval_tree, subtrees, col_stem)
 
   return(interval_tree)
 }
@@ -413,7 +406,11 @@ create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
     place_new_interval_node(interval_tree, new_node)
   }
 
-  # TODO check each non-leaf node and fill in any missing child interval nodess
+  # check each non-leaf node and fill in any missing child intervals
+  subtrees <- data.tree::Traverse(
+    interval_tree, filterFun = function(x) data.tree::isNotLeaf(x)
+  )
+  fill_missing_intervals(interval_tree, subtrees, col_stem)
 
   return(interval_tree)
 }
@@ -605,4 +602,49 @@ identify_overlapping_intervals <- function(ints_dt,
   data.table::setnames(overlapping_ints_dt, c("start", "end"))
   data.table::setkeyv(overlapping_ints_dt, c("start", "end"))
   return(overlapping_ints_dt)
+}
+
+#' @title create new interval nodes for any missing interval nodess
+#'
+#' @description Check that the children nodes cover the entire parent interval node
+#'   and create new interval nodes for any missing ranges.
+#'
+#' @param interval_tree \[`data.tree()`\]\cr
+#'   interval tree containing the subtree to be modified
+#' @param subtrees \[`list(data.tree())`\]\cr
+#'   non-leaf subtrees to check and fill any missing intervals.
+#' @inheritParams agg
+#'
+#' @return invisibly return reference to modified subtrees.
+fill_missing_intervals <- function(interval_tree, subtrees, col_stem) {
+
+  cols <- paste0(col_stem, "_", c("start", "end"))
+
+  for (agg_node in subtrees) {
+
+    # get endpoints of subtree leaves
+    start <- agg_node$Get("left",
+                          filterFun = function(x) data.tree::isLeaf(x))
+    end <- agg_node$Get("right",
+                        filterFun = function(x) data.tree::isLeaf(x))
+
+    missing_intervals <- identify_missing_intervals(
+      data.table(start, end), agg_node$left, agg_node$right
+    )
+    data.table::setnames(missing_intervals, c("start", "end"), cols)
+    gen_name(missing_intervals, col_stem = col_stem, format = "interval")
+    data.table::setnames(missing_intervals, paste0(col_stem, "_name"), col_stem)
+
+    # add any missing interval nodes
+    if (nrow(missing_intervals) > 0) {
+      for (i_missing in 1:nrow(missing_intervals)) {
+        missing_child_node <- create_interval_node(missing_intervals[i_missing, get(cols[1])],
+                                                   missing_intervals[i_missing, get(cols[2])],
+                                                   missing_intervals[i_missing, get(col_stem)])
+        agg_node$AddChildNode(missing_child_node)
+      }
+    }
+  }
+  data.tree::Sort(interval_tree, attribute = "left")
+  return(invisible(interval_tree))
 }
