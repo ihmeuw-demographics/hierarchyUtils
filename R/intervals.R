@@ -455,68 +455,43 @@ create_interval_node <- function(start, end, name) {
 #' @return Invisibly returns reference to modified `current_node` with
 #'   `new_node` placed as part of subtree.
 place_new_interval_node <- function(current_node, new_node) {
+  if (data.tree::isLeaf(current_node)) {
+    current_node$AddChildNode(new_node)
 
-  current_interval <- intervals::Intervals(c(current_node$left,
-                                             current_node$right),
-                                           closed = c(TRUE, FALSE))
-  new_interval <- intervals::Intervals(c(new_node$left,
-                                         new_node$right),
-                                       closed = c(TRUE, FALSE))
+  } else {
 
-  # check if new node is it part of current node
-  check_new_included <- intervals::interval_included(current_interval,
-                                                     new_interval)[[1]]
-  if (length(check_new_included) != 0) {
+    # identify any children nodes that are sub intervals of the new node
+    sub_interval_nodes <- data.tree::Traverse(
+      current_node,
+      filterFun = function(x) current_node$level == x$level - 1 &
+        new_node$left <= x$left & new_node$right >= x$right
+    )
 
-    if (data.tree::isLeaf(current_node)) {
-      current_node$AddChildNode(new_node)
+    # identify child node that is parent interval of the new node
+    parent_interval_node <- data.tree::Traverse(
+      current_node,
+      filterFun = function(x) current_node$level == x$level - 1 &
+        x$left <= new_node$left & x$right >= new_node$right
+    )
 
-    } else {
-      part_of_child_node <- FALSE
-      # TODO faster way to identify children nodes to check
-
-      # check if new node is a sub interval of any of current node's children
-      # or if new node is in between current node and current node's children
-      for (current_child_node in current_node$children) {
-        current_child_interval <- intervals::Intervals(
-          c(current_child_node$left,current_child_node$right),
-          closed = c(TRUE, FALSE)
-        )
-
-        # check if new node is parent interval of current child node
-        new_parent_interval <- intervals::interval_included(
-          new_interval,
-          current_child_interval
-        )
-        new_parent_interval <- length(new_parent_interval[[1]]) != 0
-
-        # check if new node is sub interval of current child node
-        new_sub_interval <- intervals::interval_included(
-          current_child_interval,
-          new_interval
-        )
-        new_sub_interval <- length(new_sub_interval[[1]]) != 0
-
-        if (new_parent_interval) {
-          # insert new node in between current node and current child node
-          current_node$RemoveChild(name = current_child_node$name)
-          new_node$AddChildNode(current_child_node)
-          current_node$AddChildNode(new_node)
-          part_of_child_node <- TRUE
-        } else if (new_sub_interval) {
-          # place new interval node somewhere below the current child node
-          place_new_interval_node(current_child_node, new_node)
-          part_of_child_node <- TRUE
-        }
-      }
-
-      # if wasn't part of any of the current children nodes then add a new child
-      if (!part_of_child_node) {
+    if (length(sub_interval_nodes) > 0) {
+      # insert new node in between current node and each of the sub interval
+      # child nodes
+      for (child_node in sub_interval_nodes) {
+        current_node$RemoveChild(name = child_node$name)
+        new_node$AddChildNode(child_node)
         current_node$AddChildNode(new_node)
       }
+    } else if (length(parent_interval_node) > 0) {
+      # place new interval node somewhere below the current child node
+      for (child_node in parent_interval_node) {
+        place_new_interval_node(child_node, new_node)
+      }
+    } else {
+      # if new node didn't overlap with any other interval nodes then add a new
+      # child interval node
+      current_node$AddChildNode(new_node)
     }
-  } else {
-    stop("`new_node` can't be placed in interval tree")
   }
   return(invisible(current_node))
 }
