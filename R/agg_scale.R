@@ -145,16 +145,18 @@ agg <- function(dt,
   assertthat::assert_that(assertthat::is.flag(drop_present_aggs),
                           msg = "`drop_present_aggs` must be a logical")
 
+  # identify any issues in input dataset
+  dt_issues <- identify_agg_dt_issues(dt, id_cols, value_cols, col_stem,
+                                      col_type, mapping, agg_function,
+                                      drop_present_aggs)
+
   # check for aggregates or overlapping intervals in dataset
-  present_agg_dt <- identify_present_agg_dt(dt, id_cols, value_cols,
-                                            col_stem, col_type,
-                                            mapping, agg_function)
+  present_agg_dt <- dt_issues[issue == "aggregate data present"]
   if (nrow(present_agg_dt) > 0) {
     if (drop_present_aggs) {
-      present_agg_dt[, overlap := TRUE]
       dt <- merge(dt, present_agg_dt, by = id_cols, all = T)
-      dt <- dt[is.na(overlap)]
-      dt[, overlap := NULL]
+      dt <- dt[is.na(issue)]
+      dt[, issue := NULL]
     } else {
       type <- ifelse(col_type == "interval", "overlapping intervals",
                      "aggregates")
@@ -162,7 +164,7 @@ agg <- function(dt,
         paste0("Some ", type, " are already in `dt`.\n",
                "* See `drop_present_aggs` argument if it is okay to drop ",
                "these before re-aggregating.\n",
-               "* See `?identify_present_agg_dt()` to return the ", type,
+               "* See `?identify_agg_dt_issues()` to return the ", type,
                " present and printed below.\n",
                paste0(capture.output(present_agg_dt), collapse = "\n"))
       stop(error_msg)
@@ -170,9 +172,7 @@ agg <- function(dt,
   }
 
   # check for missing data needed to make aggregates
-  missing_dt <- identify_missing_dt_agg(dt, id_cols, value_cols,
-                                        col_stem, col_type,
-                                        mapping, agg_function)
+  missing_dt <- dt_issues[issue == "missing data"]
   empty_missing_dt <- function(dt) nrow(dt) == 0
   error_msg <-
     paste0("Some aggregates in `mapping` cannot be made because input data is ",
@@ -181,7 +181,7 @@ agg <- function(dt,
            or overlapping intervals in the data.\n",
            "* See `missing_dt_severity` argument if it is okay to only make ",
            "aggregates that are possible given available data.\n",
-           "* See `?identify_missing_dt_agg()` to return missing data printed ",
+           "* See `?identify_agg_dt_issues()` to return missing data printed ",
            "below.\n",
            paste0(capture.output(missing_dt), collapse = "\n"))
   assertive::assert_engine(empty_missing_dt, missing_dt,
@@ -201,6 +201,7 @@ agg <- function(dt,
   groups <- identify_unique_groupings(dt, col_stem, col_type,
                                       by_id_cols)
 
+  # create one column to describe each interval in mapping
   if (col_type == "interval") {
     mapping <- copy(mapping)
     gen_name(mapping, col_stem = col_stem, format = "interval")
@@ -213,7 +214,7 @@ agg <- function(dt,
     grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
                                        col_type, by_id_cols)
 
-    # create mapping from available interval variables
+    # create mapping from available interval variables and requested intervals
     if (col_type == "interval") {
       interval_tree <- create_agg_interval_tree(grouping$unique_cols,
                                                 mapping,
@@ -294,33 +295,32 @@ scale <- function(dt,
   assertthat::assert_that(assertthat::is.flag(collapse_missing),
                           msg = "`collapse_missing` must be a logical")
 
+  # identify any issues in input dataset
+  dt_issues <- identify_scale_dt_issues(dt, id_cols, value_cols, col_stem,
+                                        col_type, mapping, agg_function,
+                                        collapse_missing)
+
   # check for overlapping intervals in dataset
-  present_agg_dt <- identify_present_scale_dt(dt, id_cols, value_cols,
-                                              col_stem, col_type,
-                                              mapping, agg_function,
-                                              collapse_missing)
+  present_agg_dt <- dt_issues[issue == "overlapping interval data"]
   if (nrow(present_agg_dt) > 0) {
     type <- "overlapping intervals"
     error_msg <-
-      paste0("Some ", type, " are in `dt`.\n",
-             "* See `?identify_present_scale_dt()` to return the ", type,
-             " present and printed below.\n",
+      paste0("Some overlapping intervals are in `dt`.\n",
+             "* See `?identify_scale_dt_issues()` to return the overlapping",
+             " intervals printed below.\n",
              paste0(capture.output(present_agg_dt), collapse = "\n"))
     stop(error_msg)
   }
 
   # check for missing data needed for scaling
-  missing_dt <- identify_missing_dt_scale(dt, id_cols, value_cols,
-                                          col_stem, col_type,
-                                          mapping, agg_function,
-                                          collapse_missing)
+  missing_dt <- dt_issues[issue == "missing data"]
   empty_missing_dt <- function(dt) nrow(dt) == 0
   error_msg <-
     paste0("Some nodes in `mapping` cannot be scaled because input data is ",
            "missing in `dt`.\n",
            "* See `missing_dt_severity` argument if it is okay to only scale ",
            "nodes that are possible given available data.\n",
-           "* See `?identify_missing_dt_scale()` to return missing data ",
+           "* See `?identify_scale_dt_issues()` to return missing data ",
            "printed below.\n",
            paste0(capture.output(missing_dt), collapse = "\n"))
   assertive::assert_engine(empty_missing_dt, missing_dt,
@@ -348,7 +348,8 @@ scale <- function(dt,
 
     # create mapping from available interval variables
     if (col_type == "interval") {
-      interval_tree <- create_scale_interval_tree(grouping$unique_cols, col_stem)
+      interval_tree <- create_scale_interval_tree(grouping$unique_cols,
+                                                  col_stem)
       mapping <- data.tree::ToDataFrameNetwork(interval_tree)
     }
 
@@ -573,27 +574,81 @@ subset_unique_grouping <- function(dt,
   return(result)
 }
 
-#' Identify missing rows in the dataset that are needed to aggregate or scale
+
+#' @title Identify issues in the input dataset for aggregation and scaling
+#'   functions
 #'
 #' @inheritParams agg
 #'
-#' @return \[`data.table()`\] with only `id_cols` columns for missing rows.
+#' @return \[`data.table()`\] with problematic rows in `dt`. Only includes
+#'   original `id_cols` columns and a new column "issue" describing each row's
+#'   issue.
 #'
 #' @examples
-#' # TODO add examples
+#' ## Try to aggregate data with a location missing errors out
+#' input_dt <- data.table::CJ(location = iran_mapping[!grepl("[0-9]+", child),
+#'                                                    child],
+#'                            year = 2011, value = 1)
+#' input_dt <- input_dt[location != "Tehran"]
+#' \dontrun{
+#' output_dt <- agg(dt = input_dt,
+#'                  id_cols = c("location", "year"),
+#'                  value_cols = "value",
+#'                  col_stem = "location",
+#'                  col_type = "categorical",
+#'                  mapping = iran_mapping)
+#' }
+#' issues_dt <- identify_agg_dt_issues(dt = input_dt,
+#'                                     id_cols = c("location", "year"),
+#'                                     value_cols = "value",
+#'                                     col_stem = "location",
+#'                                     col_type = "categorical",
+#'                                     mapping = iran_mapping)
+#'
+#' ## Try to scale data with a location missing errors out
+#' input_dt <- data.table::CJ(location = iran_mapping[!grepl("[0-9]+", child),
+#'                                                    child],
+#'                            year = 2011,
+#'                            value = 1)
+#' input_dt_agg <- data.table::data.table(location = "Iran", year = 2011,
+#'                                        value = 62)
+#' input_dt <- rbind(input_dt, input_dt_agg)
+#' \dontrun{
+#' output_dt <- scale(dt = input_dt,
+#'                    id_cols = c("location", "year"),
+#'                    value_cols = "value",
+#'                    col_stem = "location",
+#'                    col_type = "categorical",
+#'                    mapping = iran_mapping,
+#'                    collapse_missing = TRUE)
+#' }
+#' issues_dt <- identify_scale_dt_issues(dt = input_dt,
+#'                                       id_cols = c("location", "year"),
+#'                                       value_cols = "value",
+#'                                       col_stem = "location",
+#'                                       col_type = "categorical",
+#'                                       mapping = iran_mapping,
+#'                                       collapse_missing = TRUE)
 #'
 #' @export
-#' @rdname identify_missing
-identify_missing_dt_agg <- function(dt,
-                                    id_cols,
-                                    value_cols,
-                                    col_stem,
-                                    col_type,
-                                    mapping,
-                                    agg_function = sum) {
+#' @rdname identify_agg_scale_dt_issues
+identify_agg_dt_issues <- function(dt,
+                                   id_cols,
+                                   value_cols,
+                                   col_stem,
+                                   col_type,
+                                   mapping,
+                                   agg_function = sum,
+                                   drop_present_aggs = FALSE) {
+
+  # Validate arguments ------------------------------------------------------
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
                         col_type, mapping, agg_function, "agg")
+
+  # check `drop_present_aggs` argument
+  assertthat::assert_that(assertthat::is.flag(drop_present_aggs),
+                          msg = "`drop_present_aggs` must be a logical")
 
   cols <- col_stem
   if (col_type == "interval") {
@@ -604,6 +659,56 @@ identify_missing_dt_agg <- function(dt,
   groups <- identify_unique_groupings(dt, col_stem, col_type,
                                       by_id_cols)
 
+  # Check for aggregates already present or overlapping intervals -----------
+
+  aggs_present_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
+
+    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
+                                       col_type, by_id_cols)
+
+    check_dt <- NULL
+    if (col_type == "categorical") {
+      agg_tree <- create_agg_tree(mapping, grouping$unique_cols[[cols]],
+                                  col_type)
+      present_nodes <- identify_present_agg(agg_tree)
+
+      if (!is.null(present_nodes)) {
+        # expand the groupings dataset to show the present aggregate nodes
+        check_dt <- grouping$dt[, list(present = present_nodes),
+                                by = by_id_cols]
+        data.table::setnames(check_dt, "present", cols[1])
+      }
+    } else if (col_type == "interval") {
+      present_nodes <- identify_overlapping_intervals(
+        grouping$unique_cols[, c(cols), with = F],
+        min(grouping$unique_cols[[cols[1]]]),
+        max(grouping$unique_cols[[cols[2]]])
+      )
+      data.table::setnames(present_nodes, c("start", "end"), cols)
+      check_dt <- grouping$dt[, data.table(present_nodes),
+                              by = by_id_cols]
+    } else {
+      stop("can only aggregate 'categorical' or 'interval' data")
+    }
+    return(check_dt)
+  })
+  aggs_present_dt <- rbindlist(aggs_present_dt)
+
+  if (nrow(aggs_present_dt) > 0) {
+    aggs_present_dt[, issue := "aggregate data present"]
+  }
+
+  # drop present aggregates before checking for missingness
+  if (nrow(aggs_present_dt) > 0 & drop_present_aggs) {
+    dt <- merge(dt, aggs_present_dt, by = id_cols, all = T)
+    dt <- dt[is.na(issue)]
+    dt[, issue := NULL]
+
+  }
+
+  # Check for missing data or intervals -------------------------------------
+
+  # create one column to describe each interval in mapping
   if (col_type == "interval") {
     mapping <- copy(mapping)
     gen_name(mapping, col_stem = col_stem, format = "interval")
@@ -615,7 +720,7 @@ identify_missing_dt_agg <- function(dt,
     grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
                                        col_type, by_id_cols)
 
-    # create mapping from available interval variables
+    # create mapping from available interval variables and requested intervals
     if (col_type == "interval") {
       interval_tree <- create_agg_interval_tree(grouping$unique_cols,
                                                 mapping,
@@ -647,155 +752,32 @@ identify_missing_dt_agg <- function(dt,
   missing_dt <- rbindlist(missing_dt)
 
   if (nrow(missing_dt) > 0) {
-    data.table::setkeyv(missing_dt, c(by_id_cols, cols))
+    missing_dt[, issue := "missing data"]
   }
-  return(missing_dt)
+
+  # Combine together identified problems ------------------------------------
+
+  problem_dt <- rbind(aggs_present_dt, missing_dt, use.names = T, fill = T)
+  if (nrow(problem_dt) > 0) {
+    data.table::setkeyv(problem_dt, c(by_id_cols, cols))
+  } else {
+    problem_dt <- data.table(issue = character())
+  }
+  return(problem_dt)
 }
 
-#' @rdname identify_missing
-identify_missing_dt_scale <- function(dt,
-                                      id_cols,
-                                      value_cols,
-                                      col_stem,
-                                      col_type,
-                                      mapping,
-                                      agg_function = sum,
-                                      collapse_missing) {
-
-  assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function, "scale")
-
-  # check `collapse_missing` argument
-  assertthat::assert_that(assertthat::is.flag(collapse_missing),
-                          msg = "`collapse_missing` must be a logical")
-
-  cols <- col_stem
-  if (col_type == "interval") {
-    cols <- paste0(col_stem, "_", c("start", "end"))
-  }
-  by_id_cols <- id_cols[!id_cols %in% cols]
-
-  groups <- identify_unique_groupings(dt, col_stem, col_type,
-                                      by_id_cols)
-
-  missing_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
-
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
-
-    # create mapping from available interval variables
-    if (col_type == "interval") {
-      interval_tree <- create_scale_interval_tree(grouping$unique_cols, col_stem)
-      mapping <- data.tree::ToDataFrameNetwork(interval_tree)
-    }
-
-    scale_tree <- create_scale_tree(mapping,
-                                    grouping$unique_cols[[col_stem]],
-                                    col_type, collapse_missing)
-    missing_nodes <- identify_missing_scale(scale_tree)
-
-    check_dt <- NULL
-    if (!is.null(missing_nodes)) {
-      # expand the groupings dataset to show the missing nodes
-      if (col_type == "categorical") {
-        check_dt <- grouping$dt[, list(missing = missing_nodes), by = by_id_cols]
-        data.table::setnames(check_dt, "missing", cols)
-      } else {
-        missing_nodes <- name_to_start_end(missing_nodes)
-        setDT(missing_nodes)
-        check_dt <- grouping$dt[, data.table(missing_nodes), by = by_id_cols]
-        data.table::setnames(check_dt, c("start", "end"), cols)
-      }
-    }
-    return(check_dt)
-  })
-  missing_dt <- rbindlist(missing_dt)
-
-  if (nrow(missing_dt) > 0) {
-    data.table::setkeyv(missing_dt, c(by_id_cols, cols))
-  }
-  return(missing_dt)
-}
-
-#' Identify aggregates rows in dataset that are already present.
-#'
-#' @inheritParams agg
-#'
-#' @return \[`data.table()`\] aggregate rows in `dt` that are already present.
-#'
-#' @examples
-#' # TODO add examples
-#'
 #' @export
-#' @rdname identify_present
-identify_present_agg_dt <- function(dt,
-                                    id_cols,
-                                    value_cols,
-                                    col_stem,
-                                    col_type,
-                                    mapping,
-                                    agg_function = sum) {
+#' @rdname identify_agg_scale_dt_issues
+identify_scale_dt_issues <- function(dt,
+                                     id_cols,
+                                     value_cols,
+                                     col_stem,
+                                     col_type,
+                                     mapping,
+                                     agg_function = sum,
+                                     collapse_missing = FALSE) {
 
-  assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function, "agg")
-
-  cols <- col_stem
-  if (col_type == "interval") {
-    cols <- paste0(col_stem, "_", c("start", "end"))
-  }
-  by_id_cols <- id_cols[!id_cols %in% cols]
-
-  groups <- identify_unique_groupings(dt, col_stem, col_type,
-                                      by_id_cols)
-
-  present_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
-
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
-
-    if (col_type == "categorical") {
-      agg_tree <- create_agg_tree(mapping,
-                                  grouping$unique_cols[[cols]], col_type)
-      present_nodes <- identify_present_agg(agg_tree)
-
-      check_dt <- NULL
-      if (!is.null(present_nodes)) {
-        # expand the groupings dataset to show the present aggregate nodes
-        check_dt <- grouping$dt[, list(present = present_nodes),
-                                by = by_id_cols]
-        data.table::setnames(check_dt, "present", cols[1])
-      }
-
-    } else if (col_type == "interval") {
-      present_nodes <- identify_overlapping_intervals(
-        grouping$unique_cols[, c(cols), with = F],
-        min(grouping$unique_cols[[cols[1]]]),
-        max(grouping$unique_cols[[cols[2]]])
-      )
-      data.table::setnames(present_nodes, c("start", "end"), cols)
-      check_dt <- grouping$dt[, data.table(present_nodes), by = by_id_cols]
-    } else {
-      stop("can only aggregate 'categorical' or 'interval' data")
-    }
-    return(check_dt)
-  })
-  present_dt <- rbindlist(present_dt)
-
-  if (nrow(present_dt) > 0) {
-    data.table::setkeyv(present_dt, c(by_id_cols, cols))
-  }
-  return(present_dt)
-}
-
-#' @rdname identify_present
-identify_present_scale_dt <- function(dt,
-                                      id_cols,
-                                      value_cols,
-                                      col_stem,
-                                      col_type,
-                                      mapping,
-                                      agg_function = sum,
-                                      collapse_missing) {
+  # Validate arguments ------------------------------------------------------
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
                         col_type, mapping, agg_function, "scale")
@@ -813,26 +795,29 @@ identify_present_scale_dt <- function(dt,
   groups <- identify_unique_groupings(dt, col_stem, col_type,
                                       by_id_cols)
 
-  overlapping_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
+  # Check for aggregates already present or overlapping intervals -----------
+
+  problem_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
     grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
                                        col_type, by_id_cols)
 
-    # create mapping from available interval variables
+    # create mapping from available interval variables and requested intervals
     if (col_type == "interval") {
-      interval_tree <- create_scale_interval_tree(grouping$unique_cols, col_stem)
-      mapping <- data.tree::ToDataFrameNetwork(interval_tree)
+      interval_tree <- create_scale_interval_tree(grouping$unique_cols,
+                                                  col_stem)
+      group_mapping <- data.tree::ToDataFrameNetwork(interval_tree)
+    } else {
+      group_mapping <- copy(mapping)
     }
 
-    scale_tree <- create_scale_tree(mapping,
+    scale_tree <- create_scale_tree(group_mapping,
                                     grouping$unique_cols[[col_stem]], col_type,
                                     collapse_missing)
 
-    if (col_type == "categorical") {
-      # don't need to check for present aggregates when scaling categorical
-      # variable since actually want aggregates that are specified in mapping
-      check_dt <- NULL
-    } else if (col_type == "interval") {
+    ## check for overlapping intervals in dataset
+    overlapping_dt <- NULL
+    if (col_type == "interval") {
 
       # identify each nonleaf (and its subtree) where data exists
       check_subtrees <- data.tree::Traverse(
@@ -843,7 +828,7 @@ identify_present_scale_dt <- function(dt,
 
       # loop through each non-leaf node that exists and check if its leaf nodes
       # cover the entire interval
-      check_dt <- lapply(check_subtrees, function(subtree) {
+      overlapping_dt <- lapply(check_subtrees, function(subtree) {
 
         # get endpoints of subtree leaves
         start <- subtree$Get("left",
@@ -857,18 +842,38 @@ identify_present_scale_dt <- function(dt,
         data.table::setnames(overlapping_intervals, c("start", "end"), cols)
         overlapping_intervals_dt <- grouping$dt[, data.table(overlapping_intervals),
                                                 by = by_id_cols]
+        overlapping_intervals_dt[, issue := "overlapping interval data"]
         return(overlapping_intervals_dt)
       })
-      check_dt <- rbindlist(check_dt)
-    } else {
-      stop("can only scale 'categorical' or 'interval' data")
+      overlapping_dt <- rbindlist(overlapping_dt)
     }
+
+    ## Check for missing data or intervals
+    missing_dt <- NULL
+    missing_nodes <- identify_missing_scale(scale_tree)
+    if (!is.null(missing_nodes)) {
+      # expand the groupings dataset to show the missing nodes
+      if (col_type == "categorical") {
+        missing_dt <- grouping$dt[, list(missing = missing_nodes),
+                                  by = by_id_cols]
+        data.table::setnames(missing_dt, "missing", cols)
+      } else {
+        missing_nodes <- name_to_start_end(missing_nodes)
+        setDT(missing_nodes)
+        missing_dt <- grouping$dt[, data.table(missing_nodes), by = by_id_cols]
+        data.table::setnames(missing_dt, c("start", "end"), cols)
+      }
+      missing_dt[, issue := "missing data"]
+    }
+    check_dt <- rbind(overlapping_dt, missing_dt)
     return(check_dt)
   })
-  overlapping_dt <- rbindlist(overlapping_dt)
+  problem_dt <- rbindlist(problem_dt)
 
-  if (nrow(overlapping_dt) > 0) {
-    data.table::setkeyv(overlapping_dt, c(by_id_cols, cols))
+  if (nrow(problem_dt) > 0) {
+    data.table::setkeyv(problem_dt, c(by_id_cols, cols))
+  } else {
+    problem_dt <- data.table(issue = character())
   }
-  return(overlapping_dt)
+  return(problem_dt)
 }
