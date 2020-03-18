@@ -1,4 +1,26 @@
-#' Iran Provinces Mapping from 1950 to Today
+#' @title Iran Census Population Counts
+#'
+#' @description Publicly available sex and age specific population counts for
+#' Iran at the national level and provinces that existed during the census year.
+#'
+#' @format A data.table with 11140 rows and 9 columns:
+#'   * location: name of the location (corresponds to a location in
+#'   `location_mapping`).
+#'   * year: year the census was conducted.
+#'   * sex: either 'female' or 'male'.
+#'   * age_start: start of the age interval.
+#'   * age_end: end of the age interval.
+#'   * source_name: name of the source that provided the census data population
+#'   count.
+#'   * nid: unique identifier for the catalog record in the Global Health Data
+#'   Exchange (GHDx) that directly provided the population count.
+#'   * underlying_nid: unique identifier for the catalog record in the Global
+#'   Health Data Exchange (GHDx) that the source can be attributed to if
+#'   provided by a data vendor (like the Demographic Year Book, DYB).
+#'   * population: population count for the location-sex-age_group-source.
+"iran_pop"
+
+#' @title Iran Provinces Mapping from 1950 to Today
 #'
 #' @description An example mapping of Iran and its provinces from 1950 to
 #' present day. The mapping accounts for province boundary changes over time.
