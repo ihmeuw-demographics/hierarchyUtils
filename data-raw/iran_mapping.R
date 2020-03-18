@@ -1,7 +1,7 @@
 library(data.table)
 
 # historical and present day locations that map directly to Iran
-iran_mapping1 <- data.table(parent = "Iran",
+iran_mapping1 <- data.table(parent = "Iran (Islamic Republic of)",
                             child = c("Markazi 1956", "Gilan 1956-1966",
                                       "Mazandaran 1956-1996",
                                       "East Azarbayejan 1956-1986",
@@ -40,18 +40,18 @@ iran_mapping2.9 <- data.table(parent = "Isfahan and Yazd 1956",
 
 # mappings for next level of historical locations
 iran_mapping3.1 <- data.table(parent = "Markazi 1966-1976",
-                              child = c("Markazi", "Tehran 1986"))
+                              child = c("Markazi", "Tehran 1986-1995"))
 iran_mapping3.2 <- data.table(parent = "Zanjan 1976-1996",
                               child = c("Zanjan", "Qazvin"))
 iran_mapping3.3 <- data.table(parent = "Isfahan and Yazd 1966",
                               child = c("Isfahan", "Yazd"))
 
 # mappings for next level of historical locations
-iran_mapping4 <- data.table(parent = "Tehran 1986",
-                            child = c("Tehran 1996-2006", "Qom"))
+iran_mapping4 <- data.table(parent = "Tehran 1986-1995",
+                            child = c("Tehran 2006", "Qom"))
 
 # mappings for next level of historical locations
-iran_mapping5 <- data.table(parent = "Tehran 1996-2006",
+iran_mapping5 <- data.table(parent = "Tehran 2006",
                             child = c("Tehran", "Alborz"))
 
 # combine all together
