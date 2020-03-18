@@ -78,13 +78,13 @@ setkeyv(input_dt, id_cols)
 # the expected value is the number of leaf nodes under each aggregate
 expected_dt <- CJ(location = unique(iran_mapping$parent),
                   year = 2011)
-expected_dt[location %in% c("Tehran 1996-2006", "Zanjan 1976-1996",
+expected_dt[location %in% c("Tehran 2006", "Zanjan 1976-1996",
                             "Mazandaran 1956-1996",
                             "East Azarbayejan 1956-1986",
                             "Khuzestan and Lorestan 1956",
                             "Isfahan and Yazd 1966"),
             value := 2]
-expected_dt[location %in% c("Tehran 1986", "Gilan 1956-1966",
+expected_dt[location %in% c("Tehran 1986-1995", "Gilan 1956-1966",
                             "Kermanshahan 1956", "Khorasan 1956-1996",
                             "Isfahan and Yazd 1956"),
             value := 3]
@@ -92,7 +92,7 @@ expected_dt[location %in% c("Markazi 1966-1976", "Fars and Ports 1956"),
             value := 4]
 expected_dt[location %in% "Markazi 1956",
             value := 5]
-expected_dt[location %in% "Iran",
+expected_dt[location %in% "Iran (Islamic Republic of)",
             value := 31]
 setkeyv(expected_dt, id_cols)
 
@@ -106,13 +106,13 @@ test_that("aggregation of Iran data with only present day provinces works", {
   expect_identical(output_dt, expected_dt)
 })
 
-description <- "aggregation of Iran data with Tehran 1996-2006 instead of
+description <- "aggregation of Iran data with Tehran 2006 instead of
 present day 'Tehran' and 'Alborz' works"
 test_that(description, {
   new_input_dt <- rbind(input_dt[!location %in% c("Tehran", "Alborz")],
-                        expected_dt[location %in% c("Tehran 1996-2006")], use.names = T)
+                        expected_dt[location %in% c("Tehran 2006")], use.names = T)
   setkeyv(new_input_dt, id_cols)
-  new_expected_dt <- expected_dt[!location %in% c("Tehran 1996-2006")]
+  new_expected_dt <- expected_dt[!location %in% c("Tehran 2006")]
   setkeyv(new_expected_dt, id_cols)
 
   output_dt <- agg(dt = new_input_dt,
@@ -125,11 +125,11 @@ test_that(description, {
   expect_identical(output_dt, new_expected_dt)
 })
 
-description <- "aggregation of Iran data with Tehran 1996-2006 instead of
+description <- "aggregation of Iran data with Tehran 2006 instead of
 present day 'Tehran' and 'Alborz' (accidently including 'Tehran') errors out"
 test_that(description, {
   new_input_dt <- rbind(input_dt[!location %in% c("Alborz")],
-                        expected_dt[location %in% c("Tehran 1996-2006")],
+                        expected_dt[location %in% c("Tehran 2006")],
                         use.names = T)
   setkeyv(new_input_dt, id_cols)
 
@@ -149,9 +149,9 @@ test_that(description, {
   new_input_dt <- input_dt[!location %in% c("Tehran", "Alborz")]
   setkeyv(new_input_dt, id_cols)
   new_expected_dt <- expected_dt[!location %in%
-                                   c("Tehran 1996-2006", "Tehran 1986",
+                                   c("Tehran 2006", "Tehran 1986-1995",
                                      "Markazi 1966-1976", "Markazi 1956",
-                                     "Iran")]
+                                     "Iran (Islamic Republic of)")]
   setkeyv(new_expected_dt, id_cols)
 
   # check severity
@@ -221,11 +221,11 @@ test_that(description, {
 # set up test input data.table with present day and aggregate provinces
 input_dt <- rbind(input_dt, expected_dt)
 setkeyv(input_dt, id_cols)
-input_dt[location == "Iran", value := value * 2]
+input_dt[location == "Iran (Islamic Republic of)", value := value * 2]
 
 # set up expected output table with all unique locations
 expected_dt <- copy(input_dt)
-expected_dt[location != "Iran", value := value * 2]
+expected_dt[location != "Iran (Islamic Republic of)", value := value * 2]
 setkeyv(expected_dt, id_cols)
 
 description <- "scaling of Iran data with national value doubled and historical
@@ -267,7 +267,7 @@ test_that(description, {
 description <- "scaling of Iran data with national (root) value missing throws
 an error"
 test_that(description, {
-  new_input_dt <- input_dt[!location %in% c("Iran")]
+  new_input_dt <- input_dt[!location %in% c("Iran (Islamic Republic of)")]
   expect_error(scale(dt = new_input_dt,
                      id_cols = id_cols,
                      value_cols = value_cols,

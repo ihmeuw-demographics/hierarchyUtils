@@ -89,8 +89,10 @@
 #'                                                    child],
 #'                            year = 2011,
 #'                            value = 1)
-#' input_dt_agg <- data.table::data.table(location = "Iran", year = 2011,
-#'                                        value = 62)
+#' input_dt_agg <- data.table::data.table(
+#'   location = "Iran (Islamic Republic of)",
+#'   year = 2011, value = 62
+#' )
 #' input_dt <- rbind(input_dt, input_dt_agg)
 #' output_dt <- scale(dt = input_dt,
 #'                    id_cols = c("location", "year"),
@@ -610,8 +612,10 @@ subset_unique_grouping <- function(dt,
 #'                                                    child],
 #'                            year = 2011,
 #'                            value = 1)
-#' input_dt_agg <- data.table::data.table(location = "Iran", year = 2011,
-#'                                        value = 62)
+#' input_dt_agg <- data.table::data.table(
+#'   location = "Iran (Islamic Republic of)",
+#'   year = 2011, value = 62
+#' )
 #' input_dt <- rbind(input_dt, input_dt_agg)
 #' \dontrun{
 #' output_dt <- scale(dt = input_dt,

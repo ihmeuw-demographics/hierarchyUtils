@@ -24,7 +24,7 @@ expected2 <- "Tehran"
 locations_present3 <- iran_mapping[!grepl("[0-9]+", child), child]
 locations_present3 <- locations_present3[!locations_present3 %in%
                                            c("Tehran", "Alborz", "Qom")]
-locations_present3 <- c(locations_present3, "Tehran 1986")
+locations_present3 <- c(locations_present3, "Tehran 1986-1995")
 iran_agg_tree3 <- create_agg_tree(iran_mapping, locations_present3,
                                   col_type = "categorical")
 
@@ -61,7 +61,8 @@ iran_scale_tree1 <- create_scale_tree(iran_mapping, locations_present1,
 expected1 <- NULL
 
 # all present day provinces in mapping included plus Iran
-locations_present2 <- c(iran_mapping[!grepl("[0-9]+", child), child], "Iran")
+locations_present2 <- c(iran_mapping[!grepl("[0-9]+", child), child],
+                        "Iran (Islamic Republic of)")
 iran_scale_tree2 <- create_scale_tree(iran_mapping, locations_present2,
                                       col_type = "categorical")
 

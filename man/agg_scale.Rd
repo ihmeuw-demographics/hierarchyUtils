@@ -134,8 +134,10 @@ input_dt <- data.table::CJ(location = iran_mapping[!grepl("[0-9]+", child),
                                                    child],
                            year = 2011,
                            value = 1)
-input_dt_agg <- data.table::data.table(location = "Iran", year = 2011,
-                                       value = 62)
+input_dt_agg <- data.table::data.table(
+  location = "Iran (Islamic Republic of)",
+  year = 2011, value = 62
+)
 input_dt <- rbind(input_dt, input_dt_agg)
 output_dt <- scale(dt = input_dt,
                    id_cols = c("location", "year"),
