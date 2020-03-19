@@ -4,7 +4,7 @@
 \name{iran_pop}
 \alias{iran_pop}
 \title{Iran Census Population Counts}
-\format{A data.table with 11140 rows and 9 columns:
+\format{A data.table with 10764 rows and 9 columns:
 \itemize{
 \item location: name of the location (corresponds to a location in
 \code{location_mapping}).

@@ -38,7 +38,7 @@ iran_pop <- mortdb::get_mort_outputs(model_name = "census raw",
 iran_pop[source_name == "Statistical Center of Iran",
          source_name := "Statistical Centre of Iran"]
 iran_pop <- iran_pop[source_name %in% c("DYB", "Statistical Centre of Iran")]
-iran_pop <- iran_pop[year != 1991] # not actually a census year
+iran_pop <- iran_pop[!year %in% c(1991, 1994)] # not actually a census year
 
 # merge on location, sex, age_start, age_end
 iran_pop <-merge(iran_pop, sex_mapping, by = "sex_id", all.x = T)

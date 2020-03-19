@@ -3,7 +3,7 @@
 #' @description Publicly available sex and age specific population counts for
 #' Iran at the national level and provinces that existed during the census year.
 #'
-#' @format A data.table with 11140 rows and 9 columns:
+#' @format A data.table with 10764 rows and 9 columns:
 #'   * location: name of the location (corresponds to a location in
 #'   `location_mapping`).
 #'   * year: year the census was conducted.
