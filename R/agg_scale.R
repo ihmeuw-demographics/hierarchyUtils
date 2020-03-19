@@ -683,6 +683,8 @@ identify_agg_dt_issues <- function(dt,
         data.table::setnames(check_dt, "present", cols[1])
       }
     } else if (col_type == "interval") {
+      # TODO add check for when start of interval is exactly equivalent to end
+      # of interval, this isn't possible with left closed right open intervals
       present_nodes <- identify_overlapping_intervals(
         grouping$unique_cols[, c(cols), with = F],
         min(grouping$unique_cols[[cols[1]]]),
