@@ -34,10 +34,10 @@ The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.}
 
 \item{mapping}{[\code{data.table()}]\cr
-For 'categorical' variables, defines how different levels of the variable
-relate to each other. For aggregating 'interval' variables, it is used to
-specify intervals to aggregate to, while when scaling the mapping is
-inferred from the available intervals in \code{dt}.}
+For 'categorical' variables, defines how different levels of the
+hierarchical variable relate to each other. For aggregating 'interval'
+variables, it is used to specify intervals to aggregate to, while when
+scaling the mapping is inferred from the available intervals in \code{dt}.}
 
 \item{agg_function}{[\verb{function()}]\cr
 Function to use when aggregating, can be either \code{sum} (for counts) or
@@ -47,8 +47,8 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 checked.}
 }
 \value{
-Returns nothing but throws error if inputs are not formatted
-correctly
+Invisibly returns \code{dt} but throws error if inputs are not formatted
+correctly.
 }
 \description{
 Check inputs to agg and scale functions

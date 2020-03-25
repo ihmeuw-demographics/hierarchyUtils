@@ -7,11 +7,11 @@
 \format{A data.table with 10764 rows and 9 columns:
 \itemize{
 \item location: name of the location (corresponds to a location in
-\code{location_mapping}).
+\code{iran_mapping}).
 \item year: year the census was conducted.
 \item sex: either 'female' or 'male'.
-\item age_start: start of the age interval.
-\item age_end: end of the age interval.
+\item age_start: start of the age interval in years.
+\item age_end: end of the age interval in years.
 \item source_name: name of the source that provided the census data population
 count.
 \item nid: unique identifier for the catalog record in the Global Health Data

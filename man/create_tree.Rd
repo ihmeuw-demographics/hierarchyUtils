@@ -5,32 +5,32 @@
 \alias{create_scale_tree}
 \alias{vis_tree}
 \title{Create a data.tree object to be used for aggregating or scaling
-categorical or interval data}
+hierarchical categorical or interval data}
 \usage{
-create_agg_tree(mapping, node_exists, col_type)
+create_agg_tree(mapping, exists, col_type)
 
-create_scale_tree(mapping, node_exists, col_type, collapse_missing = FALSE)
+create_scale_tree(mapping, exists, col_type, collapse_missing = FALSE)
 
 vis_tree(tree)
 }
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
-For 'categorical' variables, defines how different levels of the variable
-relate to each other. For aggregating 'interval' variables, it is used to
-specify intervals to aggregate to, while when scaling the mapping is
-inferred from the available intervals in \code{dt}.}
+For 'categorical' variables, defines how different levels of the
+hierarchical variable relate to each other. For aggregating 'interval'
+variables, it is used to specify intervals to aggregate to, while when
+scaling the mapping is inferred from the available intervals in \code{dt}.}
 
-\item{node_exists}{[\code{character()}]\cr
-names of nodes in the mapping that data exists for.}
+\item{exists}{[\code{character()}]\cr
+names of variables in the mapping that data exists for.}
 
 \item{col_type}{[\code{character(1)}]\cr
 The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
-When scaling \code{categorical} data, whether to collapse missing intermediate
-levels in \code{mapping}. Default is "False" and the function errors out due to
-missing data.}
+When scaling a \code{categorical} variable, whether to collapse missing
+intermediate levels in \code{mapping}. Default is 'False' and the function
+errors out due to missing data.}
 
 \item{tree}{[\code{data.tree()}] as returned by \code{\link[=create_agg_tree]{create_agg_tree()}} or
 \code{\link[=create_scale_tree]{create_scale_tree()}}.}
@@ -47,15 +47,19 @@ includes a field for whether children of each node can be scaled
 graphs.
 }
 \description{
-Create a data.tree object to be used for aggregating or scaling
-categorical or interval data
+Creates a hierarchical data.tree object that defines how
+different levels of categorical or interval data are related to each other.
 }
 \details{
-When \code{\link[=vis_tree]{vis_tree()}} is used to visualize a tree returned by
-\code{\link[=create_agg_tree]{create_agg_tree()}} then nodes with data directly provided are colored green,
-nodes where aggregation is possible are colored blue, and missing nodes
-without data directly provided and where aggregation is impossible because of
-the missing nodes are colored red.
+\href{https://en.wikipedia.org/wiki/Tree_(data_structure)}{Hierarchical tree data structures}
+are used to represent different levels of the categorical or interval data.
+The r package \pkg{data.tree} is used to implement these data structures.
+
+When \code{\link[=vis_tree]{vis_tree()}} is used to visualize a tree returned by \code{\link[=create_agg_tree]{create_agg_tree()}}
+then nodes with data directly provided are colored green, nodes where
+aggregation is possible are colored blue, and missing nodes without data
+directly provided and where aggregation is impossible because of the missing
+nodes are colored red.
 
 When \code{\link[=vis_tree]{vis_tree()}} is used to visualize a tree returned by
 \code{\link[=create_scale_tree]{create_scale_tree()}} then nodes with data directly provided and that can be
@@ -66,20 +70,20 @@ be scaled are colored blue and nodes without data directly provided
 # aggregation example where all present day locations exist except for Tehran
 locations_present <- iran_mapping[!grepl("[0-9]+", child) &
                                    child != "Tehran", child]
-agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present,
+agg_tree <- create_agg_tree(iran_mapping, exists = locations_present,
                             col_type = "categorical")
 vis_tree(agg_tree)
 
 # scaling example where all present day locations exist without collapsing
 locations_present <- c(iran_mapping[!grepl("[0-9]+", child), child], "Iran")
 scale_tree <- create_scale_tree(iran_mapping,
-                                node_exists = locations_present,
+                                exists = locations_present,
                                 col_type = "categorical")
 vis_tree(scale_tree)
 
 # scaling example where all present day locations exist and collapsing tree
 scale_tree <- create_scale_tree(iran_mapping,
-                                node_exists = locations_present,
+                                exists = locations_present,
                                 col_type = "categorical",
                                 collapse = TRUE)
 vis_tree(scale_tree)

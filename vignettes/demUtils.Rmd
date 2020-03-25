@@ -17,7 +17,7 @@ library(data.table)
 library(ggplot2)
 ```
 
-Demographics data is often organized into different groupings of variables. These variables can either be:
+Demographics data is often organized into different hierarchical groupings of variables. These variables can either be:
 
 * categorical: locations, sex, race, education groupings (high school, college, etc.), martial status etc.
 
@@ -36,9 +36,9 @@ print(iran_pop)
 
 The `demUtils` package provides a variety of utility functions that can be used to work with this kind of data. There are functions included to:
 
-* aggregate data to different combinations of the categorical variables or overlapping numeric intervals variables. 
+* aggregate data to different levels of a defined hierarchy for the categorical or numeric intervals variables. 
 
-* scale data so that the more detailed values in aggregate equal the aggregate level.
+* scale data so that the more detailed levels of a hierarchy in aggregate equal the aggregate level.
 
 ## Aggregate ages and both sexes combined
 
@@ -112,7 +112,7 @@ The root node of the tree shown below is "Iran" at the national level. The leaf 
 # visualize why some aggregates can't be made, what data is missing, etc.
 agg_tree <- demUtils::create_agg_tree(
   mapping = iran_mapping, 
-  node_exists = iran_pop_aggs[year == 2006 & source_name != "DYB", location],
+  exists = iran_pop_aggs[year == 2006 & source_name != "DYB", location],
   col_type = "categorical")
 demUtils::vis_tree(agg_tree)
 ```

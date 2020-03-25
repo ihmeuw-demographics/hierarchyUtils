@@ -5,17 +5,17 @@
 \title{Create a data.tree object using a mapping of levels of a categorical
 or interval variable}
 \usage{
-create_base_tree(mapping, node_exists, col_type)
+create_base_tree(mapping, exists, col_type)
 }
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
-For 'categorical' variables, defines how different levels of the variable
-relate to each other. For aggregating 'interval' variables, it is used to
-specify intervals to aggregate to, while when scaling the mapping is
-inferred from the available intervals in \code{dt}.}
+For 'categorical' variables, defines how different levels of the
+hierarchical variable relate to each other. For aggregating 'interval'
+variables, it is used to specify intervals to aggregate to, while when
+scaling the mapping is inferred from the available intervals in \code{dt}.}
 
-\item{node_exists}{[\code{character()}]\cr
-names of nodes in the mapping that data exists for.}
+\item{exists}{[\code{character()}]\cr
+names of variables in the mapping that data exists for.}
 
 \item{col_type}{[\code{character(1)}]\cr
 The type of variable that is being aggregated or scaled over. Can be either

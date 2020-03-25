@@ -5,11 +5,11 @@
 #'
 #' @format A data.table with 10764 rows and 9 columns:
 #'   * location: name of the location (corresponds to a location in
-#'   `location_mapping`).
+#'   `iran_mapping`).
 #'   * year: year the census was conducted.
 #'   * sex: either 'female' or 'male'.
-#'   * age_start: start of the age interval.
-#'   * age_end: end of the age interval.
+#'   * age_start: start of the age interval in years.
+#'   * age_end: end of the age interval in years.
 #'   * source_name: name of the source that provided the census data population
 #'   count.
 #'   * nid: unique identifier for the catalog record in the Global Health Data

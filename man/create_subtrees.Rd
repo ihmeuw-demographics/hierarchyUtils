@@ -6,28 +6,28 @@
 \title{Create a list of subtrees that can be used during aggregation or
 scaling}
 \usage{
-create_agg_subtrees(mapping, node_exists, col_type)
+create_agg_subtrees(mapping, exists, col_type)
 
-create_scale_subtrees(mapping, node_exists, col_type, collapse_missing)
+create_scale_subtrees(mapping, exists, col_type, collapse_missing)
 }
 \arguments{
 \item{mapping}{[\code{data.table()}]\cr
-For 'categorical' variables, defines how different levels of the variable
-relate to each other. For aggregating 'interval' variables, it is used to
-specify intervals to aggregate to, while when scaling the mapping is
-inferred from the available intervals in \code{dt}.}
+For 'categorical' variables, defines how different levels of the
+hierarchical variable relate to each other. For aggregating 'interval'
+variables, it is used to specify intervals to aggregate to, while when
+scaling the mapping is inferred from the available intervals in \code{dt}.}
 
-\item{node_exists}{[\code{character()}]\cr
-names of nodes in the mapping that data exists for.}
+\item{exists}{[\code{character()}]\cr
+names of variables in the mapping that data exists for.}
 
 \item{col_type}{[\code{character(1)}]\cr
 The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
-When scaling \code{categorical} data, whether to collapse missing intermediate
-levels in \code{mapping}. Default is "False" and the function errors out due to
-missing data.}
+When scaling a \code{categorical} variable, whether to collapse missing
+intermediate levels in \code{mapping}. Default is 'False' and the function
+errors out due to missing data.}
 }
 \description{
 Use \code{\link[data.tree:Traverse]{data.tree::Traverse()}} to create a list of subtrees that are to be used

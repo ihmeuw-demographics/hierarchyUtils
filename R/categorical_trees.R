@@ -1,16 +1,23 @@
 #' @title Create a data.tree object to be used for aggregating or scaling
-#'   categorical or interval data
+#'   hierarchical categorical or interval data
+#'
+#' @description Creates a hierarchical data.tree object that defines how
+#' different levels of categorical or interval data are related to each other.
 #'
 #' @inheritParams agg
-#' @param node_exists \[`character()`\]\cr
-#'   names of nodes in the mapping that data exists for.
+#' @param exists \[`character()`\]\cr
+#'   names of variables in the mapping that data exists for.
 #'
 #' @details
-#' When [vis_tree()] is used to visualize a tree returned by
-#' [create_agg_tree()] then nodes with data directly provided are colored green,
-#' nodes where aggregation is possible are colored blue, and missing nodes
-#' without data directly provided and where aggregation is impossible because of
-#' the missing nodes are colored red.
+#' [Hierarchical tree data structures](https://en.wikipedia.org/wiki/Tree_(data_structure))
+#' are used to represent different levels of the categorical or interval data.
+#' The r package \pkg{data.tree} is used to implement these data structures.
+#'
+#' When [vis_tree()] is used to visualize a tree returned by [create_agg_tree()]
+#' then nodes with data directly provided are colored green, nodes where
+#' aggregation is possible are colored blue, and missing nodes without data
+#' directly provided and where aggregation is impossible because of the missing
+#' nodes are colored red.
 #'
 #' When [vis_tree()] is used to visualize a tree returned by
 #' [create_scale_tree()] then nodes with data directly provided and that can be
@@ -31,29 +38,29 @@
 #' # aggregation example where all present day locations exist except for Tehran
 #' locations_present <- iran_mapping[!grepl("[0-9]+", child) &
 #'                                    child != "Tehran", child]
-#' agg_tree <- create_agg_tree(iran_mapping, node_exists = locations_present,
+#' agg_tree <- create_agg_tree(iran_mapping, exists = locations_present,
 #'                             col_type = "categorical")
 #' vis_tree(agg_tree)
 #'
 #' # scaling example where all present day locations exist without collapsing
 #' locations_present <- c(iran_mapping[!grepl("[0-9]+", child), child], "Iran")
 #' scale_tree <- create_scale_tree(iran_mapping,
-#'                                 node_exists = locations_present,
+#'                                 exists = locations_present,
 #'                                 col_type = "categorical")
 #' vis_tree(scale_tree)
 #'
 #' # scaling example where all present day locations exist and collapsing tree
 #' scale_tree <- create_scale_tree(iran_mapping,
-#'                                 node_exists = locations_present,
+#'                                 exists = locations_present,
 #'                                 col_type = "categorical",
 #'                                 collapse = TRUE)
 #' vis_tree(scale_tree)
 #'
 #' @export
 #' @rdname create_tree
-create_agg_tree <- function(mapping, node_exists, col_type) {
+create_agg_tree <- function(mapping, exists, col_type) {
 
-  tree <- create_base_tree(mapping, node_exists, col_type)
+  tree <- create_base_tree(mapping, exists, col_type)
 
   # check which groups we can aggregate to given the values already available
   check_agg_possible <- function(x) {
@@ -93,11 +100,11 @@ create_agg_tree <- function(mapping, node_exists, col_type) {
 #' @export
 #' @rdname create_tree
 create_scale_tree <- function(mapping,
-                              node_exists,
+                              exists,
                               col_type,
                               collapse_missing = FALSE) {
 
-  tree <- create_base_tree(mapping, node_exists, col_type)
+  tree <- create_base_tree(mapping, exists, col_type)
 
   if (collapse_missing & col_type == "categorical") collapse_tree(tree)
 
@@ -163,7 +170,7 @@ create_scale_tree <- function(mapping,
 #'
 #' @return \[`data.tree()`\] with field for whether each node has data
 #'   available ('exists').
-create_base_tree <- function(mapping, node_exists, col_type) {
+create_base_tree <- function(mapping, exists, col_type) {
 
   # create overall tree with entire mapping
   tree <- data.tree::FromDataFrameNetwork(mapping)
@@ -189,7 +196,7 @@ create_base_tree <- function(mapping, node_exists, col_type) {
   }
 
   # mark groups we have values for already
-  tree$Set(exists = tree$Get('name') %in% node_exists)
+  tree$Set(exists = tree$Get('name') %in% exists)
 
   return(tree)
 }
@@ -368,9 +375,9 @@ identify_present_agg <- function(tree) {
 #' @inheritParams create_agg_tree
 #'
 #' @rdname create_subtrees
-create_agg_subtrees <- function(mapping, node_exists, col_type) {
+create_agg_subtrees <- function(mapping, exists, col_type) {
 
-  tree <- create_agg_tree(mapping, node_exists, col_type)
+  tree <- create_agg_tree(mapping, exists, col_type)
 
   # identify each nonleaf where aggregation is possible and its subtree
   subtrees <- data.tree::Traverse(
@@ -392,11 +399,11 @@ create_agg_subtrees <- function(mapping, node_exists, col_type) {
 
 #' @rdname create_subtrees
 create_scale_subtrees <- function(mapping,
-                                  node_exists,
+                                  exists,
                                   col_type,
                                   collapse_missing) {
 
-  tree <- create_scale_tree(mapping, node_exists, col_type, collapse_missing)
+  tree <- create_scale_tree(mapping, exists, col_type, collapse_missing)
 
   # identify each nonleaf (and its subtree) where scaling of children nodes is possible
   subtrees <- data.tree::Traverse(

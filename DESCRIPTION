@@ -1,10 +1,11 @@
 Package: demUtils
 Version: 0.0.0.9000
 Title: Utility Functions for Common Demographics Data Problems
-Description: Demographics data is often organized by categorical and numeric
-    variables like location, sex, age, race, ethnicity, education, marital
-    status, etc. The demUtils package provides helpful functions for formatting,
-    aggregating, scaling, and other related tasks.
+Description: Demographics data is often hierarchically structured.
+  Categorical and numeric interval variables like location, sex, age, race,
+  ethnicity, education, marital status, etc. have different levels of detail.
+  The demUtils package provides functions for formatting, aggregating, scaling,
+  and other related tasks useful for hierarchical data.
 Authors@R: c(person("Charlton", "Callender", email = "chacalle@uw.edu", role = "aut"),
              person("Grant", "Nguyen", email = "gngu@uw.edu", role = "aut"),
              person("Katie", "Paulson", email = "krpaul@uw.edu", role = "aut"),
