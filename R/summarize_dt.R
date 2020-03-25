@@ -18,7 +18,8 @@
 #'   Default is "mean".
 #' @param probs \[`numeric()`\]\cr
 #'   Probabilities with values in `[0,1]` to be used when producing sample
-#'   quantiles with `stats::quantile()`. Default is the 2.5 and 97.5 quantiles.
+#'   quantiles with `stats::quantile()`. Default is 0.025 and 0.975 for the
+#'   2.5th and 97.5th quantiles. Can be NULL if no quantiles are needed.
 #'
 #' @return \[`data.table()`\] with `id_cols` (minus the `summarize_cols`) plus
 #'   summary statistic columns. The summary statistic columns have the same name
@@ -35,9 +36,6 @@
 #' 97.5 quantiles would have columns named 'q2.5' and 'q97.5' in the returned
 #' data.table.
 #'
-#' @importFrom methods existsFunction
-#' @export
-#'
 #' @examples
 #' input_dt <- data.table::data.table(location = "USA",
 #'                                    draw = 1:101,
@@ -46,6 +44,16 @@
 #'                           id_cols = c("location", "draw"),
 #'                           summarize_cols = "draw",
 #'                           value_col = "value")
+#'
+#' # no quantiles calculated
+#' output_dt <- summarize_dt(dt = input_dt,
+#'                           id_cols = c("location", "draw"),
+#'                           summarize_cols = "draw",
+#'                           value_col = "value",
+#'                           probs = NULL)
+#'
+#' @importFrom methods existsFunction
+#' @export
 summarize_dt <- function(dt,
                          id_cols,
                          summarize_cols,
@@ -76,7 +84,7 @@ summarize_dt <- function(dt,
   assertthat::assert_that(assertive::is_character(summary_fun) |
                             assertive::is_empty(summary_fun),
                           all(sapply(summary_fun, methods::existsFunction)),
-                          msg = "`summary_fun` must be a charcorrespond to a defined
+                          msg = "`summary_fun` must be a correspond to a defined
                           function")
 
   # check `probs` argument
@@ -89,19 +97,19 @@ summarize_dt <- function(dt,
 
   # Calculate summary statistics --------------------------------------------
 
-  id_cols_no_draw <- id_cols[!id_cols %in% summarize_cols]
+  by_id_cols <- id_cols[!id_cols %in% summarize_cols]
 
   original_keys <- copy(key(dt))
   original_keys <- original_keys[!original_keys %in% summarize_cols]
-  if (is.null(original_keys)) original_keys <- id_cols_no_draw
+  if (is.null(original_keys)) original_keys <- by_id_cols
 
   summary <- dt[, c(
     if (length(summary_fun) > 0) lapply(sapply(summary_fun, get),
                                         function(fun) fun(get(value_col))),
     if (length(probs) > 0) as.list(stats::quantile(get(value_col),
                                                    probs = probs))
-  ), by = id_cols_no_draw]
-  data.table::setnames(summary, c(id_cols_no_draw, summary_fun,
+  ), by = by_id_cols]
+  data.table::setnames(summary, c(by_id_cols, summary_fun,
                                   if (length(probs) > 0) quantile_names))
   data.table::setkeyv(summary, original_keys)
   return(summary)
