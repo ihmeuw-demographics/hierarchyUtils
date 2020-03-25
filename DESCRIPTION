@@ -1,8 +1,17 @@
 Package: demUtils
 Version: 0.0.0.9000
-Title: What the Package Does (One Line, Title Case)
-Description: What the package does (one paragraph).
-Authors@R: person("First", "Last", , "first.last@example.com", c("aut", "cre"))
+Title: Utility Functions for Common Demographics Data Problems
+Description: Demographics data is often hierarchically structured.
+  Categorical and numeric interval variables like location, sex, age, race,
+  ethnicity, education, marital status, etc. have different levels of detail.
+  The demUtils package provides functions for formatting, aggregating, scaling,
+  and other related tasks useful for hierarchical data.
+Authors@R: c(person("Charlton", "Callender", email = "chacalle@uw.edu", role = "aut"),
+             person("Grant", "Nguyen", email = "gngu@uw.edu", role = "aut"),
+             person("Katie", "Paulson", email = "krpaul@uw.edu", role = "aut"),
+             person("Spencer", "Pease", email = "spease@uw.edu", role = "aut"),
+             person("Haidong", "Wang", email = "haidong@uw.edu", role = "cre"),
+             person("Institute for Health Metrics and Evaluation", role = c("cph", "fnd")))
 URL: https://github.com/ihmeuw/demUtils/
 License: GPL-3
 Encoding: UTF-8
@@ -13,10 +22,20 @@ Suggests:
     knitr,
     rmarkdown,
     spelling,
-    covr
+    covr,
+    networkD3,
+    ggplot2,
+    scales
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.0.1
+RoxygenNote: 7.0.2
 VignetteBuilder: knitr
 Language: en-US
+Depends: R (>= 2.10)
 Imports: 
-    data.table
+    data.table,
+    assertthat,
+    assertive,
+    assertable (>= 0.2.7),
+    checkmate,
+    data.tree,
+    intervals
