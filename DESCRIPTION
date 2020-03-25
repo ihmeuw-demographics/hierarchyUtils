@@ -12,6 +12,7 @@ Authors@R: c(person("Charlton", "Callender", email = "chacalle@uw.edu", role = "
              person("Spencer", "Pease", email = "spease@uw.edu", role = "aut"),
              person("Haidong", "Wang", email = "haidong@uw.edu", role = "cre"),
              person("Institute for Health Metrics and Evaluation", role = c("cph", "fnd")))
+URL: https://github.com/ihmeuw/demUtils/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
