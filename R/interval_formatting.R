@@ -287,8 +287,6 @@ gen_name <- function(dt,
 #' @return \[`list()`\] with element for 'start' containing a numeric vector of
 #'  left-closed endpoints and another element for 'end' containing a numeric
 #'  vector of right-opens endpoints.
-#'
-#' @export
 name_to_start_end <- function(name) {
 
   # Validate arguments ------------------------------------------------------
