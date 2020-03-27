@@ -53,18 +53,6 @@
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
-     
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="articles/placeholder.html">placeholder</a>
-    </li>
-  </ul>
-</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -88,9 +76,20 @@
 <div id="demutils" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#demutils" class="anchor"></a>demUtils</h1></div>
-<p>Demographics Related Utility Functions</p>
 <!-- badges: start -->
-<p><a href="https://travis-ci.org/ihmeuw/demUtils"><img src="https://travis-ci.org/ihmeuw/demUtils.svg?branch=master" alt="Travis build status"></a> <a href="https://codecov.io/gh/ihmeuw/demUtils?branch=master"><img src="https://codecov.io/gh/ihmeuw/demUtils/branch/master/graph/badge.svg" alt="Codecov test coverage"></a> <!-- badges: end --></p>
+
+<p>Demographics data is often hierarchically structured. Categorical and numeric interval variables like location, sex, age, race, ethnicity, education, marital status, etc. have different levels of detail. The demUtils package provides functions for formatting, aggregating, scaling, and other related tasks useful for hierarchical data.</p>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>This package has not yet been published on CRAN, but can be installed from GitHub using the <a href="https://remotes.r-lib.org/">remotes</a> package.</p>
+<div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"ihmeuw/demUtils"</span>)</pre></div>
+</div>
+<div id="getting-help" class="section level2">
+<h2 class="hasAnchor">
+<a href="#getting-help" class="anchor"></a>Getting help</h2>
+<p>If you encounter a clear bug, please file a minimal reproducible example on <a href="https://github.com/ihmeuw/demUtils/issues">github</a>.</p>
+</div>
 </div>
   </div>
 
@@ -121,7 +120,14 @@
 </ul>
 </div>
 
-  </div>
+  <div class="dev-status">
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/ihmeuw/demUtils/actions"><img src="https://github.com/ihmeuw/demUtils/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
+<li><a href="https://codecov.io/gh/ihmeuw/demUtils?branch=master"><img src="https://codecov.io/gh/ihmeuw/demUtils/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+</ul>
+</div>
+</div>
 </div>
 
 
