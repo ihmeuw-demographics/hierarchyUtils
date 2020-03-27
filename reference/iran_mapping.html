@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • demUtils</title>
+<title>Iran Provinces Mapping from 1950 to Today — iran_mapping • demUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,9 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Iran Provinces Mapping from 1950 to Today — iran_mapping" />
+<meta property="og:description" content="An example mapping of Iran and its provinces from 1950 to
+present day. The mapping accounts for province boundary changes over time." />
 
 
 
@@ -58,7 +60,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -122,20 +124,39 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Iran Provinces Mapping from 1950 to Today</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw/demUtils/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>iran_mapping.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="demUtils.html">Introduction to demUtils</a></dt>
-        <dd></dt>
-        <dt><a href="placeholder.html">placeholder</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    <p>An example mapping of Iran and its provinces from 1950 to
+present day. The mapping accounts for province boundary changes over time.</p>
     </div>
+
+    <pre class="usage"><span class='no'>iran_mapping</span></pre>
+
+
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>A data.table with 47 rows and 2 columns:</p><ul>
+<li><p>parent: the aggregate location.</p></li>
+<li><p>child: one of the constituent locations.</p></li>
+</ul>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Each row in the data.table represents the relationship between Iran, its
+historical provinces, and present day provinces.</p>
+<p>This mapping can be used for aggregating <code><a href='agg_scale.html'>agg()</a></code> or scaling <code><a href='agg_scale.html'>scale()</a></code> values.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='create_tree.html'>create_agg_tree()</a></code>, <code><a href='create_tree.html'>create_scale_tree()</a></code>, <code><a href='create_tree.html'>vis_tree()</a></code></p></div>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

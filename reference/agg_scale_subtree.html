@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • demUtils</title>
+<title>Aggregate or scale one subtree's children values to the parent level — agg_subtree • demUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Aggregate or scale one subtree's children values to the parent level — agg_subtree" />
+<meta property="og:description" content="Aggregate or scale one subtree's children values to the parent level" />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -122,20 +123,89 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Aggregate or scale one subtree's children values to the parent level</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw/demUtils/blob/master/R/categorical_trees.R'><code>R/categorical_trees.R</code></a></small>
+    <div class="hidden name"><code>agg_scale_subtree.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="demUtils.html">Introduction to demUtils</a></dt>
-        <dd></dt>
-        <dt><a href="placeholder.html">placeholder</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    <p>Aggregate or scale one subtree's children values to the parent level</p>
     </div>
+
+    <pre class="usage"><span class='fu'>agg_subtree</span>(
+  <span class='no'>dt</span>,
+  <span class='no'>by_id_cols</span>,
+  <span class='no'>value_cols</span>,
+  <span class='no'>col_stem</span>,
+  <span class='no'>col_type</span>,
+  <span class='no'>agg_function</span>,
+  <span class='no'>subtree</span>
+)
+
+<span class='fu'>scale_subtree</span>(
+  <span class='no'>dt</span>,
+  <span class='no'>by_id_cols</span>,
+  <span class='no'>value_cols</span>,
+  <span class='no'>col_stem</span>,
+  <span class='no'>col_type</span>,
+  <span class='no'>agg_function</span>,
+  <span class='no'>subtree</span>
+)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>dt</th>
+      <td><p>[<code>data.table()</code>]<br />
+Data to be aggregated or scaled.</p></td>
+    </tr>
+    <tr>
+      <th>by_id_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
+The <code>id_cols</code> without the agg/scale variable(s) included.</p></td>
+    </tr>
+    <tr>
+      <th>value_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
+Value columns that should be aggregated.</p></td>
+    </tr>
+    <tr>
+      <th>col_stem</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+The name of the variable to be aggregated or scaled over. If aggregating an
+'interval' variable should not include the '_start' or '_end' suffix.</p></td>
+    </tr>
+    <tr>
+      <th>col_type</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+The type of variable that is being aggregated or scaled over. Can be either
+'categorical' or 'interval'.</p></td>
+    </tr>
+    <tr>
+      <th>agg_function</th>
+      <td><p>[<code>function()</code>]<br />
+Function to use when aggregating, can be either <code>sum</code> (for counts) or
+<code>prod</code> (for probabilities).</p></td>
+    </tr>
+    <tr>
+      <th>subtree</th>
+      <td><p>one subtree of the list returned by <code><a href='create_subtrees.html'>create_agg_subtrees()</a></code> or
+<code><a href='create_subtrees.html'>create_scale_subtrees()</a></code>.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>[<code>data.table()</code>] with same input columns for requested aggregates
+or with scaled values for the given <code>subtree</code>. <code>scale_subtree()</code> changes the
+name of the <code>value_cols</code> to <code>{value_cols}_scaled</code>.</p>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

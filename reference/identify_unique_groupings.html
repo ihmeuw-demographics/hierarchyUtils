@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • demUtils</title>
+<title>Determine unique sets of the agg/scale variable present in the input
+data.table — identify_unique_groupings • demUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +40,10 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Determine unique sets of the agg/scale variable present in the input
+data.table — identify_unique_groupings" />
+<meta property="og:description" content="Determine unique sets of the agg/scale variable present in the input
+data.table" />
 
 
 
@@ -58,7 +62,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -122,20 +126,66 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Determine unique sets of the agg/scale variable present in the input
+data.table</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw/demUtils/blob/master/R/unique_groupings.R'><code>R/unique_groupings.R</code></a></small>
+    <div class="hidden name"><code>identify_unique_groupings.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="demUtils.html">Introduction to demUtils</a></dt>
-        <dd></dt>
-        <dt><a href="placeholder.html">placeholder</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    <p>Determine unique sets of the agg/scale variable present in the input
+data.table</p>
     </div>
+
+    <pre class="usage"><span class='fu'>identify_unique_groupings</span>(<span class='no'>dt</span>, <span class='no'>col_stem</span>, <span class='no'>col_type</span>, <span class='no'>by_id_cols</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>dt</th>
+      <td><p>[<code>data.table()</code>]<br />
+Data to be aggregated or scaled.</p></td>
+    </tr>
+    <tr>
+      <th>col_stem</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+The name of the variable to be aggregated or scaled over. If aggregating an
+'interval' variable should not include the '_start' or '_end' suffix.</p></td>
+    </tr>
+    <tr>
+      <th>col_type</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+The type of variable that is being aggregated or scaled over. Can be either
+'categorical' or 'interval'.</p></td>
+    </tr>
+    <tr>
+      <th>by_id_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
+The <code>id_cols</code> without the agg/scale variable(s) included.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>list with two named elements.</p><ol>
+<li><p><em>groupings</em>: [<code>data.table()</code>] with <code>by_id_cols</code> and a new column
+'available_vars' that is a ';' separated string for each unique variable
+present in each combination of <code>by_id_cols</code>. If <code>col_type</code> is 'interval'
+then each 'start' and 'end' variable is also ',' separated.</p></li>
+<li><p><em>unique_groupings</em>: [<code>data.table()</code>] with only one common for the
+unique 'available_vars' in the <code>groupings</code>.</p></li>
+</ol>
+
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='subset_unique_grouping.html'>subset_unique_grouping()</a></code></p></div>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

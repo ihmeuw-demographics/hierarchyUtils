@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • demUtils</title>
+<title>Create a node for an interval tree — create_interval_node • demUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Create a node for an interval tree — create_interval_node" />
+<meta property="og:description" content="Create a node for an interval tree" />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -122,20 +123,46 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Create a node for an interval tree</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw/demUtils/blob/master/R/interval_trees.R'><code>R/interval_trees.R</code></a></small>
+    <div class="hidden name"><code>create_interval_node.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="demUtils.html">Introduction to demUtils</a></dt>
-        <dd></dt>
-        <dt><a href="placeholder.html">placeholder</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    <p>Create a node for an interval tree</p>
     </div>
+
+    <pre class="usage"><span class='fu'>create_interval_node</span>(<span class='no'>start</span>, <span class='no'>end</span>, <span class='no'>name</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>start</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>]<br />
+the left endpoint of the interval tree node.</p></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>]<br />
+the right endpoint of the interval tree node.</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+name of the node in interval notation.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>[<code>data.tree()</code>] node with 'name', 'left', 'right' fields.</p>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

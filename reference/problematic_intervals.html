@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • demUtils</title>
+<title>Identify missing or overlapping intervals — identify_missing_intervals • demUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Identify missing or overlapping intervals — identify_missing_intervals" />
+<meta property="og:description" content="Identify missing or overlapping intervals" />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -122,20 +123,54 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Identify missing or overlapping intervals</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw/demUtils/blob/master/R/interval_trees.R'><code>R/interval_trees.R</code></a></small>
+    <div class="hidden name"><code>problematic_intervals.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="demUtils.html">Introduction to demUtils</a></dt>
-        <dd></dt>
-        <dt><a href="placeholder.html">placeholder</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    <p>Identify missing or overlapping intervals</p>
     </div>
+
+    <pre class="usage"><span class='fu'>identify_missing_intervals</span>(<span class='no'>ints_dt</span>, <span class='kw'>full_int_start</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>full_int_end</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
+
+<span class='fu'>identify_overlapping_intervals</span>(<span class='no'>ints_dt</span>, <span class='kw'>full_int_start</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>full_int_end</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)</pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>ints_dt</th>
+      <td><p>[<code>data.table()</code>]<br />
+Unique intervals to check as returned by <code><a href='subset_unique_grouping.html'>subset_unique_grouping()</a></code>.
+Includes a column for the start of the interval and the end of the
+interval.</p></td>
+    </tr>
+    <tr>
+      <th>full_int_start</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>]<br />
+Start of the complete interval that should be covered by the detailed
+intervals in <code>ints_dt</code>.</p></td>
+    </tr>
+    <tr>
+      <th>full_int_end</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/numeric.html'>numeric(1)</a></code>]<br />
+End of the complete interval that should be covered by the detailed
+intervals in <code>ints_dt</code>.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>[<code>data.table()</code>] with columns for 'start' and 'end' of intervals
+where intervals in <code>ints_dt</code> are missing or overlapping. If no intervals
+are missing or overlapping then zero-row [<code>data.table()</code>] is returned.</p>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
