@@ -3,7 +3,6 @@
 ^_pkgdown\.yml$
 ^docs$
 ^LICENSE\.md$
-^\.travis\.yml$
 ^codecov\.yml$
 ^data-raw$
 ^pkgdown$
