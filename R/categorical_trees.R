@@ -484,11 +484,19 @@ scale_subtree <- function(dt,
                  by = c(by_id_cols, cols), all = T)
 
   # calculate scaling factor
+  if (identical(agg_function, prod)) {
+    n_count <- children_dt[, .N, by = by_id_cols]
+    sf_dt <- merge(sf_dt, n_count, by = by_id_cols, all = T)
+  }
   for (col in 1:length(value_cols)) {
     sf_dt[, scaling_factor_value_cols[col] := get(value_cols[col]) / get(agg_value_cols[col])]
+    if (identical(agg_function, prod)) {
+      sf_dt[, scaling_factor_value_cols[col] := get(scaling_factor_value_cols[col]) ^ (1 / N)]
+    }
   }
   sf_dt[, c(cols, value_cols, agg_value_cols) := NULL]
   if (col_type == "interval") sf_dt[, c(col_stem) := NULL]
+  if (identical(agg_function, prod)) sf_dt[, N := NULL]
 
   # calculate scaled child node values
   scaled_dt <- merge(children_dt, sf_dt, by = by_id_cols, all = T)

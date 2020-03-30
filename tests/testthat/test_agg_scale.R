@@ -39,7 +39,7 @@ test_that(description, {
                    mapping = sex_mapping))
 })
 
-# Scale sex-specific values to both sexes combined ------------------------
+# Scale additive sex-specific values to both sexes combined ---------------
 
 # set up test input data.table
 input_dt_both <- CJ(year = 2010, sex = "both",
@@ -53,13 +53,44 @@ expected_dt <- CJ(year = 2010, sex = c("female", "male"),
 expected_dt <- rbind(expected_dt, input_dt_both, use.names = T)
 setkeyv(expected_dt, id_cols)
 
-test_that("scaling sex-specific values to both sexes combined works", {
+description <- "scaling additive sex-specific values to both sexes combined
+works"
+test_that(description, {
   output_dt <- scale(dt = input_dt,
                      id_cols = id_cols,
                      value_cols = value_cols,
                      col_stem = "sex",
                      col_type = "categorical",
                      mapping = sex_mapping)
+  expect_identical(output_dt, expected_dt)
+})
+
+# Scale multiplicative sex-specific values to both sexes combined ---------
+
+# set up test input data.table
+input_dt <- CJ(year = 2010, sex = c("female", "male"),
+               value = 0.9)
+input_dt_both <- CJ(year = 2010, sex = "both",
+                    value = 0.95)
+input_dt <- rbind(input_dt, input_dt_both, use.names = T)
+setkeyv(input_dt, id_cols)
+
+# set up expected output table
+expected_dt <- CJ(year = 2010, sex = c("female", "male"),
+                  value = sqrt(0.95))
+expected_dt <- rbind(expected_dt, input_dt_both, use.names = T)
+setkeyv(expected_dt, id_cols)
+
+description <- "scaling multiplicative sex-specific values to both sexes
+combined works"
+test_that(description, {
+  output_dt <- scale(dt = input_dt,
+                     id_cols = id_cols,
+                     value_cols = "value",
+                     col_stem = "sex",
+                     col_type = "categorical",
+                     mapping = sex_mapping,
+                     agg_function = prod)
   expect_identical(output_dt, expected_dt)
 })
 
