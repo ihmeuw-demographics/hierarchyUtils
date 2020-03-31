@@ -446,6 +446,11 @@ assert_agg_scale_args <- function(dt,
     assertable::assert_colnames(mapping, expected_mapping_cols, only_colnames = T,
                                 quiet = T)
     assert_is_unique_dt(mapping, expected_mapping_cols)
+  } else {
+    assertthat::assert_that(assertive::is_null(mapping),
+                            msg = "When scaling an interval variable `mapping`
+                                   must be Null. `mapping` is inferred from
+                                   `dt`")
   }
 
   # check `agg_function` argument
