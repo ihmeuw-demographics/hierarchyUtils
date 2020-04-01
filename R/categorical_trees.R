@@ -318,13 +318,20 @@ identify_missing_agg <- function(tree) {
 #' @rdname problematic_tree_nodes
 identify_missing_scale <- function(tree) {
 
+  if (all(c("left", "right") %in% tree$fields)) {
+    col_type <- "interval"
+  } else {
+    col_type <- "categorical"
+  }
+
   # identify each node that is missing which causes scaling of itself or
   # children to not be possible
   missing_nodes <- tree$Get(
     "name",
     filterFun = function(x) !data.tree::GetAttribute(x, "exists") &
       (!data.tree::GetAttribute(x, "scale_possible") |
-         !data.tree::GetAttribute(x, "scale_children_possible"))
+         !data.tree::GetAttribute(x, "scale_children_possible")) &
+      ifelse(col_type == "interval", data.tree::isNotRoot(x), TRUE)
   )
   if (!is.null(missing_nodes)) missing_nodes <- sort(unname(missing_nodes))
   return(missing_nodes)

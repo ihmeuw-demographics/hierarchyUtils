@@ -292,16 +292,30 @@ name_to_start_end <- function(name) {
   # Validate arguments ------------------------------------------------------
 
   # check `name` argument
-  assertthat::assert_that(assertive::is_character(name),
-                          all(grepl("^\\[[0-9]+,\\s[Inf|0-9]+\\)", name)),
-                          msg = "`name` must be a character vector formatted in
-                          left-closed, right-open interval notation as described
-                          in `gen_name()`")
+  assertthat::assert_that(
+    assertive::is_character(name),
+    all(grepl("^\\[((-*Inf)|([\\-\\.0-9]+)),\\s((Inf)|([\\-\\.0-9]+))\\)$",
+              name)),
+    msg = "`name` must be a character vector formatted in left-closed,
+    right-open interval notation as described in `gen_name()`"
+  )
 
   # Parse start and end of interval -----------------------------------------
 
-  start <- as.numeric(gsub("^\\[|,\\s\\w+\\)", "", name))
-  end <- as.numeric(gsub("^\\[[0-9]+,\\s|\\)", "", name))
+  # remove left "["
+  start <- gsub("^\\[", "", name)
+  # remove ", ", right endpoint, right ")".
+  # right endpoint can be positive infinity or any numeric
+  start <- gsub(",\\s((Inf)|([\\-\\.0-9]+))\\)$", "", start)
+  start <- as.numeric(start)
+
+  # remove right ")"
+  end <- gsub("\\)$", "", name)
+  # remove left "[", left endpoint, ", "
+  # left endpoint can be negative infinity or any numeric
+  end <- gsub("^\\[((-Inf)|([\\-\\.0-9]+)),\\s", "", end)
+  end <- as.numeric(end)
+
   result <- list(start = start,
                  end = end)
   return(result)
