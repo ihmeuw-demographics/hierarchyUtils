@@ -109,7 +109,8 @@ check_ages <- dt[, list(age_start, age_end)]
 
 test_that("missing age intervals are correctly identified", {
   output <- identify_missing_intervals(check_ages[!age_start %in%
-                                                    c(0:4, 85:89, 95)])
+                                                    c(0:4, 85:89, 95)],
+                                       data.table(0, Inf))
   expected <- data.table(start = c(0, 85, 95), end = c(5, 90, Inf))
   setkeyv(expected, c("start", "end"))
 
@@ -145,3 +146,47 @@ test_that("overlapping age intervals are correctly identified", {
   expect_identical(output, expected)
 })
 
+# Test that intervals are collapsed correctly to common set ---------------
+
+id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
+value_cols <- c("value")
+
+# set up test input data.table
+input_dt_male <- CJ(year_start = 2005, year_end = 2010,
+                    sex = "male",
+                    age_start = seq(0, 95, 5),
+                    value = 25)
+input_dt_male[age_start == 95, value := 5]
+input_dt_female <- CJ(year_start = 2005:2009,
+                      sex = "female",
+                      age_start = seq(0, 95, 1),
+                      value = 1)
+gen_end(input_dt_female, setdiff(id_cols, c("year_end", "age_end")),
+        col_stem = "year", right_most_endpoint = 2010)
+input_dt <- rbind(input_dt_male, input_dt_female)
+gen_end(input_dt, setdiff(id_cols, "age_end"), col_stem = "age")
+setkeyv(input_dt, id_cols)
+
+expected_dt <- CJ(year_start = 2005, year_end = 2010,
+                  sex = c("male", "female"),
+                  age_start = seq(0, 95, 5),
+                  value = 25)
+expected_dt[age_start == 95, value := 5]
+gen_end(expected_dt, setdiff(id_cols, "age_end"), col_stem = "age")
+setkeyv(expected_dt, id_cols)
+
+test_that("intervals are collapsed correctly to common set", {
+  collapsed_dt <- collapse_common_intervals(
+    dt = input_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "year"
+  )
+  collapsed_dt <- collapse_common_intervals(
+    dt = collapsed_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "age"
+  )
+  expect_identical(collapsed_dt, expected_dt)
+})

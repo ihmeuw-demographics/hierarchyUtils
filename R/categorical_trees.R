@@ -76,7 +76,7 @@ create_agg_tree <- function(mapping, exists, col_type) {
           return(data.tree::GetAttribute(child, "right"))
         })
         missing_intervals <- identify_missing_intervals(
-          data.table(start, end), x$left, x$right
+          data.table(start, end), data.table(x$left, x$right)
         )
         if (nrow(missing_intervals) != 0) {
           return(FALSE)
@@ -125,7 +125,7 @@ create_scale_tree <- function(mapping,
           return(data.tree::GetAttribute(sib, "right"))
         })
         missing_intervals <- identify_missing_intervals(
-          data.table(start, end), x$parent$left, x$parent$right
+          data.table(start, end), data.table(x$parent$left, x$parent$right)
         )
         overlapping_intervals <- identify_overlapping_intervals(
           data.table(start, end), x$parent$left, x$parent$right

@@ -193,36 +193,30 @@ place_new_interval_node <- function(current_node, new_node) {
 #'   Unique intervals to check as returned by [subset_unique_grouping()].
 #'   Includes a column for the start of the interval and the end of the
 #'   interval.
-#' @param full_int_start \[`numeric(1)`\]\cr
-#'   Start of the complete interval that should be covered by the detailed
-#'   intervals in `ints_dt`.
-#' @param full_int_end \[`numeric(1)`\]\cr
-#'   End of the complete interval that should be covered by the detailed
-#'   intervals in `ints_dt`.
+#' @param expected_ints_dt \[`data.table()`\]\cr
+#'   Expected intervals that should be completely included in `ints_dt`.
+#'   Includes a column for the start of the interval and the end of the
+#'   interval.
 #'
 #' @return  \[`data.table()`\] with columns for 'start' and 'end' of intervals
 #'   where intervals in `ints_dt` are missing or overlapping. If no intervals
 #'   are missing or overlapping then zero-row \[`data.table()`\] is returned.
 #'
 #' @rdname problematic_intervals
-identify_missing_intervals <- function(ints_dt,
-                                       full_int_start = 0,
-                                       full_int_end = Inf) {
+identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 
   assertive::is_data.table(ints_dt)
-  assertthat::is.number(full_int_start)
-  assertthat::is.number(full_int_end)
+  assertive::is_data.table(expected_ints_dt)
 
   # create full interval that all sub intervals should span
-  full_int <- intervals::Intervals_full(
-    matrix(c(full_int_start, full_int_end), ncol = 2), closed = c(TRUE, FALSE)
-  )
+  expected_ints <- intervals::Intervals_full(as.matrix(expected_ints_dt),
+                                             closed = c(TRUE, FALSE))
 
   # create left-closed, right-open intervals
   ints <- intervals::Intervals_full(as.matrix(ints_dt), closed = c(TRUE, FALSE))
 
   # identify missing intervals
-  missing_ints <- intervals::interval_difference(full_int, ints)
+  missing_ints <- intervals::interval_difference(expected_ints, ints)
 
   missing_ints_dt <- data.table::as.data.table(missing_ints)
   data.table::setnames(missing_ints_dt, c("start", "end"))
@@ -295,7 +289,7 @@ fill_missing_intervals <- function(interval_tree, subtrees, col_stem) {
                         filterFun = function(x) data.tree::isLeaf(x))
 
     missing_intervals <- identify_missing_intervals(
-      data.table(start, end), agg_node$left, agg_node$right
+      data.table(start, end), data.table(agg_node$left, agg_node$right)
     )
     data.table::setnames(missing_intervals, c("start", "end"), cols)
     gen_name(missing_intervals, col_stem = col_stem, format = "interval")
