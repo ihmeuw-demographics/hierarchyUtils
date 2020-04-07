@@ -165,6 +165,12 @@ gen_end(input_dt_female, setdiff(id_cols, c("year_end", "age_end")),
         col_stem = "year", right_most_endpoint = 2010)
 input_dt <- rbind(input_dt_male, input_dt_female)
 gen_end(input_dt, setdiff(id_cols, "age_end"), col_stem = "age")
+
+input_dt_agg_age <- CJ(year_start = 2005, year_end = 2010,
+                       sex = c("female", "male"),
+                       age_start = 0, age_end = Inf,
+                       value = 480)
+input_dt <- rbind(input_dt, input_dt_agg_age)
 setkeyv(input_dt, id_cols)
 
 expected_dt <- CJ(year_start = 2005, year_end = 2010,
@@ -182,11 +188,19 @@ test_that("intervals are collapsed correctly to common set", {
     value_cols = value_cols,
     col_stem = "year"
   )
-  collapsed_dt <- collapse_common_intervals(
+  expect_error(collapse_common_intervals(
     dt = collapsed_dt,
     id_cols = id_cols,
     value_cols = value_cols,
     col_stem = "age"
+  ), regexp = "Some overlapping intervals are already in `dt`.")
+
+  collapsed_dt <- collapse_common_intervals(
+    dt = collapsed_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "age",
+    drop_present_aggs = T
   )
   expect_identical(collapsed_dt, expected_dt)
 })

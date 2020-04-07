@@ -61,7 +61,8 @@ collapse_common_intervals <- function(dt,
                                       value_cols,
                                       col_stem,
                                       agg_function = sum,
-                                      missing_dt_severity = "stop") {
+                                      missing_dt_severity = "stop",
+                                      drop_present_aggs = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
@@ -114,6 +115,30 @@ collapse_common_intervals <- function(dt,
   interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
   categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
   by_id_cols <- id_cols[!id_cols %in% cols]
+
+  # check for overlapping intervals
+  overlapping_dt <- dt[, identify_overlapping_intervals(
+    .SD,
+    min(.SD[[cols[1]]]),
+    max(.SD[[cols[2]]])
+  ), .SDcols = cols, by = by_id_cols]
+  data.table::setnames(overlapping_dt, c("start", "end"), cols)
+  overlapping_dt[, issue := "overlapping intervals present"]
+
+  if (nrow(overlapping_dt) > 0) {
+    if (drop_present_aggs) {
+      dt <- merge(dt, overlapping_dt, by = id_cols, all = T)
+      dt <- dt[is.na(issue)]
+      dt[, issue := NULL]
+    } else {
+      error_msg <-
+        paste0("Some overlapping intervals are already in `dt`.\n",
+               "* See `drop_present_aggs` argument if it is okay to drop ",
+               "these before collapsing intervals.\n",
+               paste0(capture.output(overlapping_dt), collapse = "\n"))
+      stop(error_msg)
+    }
+  }
 
   common_intervals <- identify_common_intervals(dt, id_cols, col_stem)
   collapsed_dt <- merge_common_intervals(dt, common_intervals, col_stem)
@@ -227,6 +252,7 @@ identify_common_intervals <- function(dt, id_cols, col_stem) {
       full_int_start = min(combined_ints[[1]]),
       full_int_end = max(combined_ints[[2]])
     )
+    overlap <- unique(overlap)
     return(overlap)
   }
 
