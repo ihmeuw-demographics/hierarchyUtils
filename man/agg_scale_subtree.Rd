@@ -7,30 +7,32 @@
 \usage{
 agg_subtree(
   dt,
-  by_id_cols,
+  id_cols,
   value_cols,
   col_stem,
   col_type,
   agg_function,
-  subtree
+  subtree,
+  missing_dt_severity
 )
 
 scale_subtree(
   dt,
-  by_id_cols,
+  id_cols,
   value_cols,
   col_stem,
   col_type,
   agg_function,
-  subtree
+  subtree,
+  missing_dt_severity
 )
 }
 \arguments{
 \item{dt}{[\code{data.table()}]\cr
 Data to be aggregated or scaled.}
 
-\item{by_id_cols}{[\code{character()}]\cr
-The \code{id_cols} without the agg/scale variable(s) included.}
+\item{id_cols}{[\code{character()}]\cr
+ID columns that uniquely identify each row of \code{dt}.}
 
 \item{value_cols}{[\code{character()}]\cr
 Value columns that should be aggregated.}
@@ -49,6 +51,12 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 
 \item{subtree}{one subtree of the list returned by \code{\link[=create_agg_subtrees]{create_agg_subtrees()}} or
 \code{\link[=create_scale_subtrees]{create_scale_subtrees()}}.}
+
+\item{missing_dt_severity}{[\code{character(1)}]\cr
+How severe should the consequences of missing data that prevents
+aggregation or scaling from occurring be? Can be either 'stop', 'warning',
+'message', or 'none'. If not "stop", then only the possible aggregations or
+scaling is done using the available data.}
 }
 \value{
 [\code{data.table()}] with same input columns for requested aggregates

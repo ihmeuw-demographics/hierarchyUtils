@@ -128,6 +128,15 @@ available. For example if making age aggregates, it is okay if some
 location-years have 5-year age groups while other location-years have 1-year
 age groups.
 
+In addition it is okay if the interval variables included in \code{id_vars} are
+not all exactly the same, \code{agg} and \code{scale} will collapse to the most
+detailed common intervals \code{\link[=collapse_common_intervals]{collapse_common_intervals()}} prior to
+aggregation or scaling. An example of this is when aggregating subnational
+data to the national level (so \code{col_stem} is 'location' and \code{col_type} is
+'categorical') but each subnational location contains different age groups.
+So \code{\link[=agg]{agg()}} and \code{\link[=scale]{scale()}} first aggregate to the most detailed common age
+groups before making location aggregates.
+
 The \code{agg} and \code{scale} functions currently only work when combining counts or
 probabilities. If the data is in rate-space then you need to convert to count
 space first, aggregate/scale, and then convert back.

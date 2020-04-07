@@ -83,6 +83,15 @@
 #' location-years have 5-year age groups while other location-years have 1-year
 #' age groups.
 #'
+#' In addition it is okay if the interval variables included in `id_vars` are
+#' not all exactly the same, `agg` and `scale` will collapse to the most
+#' detailed common intervals [`collapse_common_intervals()`] prior to
+#' aggregation or scaling. An example of this is when aggregating subnational
+#' data to the national level (so `col_stem` is 'location' and `col_type` is
+#' 'categorical') but each subnational location contains different age groups.
+#' So [`agg()`] and [`scale()`] first aggregate to the most detailed common age
+#' groups before making location aggregates.
+#'
 #' The `agg` and `scale` functions currently only work when combining counts or
 #' probabilities. If the data is in rate-space then you need to convert to count
 #' space first, aggregate/scale, and then convert back.
@@ -152,6 +161,18 @@ agg <- function(dt,
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
                         col_type, mapping, agg_function, "agg")
 
+  original_col_order <- copy(names(dt))
+  original_keys <- copy(key(dt))
+
+  cols <- col_stem
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
+  }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
+  by_id_cols <- id_cols[!id_cols %in% cols]
+
   # check `missing_dt_severity` argument
   assertthat::assert_that(assertthat::is.string(missing_dt_severity),
                           checkmate::checkChoice(missing_dt_severity,
@@ -206,19 +227,41 @@ agg <- function(dt,
   assertive::assert_engine(empty_missing_dt, missing_dt,
                            msg = error_msg, severity = missing_dt_severity)
 
+  # drop data that is missing id_col intervals that will be needed to make
+  # aggregation. Missingness in the `col_stem` variable is handled within the
+  # mapping/tree creation
+  if (nrow(missing_dt) > 0) {
+    # determine which common intervals the original data and missing data maps to
+    common_id_cols <- copy(id_cols)
+    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+      common_intervals <- identify_common_intervals(dt, id_cols, stem)
+      dt <- merge_common_intervals(dt, common_intervals, stem)
+      data.table::setnames(dt, c("common_start", "common_end"),
+                           paste0("common_", stem, "_", c("start", "end")))
+
+      missing_dt <- merge_common_intervals(missing_dt, common_intervals, stem)
+      data.table::setnames(missing_dt, c("common_start", "common_end"),
+                           paste0("common_", stem, "_", c("start", "end")))
+      missing_dt[, paste0(stem, "_", c("start", "end")) := NULL]
+
+      common_id_cols[common_id_cols %in% paste0(stem, "_", c("start", "end"))] <-
+        paste0("common_", stem, "_", c("start", "end"))
+    }
+    missing_dt <- unique(missing_dt)
+
+    # drop missing data ranges
+    dt <- merge(dt, missing_dt, by = common_id_cols, all = T)
+    dt <- dt[is.na(issue)]
+
+    dt[, issue := NULL]
+    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+      dt[, paste0("common_", stem, "_", c("start", "end")) := NULL]
+    }
+  }
+
   # Do aggregation ----------------------------------------------------------
 
-  original_col_order <- copy(names(dt))
-  original_keys <- copy(key(dt))
-
-  cols <- col_stem
-  if (col_type == "interval") {
-    cols <- paste0(col_stem, "_", c("start", "end"))
-  }
-  by_id_cols <- id_cols[!id_cols %in% cols]
-
-  groups <- identify_unique_groupings(dt, col_stem, col_type,
-                                      by_id_cols)
+  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type)
 
   # create one column to describe each interval in mapping
   if (col_type == "interval") {
@@ -230,8 +273,8 @@ agg <- function(dt,
   # aggregate each unique set of grouping separately
   result_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
+    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type, groups,
+                                       group_num)
 
     # create mapping from available interval variables and requested intervals
     if (col_type == "interval") {
@@ -251,10 +294,21 @@ agg <- function(dt,
     target_dt <- NULL
     for (subtree in subtrees) {
 
-      aggregated_same_groupings_dt <- agg_subtree(grouping$dt,
-                                                  by_id_cols, value_cols,
-                                                  col_stem, col_type,
-                                                  agg_function, subtree)
+      # append already aggregated data to grouping dt so that next subtree has
+      # access
+      agg_data <- unique(rbind(grouping$dt, target_dt, use.names= T))
+
+      aggregated_same_groupings_dt <- agg_subtree(
+        agg_data,
+        id_cols,
+        value_cols,
+        col_stem,
+        col_type,
+        agg_function,
+        subtree,
+        missing_dt_severity
+      )
+
       if (col_type == "interval") {
         gen_name(aggregated_same_groupings_dt, col_stem = col_stem,
                  format = "interval")
@@ -262,10 +316,6 @@ agg <- function(dt,
                  col_stem)
       }
 
-      # append to grouping dt so that next subtree has access
-      # TODO: can save memory by only saving aggregates to one data.table
-      grouping$dt <- rbind(grouping$dt, aggregated_same_groupings_dt,
-                           use.names = T)
       # append to final aggregated data to return
       target_dt <- rbind(target_dt, aggregated_same_groupings_dt,
                          use.names = T)
@@ -301,6 +351,18 @@ scale <- function(dt,
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
                         col_type, mapping, agg_function, "scale")
+
+  original_col_order <- copy(names(dt))
+  original_keys <- copy(key(dt))
+
+  cols <- col_stem
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
+  }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
+  by_id_cols <- id_cols[!id_cols %in% cols]
 
   # check `missing_dt_severity` argument
   assertthat::assert_that(assertthat::is.string(missing_dt_severity),
@@ -347,23 +409,13 @@ scale <- function(dt,
 
   # Do scaling --------------------------------------------------------------
 
-  original_col_order <- copy(names(dt))
-  original_keys <- copy(key(dt))
-
-  cols <- col_stem
-  if (col_type == "interval") {
-    cols <- paste0(col_stem, "_", c("start", "end"))
-  }
-  by_id_cols <- id_cols[!id_cols %in% cols]
-
-  groups <- identify_unique_groupings(dt, col_stem, col_type,
-                                      by_id_cols)
+  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type)
 
   # scale each unique set of grouping separately
   result_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
+    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type,
+                                       groups, group_num)
 
     # create mapping from available interval variables
     if (col_type == "interval") {
@@ -380,18 +432,34 @@ scale <- function(dt,
 
     # scale children to parents for subtrees where scaling is possible
     for (subtree in subtrees) {
-      scaled_same_groupings_dt <- scale_subtree(grouping$dt, by_id_cols,
-                                                value_cols, col_stem,
-                                                col_type, agg_function,
-                                                subtree)
 
-      # replace the unscaled children node values with the scaled values
+      scaled_same_groupings_dt <- scale_subtree(
+        grouping$dt,
+        id_cols,
+        value_cols,
+        col_stem,
+        col_type,
+        agg_function,
+        subtree,
+        missing_dt_severity
+      )
+
+      if (col_type == "interval") {
+        gen_name(scaled_same_groupings_dt, col_stem = col_stem,
+                 format = "interval")
+        setnames(scaled_same_groupings_dt, paste0(col_stem, "_name"),
+                 col_stem)
+      }
+
+      # replace the unscaled children node values with the scaled values where
+      # scaling is possible
       id_cols_with_stem <- c(id_cols, if (col_type == "interval") col_stem)
       grouping$dt <- merge(grouping$dt, scaled_same_groupings_dt,
                            by = id_cols_with_stem, all = T)
       children <- names(subtree$children)
       for (value_col in value_cols) {
-        grouping$dt[get(col_stem) %in% children,
+        grouping$dt[get(col_stem) %in% children &
+                      !is.na(get(paste0(value_col, "_scaled"))),
                     paste0(value_col) := get(paste0(value_col, "_scaled"))]
         grouping$dt[, paste0(value_col, "_scaled") := NULL]
       }

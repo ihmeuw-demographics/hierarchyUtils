@@ -141,6 +141,7 @@ collapse_common_intervals <- function(dt,
     full_missing_dt <- full_missing_dt[, c(by_id_cols,
                                            c("common_start", "common_end")),
                                        with = F]
+    full_missing_dt <- unique(full_missing_dt)
     # drop the common intervals that the missing intervals are part of
     full_missing_dt[, drop := TRUE]
     collapsed_dt <- merge(collapsed_dt, full_missing_dt, all = T,

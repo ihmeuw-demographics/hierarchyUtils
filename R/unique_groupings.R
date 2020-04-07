@@ -2,29 +2,32 @@
 #'   data.table
 #'
 #' @inheritParams agg
-#' @param by_id_cols \[`character()`\]\cr
-#'   The `id_cols` without the agg/scale variable(s) included.
 #'
 #' @return list with two named elements.
-#'   1. *groupings*: \[`data.table()`\] with `by_id_cols` and a new column
-#'   'available_vars' that is a ';' separated string for each unique variable
-#'   present in each combination of `by_id_cols`. If `col_type` is 'interval'
-#'   then each 'start' and 'end' variable is also ',' separated.
+#'   1. *groupings*: \[`data.table()`\] with `id_cols` (except `col_stem`
+#'   columns) and a new column 'available_vars' that is a ';' separated string
+#'   for each unique variable present in each combination of `id_cols` (except
+#'   `col_stem` columns). If `col_type` is 'interval' then each 'start' and
+#'   'end' variable is also ',' separated.
 #'   2. *unique_groupings*: \[`data.table()`\] with only one common for the
 #'   unique 'available_vars' in the `groupings`.
 #'
 #' @seealso [subset_unique_grouping()]
 identify_unique_groupings <- function(dt,
+                                      id_cols,
                                       col_stem,
-                                      col_type,
-                                      by_id_cols) {
+                                      col_type) {
+
+  cols <- col_stem
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
+  }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
+  by_id_cols <- id_cols[!id_cols %in% cols & id_cols %in% categorical_id_cols]
 
   # create a temporary column combining the start and end columns for intervals
   if (col_type == "interval") {
-    cols <- col_stem
-    if (col_type == "interval") {
-      cols <- paste0(col_stem, "_", c("start", "end"))
-    }
     dt[, c(col_stem) := paste(get(cols[1]), get(cols[2]),
                               sep = ",")]
   }
@@ -60,19 +63,22 @@ identify_unique_groupings <- function(dt,
 #'
 #' @seealso [identify_unique_groupings()]
 subset_unique_grouping <- function(dt,
-                                   groups,
-                                   group_num,
+                                   id_cols,
                                    col_stem,
                                    col_type,
-                                   by_id_cols) {
+                                   groups,
+                                   group_num) {
 
-  group_string <- groups$unique_groupings[group_num, available_vars]
-
-  # identify unique col combinations in this grouping
   cols <- col_stem
   if (col_type == "interval") {
     cols <- paste0(col_stem, "_", c("start", "end"))
   }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
+  by_id_cols <- id_cols[!id_cols %in% cols & id_cols %in% categorical_id_cols]
+
+  # identify unique col combinations in this grouping
+  group_string <- groups$unique_groupings[group_num, available_vars]
   unique_cols <- data.table::data.table(group = strsplit(group_string,
                                                          split = ";")[[1]])
   unique_cols[, c(cols) := data.table::tstrsplit(group, split = ",")]
@@ -85,7 +91,11 @@ subset_unique_grouping <- function(dt,
   # subset to the data for this grouping
   same_groupings <- groups$groupings[available_vars == group_string]
   same_groupings[, available_vars := NULL]
-  same_groupings_dt <- merge(same_groupings, dt, by = by_id_cols, all.x = T)
+  if (nrow(same_groupings) == 0) {
+    same_groupings_dt <- copy(dt)
+  } else {
+    same_groupings_dt <- merge(same_groupings, dt, by = by_id_cols, all.x = T)
+  }
 
   # create a single column describing each interval
   if (col_type == "interval") {

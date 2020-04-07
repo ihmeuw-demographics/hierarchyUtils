@@ -79,19 +79,21 @@ identify_agg_dt_issues <- function(dt,
   if (col_type == "interval") {
     cols <- paste0(col_stem, "_", c("start", "end"))
   }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
   by_id_cols <- id_cols[!id_cols %in% cols]
 
-  groups <- identify_unique_groupings(dt, col_stem, col_type,
-                                      by_id_cols)
+  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type)
 
   # Check for aggregates already present or overlapping intervals -----------
 
   aggs_present_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
-
     check_dt <- NULL
+    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type, groups,
+                                       group_num)
+
     if (col_type == "categorical") {
       agg_tree <- create_agg_tree(mapping, grouping$unique_cols[[cols]],
                                   col_type)
@@ -103,7 +105,7 @@ identify_agg_dt_issues <- function(dt,
                                 by = by_id_cols]
         data.table::setnames(check_dt, "present", cols[1])
       }
-    } else if (col_type == "interval") {
+    } else {
       # TODO add check for when start of interval is exactly equivalent to end
       # of interval, this isn't possible with left closed right open intervals
       present_nodes <- identify_overlapping_intervals(
@@ -114,12 +116,10 @@ identify_agg_dt_issues <- function(dt,
       data.table::setnames(present_nodes, c("start", "end"), cols)
       check_dt <- grouping$dt[, data.table(present_nodes),
                               by = by_id_cols]
-    } else {
-      stop("can only aggregate 'categorical' or 'interval' data")
     }
     return(check_dt)
   })
-  aggs_present_dt <- rbindlist(aggs_present_dt)
+  aggs_present_dt <- rbindlist(aggs_present_dt, use.names = T)
 
   if (nrow(aggs_present_dt) > 0) {
     aggs_present_dt[, issue := "aggregate data present"]
@@ -144,8 +144,9 @@ identify_agg_dt_issues <- function(dt,
 
   missing_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
+    check_dt <- NULL
+    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type, groups,
+                                       group_num)
 
     # create mapping from available interval variables and requested intervals
     if (col_type == "interval") {
@@ -157,26 +158,51 @@ identify_agg_dt_issues <- function(dt,
       group_mapping <- copy(mapping)
     }
 
+    # check that interval id variables cover same range in each subtree
+    subtrees <- create_agg_subtrees(group_mapping,
+                                    grouping$unique_cols[[col_stem]], col_type)
+    for (subtree in subtrees) {
+
+      children <- names(subtree$children)
+      subtree_dt <- grouping$dt[get(col_stem) %in% children]
+
+      for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+
+        common_intervals <- identify_common_intervals(subtree_dt, id_cols, stem)
+        collapsed_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
+
+        # check for missing intervals when attempting to collapse common intervals
+        cols_stem <- paste0(stem, "_", c("start", "end"))
+        by_id_cols_stem <- id_cols[!id_cols %in% cols_stem]
+        missing <- collapsed_dt[, identify_missing_intervals(.SD, common_intervals),
+                                .SDcols = cols_stem,
+                                by = by_id_cols_stem]
+        data.table::setnames(missing, c("start", "end"), cols_stem)
+        check_dt <- rbindlist(list(check_dt, missing), use.names = T)
+      }
+    }
+
+    # check that the variable to be aggregated has all needed nodes
     agg_tree <- create_agg_tree(group_mapping,
                                 grouping$unique_cols[[col_stem]], col_type)
     missing_nodes <- identify_missing_agg(agg_tree)
 
-    check_dt <- NULL
     if (!is.null(missing_nodes)) {
       # expand the groupings dataset to show the missing nodes
       if (col_type == "categorical") {
-        check_dt <- grouping$dt[, list(missing = missing_nodes), by = by_id_cols]
-        data.table::setnames(check_dt, "missing", cols)
+        missing <- grouping$dt[, list(missing = missing_nodes), by = by_id_cols]
+        data.table::setnames(missing, "missing", cols)
       } else {
         missing_nodes <- name_to_start_end(missing_nodes)
         setDT(missing_nodes)
-        check_dt <- grouping$dt[, data.table(missing_nodes), by = by_id_cols]
-        data.table::setnames(check_dt, c("start", "end"), cols)
+        missing <- grouping$dt[, data.table(missing_nodes), by = by_id_cols]
+        data.table::setnames(missing, c("start", "end"), cols)
       }
+      check_dt <- rbindlist(list(check_dt, missing), use.names = T)
     }
     return(check_dt)
   })
-  missing_dt <- rbindlist(missing_dt)
+  missing_dt <- rbindlist(missing_dt, use.names = T)
 
   if (nrow(missing_dt) > 0) {
     missing_dt[, issue := "missing data"]
@@ -184,9 +210,11 @@ identify_agg_dt_issues <- function(dt,
 
   # Combine together identified problems ------------------------------------
 
-  problem_dt <- rbind(aggs_present_dt, missing_dt, use.names = T, fill = T)
+  problem_dt <- rbindlist(list(aggs_present_dt, missing_dt), use.names = T, fill = T)
   if (nrow(problem_dt) > 0) {
-    data.table::setkeyv(problem_dt, c(by_id_cols, cols))
+    problem_dt <- unique(problem_dt)
+    data.table::setcolorder(problem_dt, c(id_cols, "issue"))
+    data.table::setkeyv(problem_dt, c(id_cols, "issue"))
   } else {
     problem_dt <- data.table(issue = character())
   }
@@ -217,17 +245,19 @@ identify_scale_dt_issues <- function(dt,
   if (col_type == "interval") {
     cols <- paste0(col_stem, "_", c("start", "end"))
   }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
   by_id_cols <- id_cols[!id_cols %in% cols]
 
-  groups <- identify_unique_groupings(dt, col_stem, col_type,
-                                      by_id_cols)
+  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type)
 
   # Check for aggregates already present or overlapping intervals -----------
 
   problem_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
-    grouping <- subset_unique_grouping(dt, groups, group_num, col_stem,
-                                       col_type, by_id_cols)
+    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type, groups,
+                                       group_num)
 
     # create mapping from available interval variables and requested intervals
     if (col_type == "interval") {
@@ -237,6 +267,50 @@ identify_scale_dt_issues <- function(dt,
     } else {
       group_mapping <- copy(mapping)
     }
+
+    # check that interval id variables cover same range in each subtree
+    missing_intervals_ids_dt <- NULL
+    subtrees <- create_scale_subtrees(group_mapping,
+                                      grouping$unique_cols[[col_stem]],
+                                      col_type, collapse_missing)
+    for (subtree in subtrees) {
+
+      parent <- subtree$name
+      children <- names(subtree$children)
+
+      parent_dt <- grouping$dt[get(col_stem) %in% parent]
+      children_dt <- grouping$dt[get(col_stem) %in% children]
+      subtree_dt <- rbind(parent_dt, children_dt, use.names = T)
+
+      for (stem in interval_id_cols_stems) {
+
+        common_intervals <- identify_common_intervals(subtree_dt, id_cols, stem)
+        collapsed_parent_dt <- merge_common_intervals(parent_dt, common_intervals, stem)
+        collapsed_children_dt <- merge_common_intervals(children_dt, common_intervals, stem)
+
+        # check for missing intervals when attempting to collapse common intervals
+        cols_stem <- paste0(stem, "_", c("start", "end"))
+        by_id_cols_stem <- id_cols[!id_cols %in% cols_stem]
+
+        missing_parent <- collapsed_parent_dt[, identify_missing_intervals(.SD, common_intervals),
+                                              .SDcols = cols_stem,
+                                              by = by_id_cols_stem]
+        data.table::setnames(missing_parent, c("start", "end"), cols_stem)
+        missing_parent[, issue := "missing data"]
+
+        missing_children <- collapsed_children_dt[, identify_missing_intervals(.SD, common_intervals),
+                                                  .SDcols = cols_stem,
+                                                  by = by_id_cols_stem]
+        data.table::setnames(missing_children, c("start", "end"), cols_stem)
+        missing_children[, issue := "missing data"]
+
+        missing_intervals_ids_dt <- rbindlist(list(missing_intervals_ids_dt,
+                                                   missing_parent,
+                                                   missing_children),
+                                              use.names = T)
+      }
+    }
+    missing_intervals_ids_dt <- unique(missing_intervals_ids_dt)
 
     scale_tree <- create_scale_tree(group_mapping,
                                     grouping$unique_cols[[col_stem]], col_type,
@@ -272,7 +346,7 @@ identify_scale_dt_issues <- function(dt,
         overlapping_intervals_dt[, issue := "overlapping interval data"]
         return(overlapping_intervals_dt)
       })
-      overlapping_dt <- rbindlist(overlapping_dt)
+      overlapping_dt <- rbindlist(overlapping_dt, use.names = T)
     }
 
     ## Check for missing data or intervals
@@ -292,13 +366,16 @@ identify_scale_dt_issues <- function(dt,
       }
       missing_dt[, issue := "missing data"]
     }
-    check_dt <- rbind(overlapping_dt, missing_dt)
+    check_dt <- rbindlist(list(overlapping_dt, missing_dt, missing_intervals_ids_dt),
+                          use.names = T)
     return(check_dt)
   })
-  problem_dt <- rbindlist(problem_dt)
+  problem_dt <- rbindlist(problem_dt, use.names = T, fill = T)
 
   if (nrow(problem_dt) > 0) {
-    data.table::setkeyv(problem_dt, c(by_id_cols, cols))
+    problem_dt <- unique(problem_dt)
+    data.table::setcolorder(problem_dt, c(id_cols, "issue"))
+    data.table::setkeyv(problem_dt, c(id_cols, "issue"))
   } else {
     problem_dt <- data.table(issue = character())
   }
