@@ -35,6 +35,11 @@
 #'   Whether to drop aggregates (or overlapping intervals) that are already
 #'   present in `dt` before aggregating. Default is 'False' and the function
 #'   errors out.
+#' @param collapse_interval_cols \[`logical(1)`\]\cr
+#'   Whether to collapse interval `id_cols` (not including `col_stem` if it is
+#'   an interval variable). Default is 'False'. If set to 'True' the interval
+#'   columns are collapsed to the most detailed common intervals and will error
+#'   out if there are overlapping intervals.
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns for
 #'   requested aggregates or with scaled values.
@@ -154,12 +159,14 @@ agg <- function(dt,
                 mapping,
                 agg_function = sum,
                 missing_dt_severity = "stop",
-                drop_present_aggs = FALSE) {
+                drop_present_aggs = FALSE,
+                collapse_interval_cols = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function, "agg")
+                        col_type, mapping, agg_function,
+                        collapse_interval_cols, "agg")
 
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
@@ -188,10 +195,10 @@ agg <- function(dt,
   # identify any issues in input dataset
   dt_issues <- identify_agg_dt_issues(dt, id_cols, value_cols, col_stem,
                                       col_type, mapping, agg_function,
-                                      drop_present_aggs)
+                                      drop_present_aggs, collapse_interval_cols)
 
   # check for aggregates or overlapping intervals in dataset
-  present_agg_dt <- dt_issues[issue == "aggregate data present"]
+  present_agg_dt <- dt_issues[grepl("aggregate|overlapping", issue)]
   if (nrow(present_agg_dt) > 0) {
     if (drop_present_aggs) {
       dt <- merge(dt, present_agg_dt, by = id_cols, all = T)
@@ -212,7 +219,7 @@ agg <- function(dt,
   }
 
   # check for missing data needed to make aggregates
-  missing_dt <- dt_issues[issue == "missing data"]
+  missing_dt <- dt_issues[grepl("missing", issue)]
   empty_missing_dt <- function(dt) nrow(dt) == 0
   error_msg <-
     paste0("Some aggregates in `mapping` cannot be made because input data is ",
@@ -259,9 +266,14 @@ agg <- function(dt,
     }
   }
 
+  if (nrow(dt) == 0) {
+    stop("`dt` is empty after dropping overlapping intervals and missing data")
+  }
+
   # Do aggregation ----------------------------------------------------------
 
-  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type)
+  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type,
+                                      collapse_interval_cols)
 
   # create one column to describe each interval in mapping
   if (col_type == "interval") {
@@ -273,7 +285,8 @@ agg <- function(dt,
   # aggregate each unique set of grouping separately
   result_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
-    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type, groups,
+    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type,
+                                       collapse_interval_cols, groups,
                                        group_num)
 
     # create mapping from available interval variables and requested intervals
@@ -306,7 +319,8 @@ agg <- function(dt,
         col_type,
         agg_function,
         subtree,
-        missing_dt_severity
+        missing_dt_severity,
+        collapse_interval_cols
       )
 
       if (col_type == "interval") {
@@ -345,12 +359,14 @@ scale <- function(dt,
                   mapping = NULL,
                   agg_function = sum,
                   missing_dt_severity = "stop",
-                  collapse_missing = FALSE) {
+                  collapse_missing = FALSE,
+                  collapse_interval_cols = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function, "scale")
+                        col_type, mapping, agg_function,
+                        collapse_interval_cols, "scale")
 
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
@@ -379,10 +395,10 @@ scale <- function(dt,
   # identify any issues in input dataset
   dt_issues <- identify_scale_dt_issues(dt, id_cols, value_cols, col_stem,
                                         col_type, mapping, agg_function,
-                                        collapse_missing)
+                                        collapse_missing, collapse_interval_cols)
 
   # check for overlapping intervals in dataset
-  present_agg_dt <- dt_issues[issue == "overlapping interval data"]
+  present_agg_dt <- dt_issues[grepl("aggregate|overlapping", issue)]
   if (nrow(present_agg_dt) > 0) {
     type <- "overlapping intervals"
     error_msg <-
@@ -394,7 +410,7 @@ scale <- function(dt,
   }
 
   # check for missing data needed for scaling
-  missing_dt <- dt_issues[issue == "missing data"]
+  missing_dt <- dt_issues[grepl("missing", issue)]
   empty_missing_dt <- function(dt) nrow(dt) == 0
   error_msg <-
     paste0("Some nodes in `mapping` cannot be scaled because input data is ",
@@ -407,15 +423,27 @@ scale <- function(dt,
   assertive::assert_engine(empty_missing_dt, missing_dt,
                            msg = error_msg, severity = missing_dt_severity)
 
+  non_hierarchical_data <- dt_issues[issue == "only one interval"]
+  if (nrow(non_hierarchical_data) > 0) {
+    error_msg <-
+      paste0("Some combinations of `dt` do not have a hierarchical structure ",
+             "in the `col_stem` columns.\n",
+             "* See `collapse_interval_cols` argument if some of the ",
+             "interval id variables need to be collapsed.\n")
+    stop(error_msg)
+  }
+
   # Do scaling --------------------------------------------------------------
 
-  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type)
+  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type,
+                                      collapse_interval_cols)
 
   # scale each unique set of grouping separately
   result_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
 
     grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type,
-                                       groups, group_num)
+                                       collapse_interval_cols, groups,
+                                       group_num)
 
     # create mapping from available interval variables
     if (col_type == "interval") {
@@ -441,7 +469,8 @@ scale <- function(dt,
         col_type,
         agg_function,
         subtree,
-        missing_dt_severity
+        missing_dt_severity,
+        collapse_interval_cols
       )
 
       if (col_type == "interval") {
@@ -489,6 +518,7 @@ assert_agg_scale_args <- function(dt,
                                   col_type,
                                   mapping,
                                   agg_function,
+                                  collapse_interval_cols,
                                   functionality) {
 
   # check `col_type` argument
@@ -557,5 +587,10 @@ assert_agg_scale_args <- function(dt,
                         "'")
     assertthat::assert_that(length(missing_mapping) == 0, msg = error_msg)
   }
+
+  # check `collapse_interval_cols` argument
+  assertthat::assert_that(assertthat::is.flag(collapse_interval_cols),
+                          msg = "`collapse_interval_cols` must be a logical")
+
   return(invisible(dt))
 }

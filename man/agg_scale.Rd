@@ -15,7 +15,8 @@ agg(
   mapping,
   agg_function = sum,
   missing_dt_severity = "stop",
-  drop_present_aggs = FALSE
+  drop_present_aggs = FALSE,
+  collapse_interval_cols = FALSE
 )
 
 scale(
@@ -27,7 +28,8 @@ scale(
   mapping = NULL,
   agg_function = sum,
   missing_dt_severity = "stop",
-  collapse_missing = FALSE
+  collapse_missing = FALSE,
+  collapse_interval_cols = FALSE
 )
 }
 \arguments{
@@ -68,6 +70,12 @@ scaling is done using the available data.}
 Whether to drop aggregates (or overlapping intervals) that are already
 present in \code{dt} before aggregating. Default is 'False' and the function
 errors out.}
+
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling a \code{categorical} variable, whether to collapse missing

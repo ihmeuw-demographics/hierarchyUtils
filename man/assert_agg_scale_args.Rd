@@ -12,6 +12,7 @@ assert_agg_scale_args(
   col_type,
   mapping,
   agg_function,
+  collapse_interval_cols,
   functionality
 )
 }
@@ -42,6 +43,12 @@ scaling the mapping is inferred from the available intervals in \code{dt}.}
 \item{agg_function}{[\verb{function()}]\cr
 Function to use when aggregating, can be either \code{sum} (for counts) or
 \code{prod} (for probabilities).}
+
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals.}
 
 \item{functionality}{whether \code{agg} or \code{scale} function inputs are being
 checked.}

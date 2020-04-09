@@ -19,6 +19,14 @@ interval.}
 Expected intervals that should be completely included in \code{ints_dt}.
 Includes a column for the start of the interval and the end of the
 interval.}
+
+\item{full_int_start}{[\code{numeric(1)}]\cr
+Start of the complete interval that should be covered by the detailed
+intervals in \code{ints_dt}.}
+
+\item{full_int_end}{[\code{numeric(1)}]\cr
+End of the complete interval that should be covered by the detailed
+intervals in \code{ints_dt}.}
 }
 \value{
 [\code{data.table()}] with columns for 'start' and 'end' of intervals

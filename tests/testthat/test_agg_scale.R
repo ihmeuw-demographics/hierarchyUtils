@@ -40,11 +40,40 @@ test_that(description, {
                    value_cols = value_cols,
                    col_stem = "sex",
                    col_type = "categorical",
-                   mapping = sex_mapping)
+                   mapping = sex_mapping,
+                   collapse_interval_cols = T)
   expect_identical(output_dt, expected_dt)
 })
 
-description <- "error is thrown when aggregate is already included in input"
+description <- "aggregation to boths sexes combined errors when aggregate ages
+are included in dataset"
+test_that(description, {
+  input_dt_agg_age <- CJ(year_start = 2005, year_end = 2010,
+                         sex = c("female", "male"),
+                         age_start = 0, age_end = Inf,
+                         value = 480)
+  new_input_dt <- rbind(input_dt, input_dt_agg_age)
+
+  expect_error(agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "sex",
+                   col_type = "categorical",
+                   mapping = sex_mapping),
+               regexp = "input data is missing in `dt`")
+
+  expect_error(agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "sex",
+                   col_type = "categorical",
+                   mapping = sex_mapping,
+                   collapse_interval_cols = T),
+               regexp = "Some aggregates are already in `dt`")
+})
+
+description <- "error is thrown when both sexes combined aggregate is already
+included in input"
 test_that(description, {
   new_input_dt <- rbind(input_dt, expected_dt)
   expect_error(agg(dt = new_input_dt,
@@ -82,14 +111,30 @@ test_that(description, {
                    col_type = "categorical",
                    mapping = sex_mapping),
                regexp = "input data is missing in `dt`")
-
+  expect_error(agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "sex",
+                   col_type = "categorical",
+                   mapping = sex_mapping,
+                   collapse_interval_cols = TRUE),
+               regexp = "input data is missing in `dt`")
+  expect_error(agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "sex",
+                   col_type = "categorical",
+                   mapping = sex_mapping,
+                   missing_dt_severity = "none"),
+               regexp = "`dt` is empty")
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
                    value_cols = value_cols,
                    col_stem = "sex",
                    col_type = "categorical",
                    mapping = sex_mapping,
-                   missing_dt_severity = "none")
+                   missing_dt_severity = "none",
+                   collapse_interval_cols = TRUE)
   expect_identical(output_dt, new_expected_dt)
 })
 
@@ -117,8 +162,33 @@ test_that("scaling sex-specific values to both sexes combined works", {
                      value_cols = value_cols,
                      col_stem = "sex",
                      col_type = "categorical",
-                     mapping = sex_mapping)
+                     mapping = sex_mapping,
+                     collapse_interval_cols = T)
   expect_identical(output_dt, expected_dt)
+})
+
+description <- "error is thrown when scaling data with one missing sex"
+test_that(description, {
+  new_input_dt <- input_dt[sex != "female"]
+  expect_error(scale(dt = new_input_dt,
+                     id_cols = id_cols,
+                     value_cols = value_cols,
+                     col_stem = "sex",
+                     col_type = "categorical",
+                     mapping = sex_mapping,
+                     collapse_interval_cols = T),
+               regexp = "input data is missing in `dt`")
+
+  new_input_dt <- input_dt[sex != "both"]
+  expect_error(scale(dt = new_input_dt,
+                     id_cols = id_cols,
+                     value_cols = value_cols,
+                     col_stem = "sex",
+                     col_type = "categorical",
+                     mapping = sex_mapping,
+                     collapse_interval_cols = T),
+               regexp = "input data is missing in `dt`")
+
 })
 
 description <- "error is thrown when scaling data with some missing ages or
@@ -135,7 +205,8 @@ test_that(description, {
                      value_cols = value_cols,
                      col_stem = "sex",
                      col_type = "categorical",
-                     mapping = sex_mapping),
+                     mapping = sex_mapping,
+                     collapse_interval_cols = T),
                regexp = "input data is missing in `dt`")
 
   output_dt <- scale(dt = new_input_dt,
@@ -144,7 +215,8 @@ test_that(description, {
                      col_stem = "sex",
                      col_type = "categorical",
                      mapping = sex_mapping,
-                     missing_dt_severity = "none")
+                     missing_dt_severity = "none",
+                     collapse_interval_cols = T)
   expect_identical(output_dt, new_expected_dt)
 })
 
@@ -170,7 +242,7 @@ expected_dt_female[, value := c(96, 5, 45, 30, 11)]
 
 expected_dt_male <- CJ(year_start = 2005, year_end = 2010, sex = "male")
 expected_dt_male <- expected_dt_male[, data.table(age_mapping),
-                                         by = c("year_start", "year_end", "sex")]
+                                     by = c("year_start", "year_end", "sex")]
 expected_dt_male[, value := c(96, 5, 45, 30, 11) * 5]
 
 expected_dt <- rbind(expected_dt_female, expected_dt_male, use.names = T)
@@ -204,28 +276,8 @@ testthat::test_that(description, {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping,
-                   missing_dt_severity = "stop"))
-  expect_warning(agg(dt = new_input_dt,
-                     id_cols = id_cols,
-                     value_cols = value_cols,
-                     col_stem = "age",
-                     col_type = "interval",
-                     mapping = age_mapping,
-                     missing_dt_severity = "warning"))
-  expect_message(agg(dt = new_input_dt,
-                     id_cols = id_cols,
-                     value_cols = value_cols,
-                     col_stem = "age",
-                     col_type = "interval",
-                     mapping = age_mapping,
-                     missing_dt_severity = "message"))
-  expect_silent(agg(dt = new_input_dt,
-                    id_cols = id_cols,
-                    value_cols = value_cols,
-                    col_stem = "age",
-                    col_type = "interval",
-                    mapping = age_mapping,
-                    missing_dt_severity = "none"))
+                   missing_dt_severity = "stop"),
+               regexp = "input data is missing in `dt`")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -251,7 +303,8 @@ testthat::test_that(description, {
                    value_cols = value_cols,
                    col_stem = "age",
                    col_type = "interval",
-                   mapping = age_mapping))
+                   mapping = age_mapping),
+               regexp = "Some overlapping intervals are already in `dt`")
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
                    value_cols = value_cols,
@@ -290,7 +343,6 @@ input_dt_agg2 <- agg(dt = input_dt_agg2,
                      col_type = "interval",
                      mapping = year_mapping)
 
-
 # combine together different inputs
 input_dt <- rbind(input_dt_detailed, input_dt_agg1, input_dt_agg2,
                   use.names = T)
@@ -319,7 +371,8 @@ testthat::test_that("scaling age intervals works", {
                      id_cols = id_cols,
                      value_cols = value_cols,
                      col_stem = "age",
-                     col_type = "interval")
+                     col_type = "interval",
+                     collapse_interval_cols = T)
   testthat::expect_equal(output_dt, expected_dt)
 })
 
@@ -336,7 +389,8 @@ testthat::test_that(description, {
                      id_cols = id_cols,
                      value_cols = value_cols,
                      col_stem = "age",
-                     col_type = "interval"),
+                     col_type = "interval",
+                     collapse_interval_cols = TRUE),
                regexp = "input data is missing in `dt`")
 
   output_dt <- scale(dt = new_input_dt,
@@ -344,11 +398,15 @@ testthat::test_that(description, {
                      value_cols = value_cols,
                      col_stem = "age",
                      col_type = "interval",
-                     missing_dt_severity = "none")
+                     missing_dt_severity = "none",
+                     collapse_interval_cols = TRUE)
   expect_identical(output_dt, new_expected_dt)
 })
 
 # Test different weird age intervals are caught ---------------------------
+
+id_cols <- c("year", "age_start", "age_end")
+value_cols <- "value"
 
 # set up test input data.table
 input_dt <- data.table(year = 2010,
@@ -363,7 +421,8 @@ testthat::test_that(description, {
                              value_cols = value_cols,
                              col_stem = "age",
                              col_type = "interval",
-                             mapping = data.table(age_start = 0, age_end = 10)))
+                             mapping = data.table(age_start = 0, age_end = 10)),
+                         regexp = "Some overlapping intervals are already in `dt`")
 })
 
 # set up test input data.table
@@ -377,7 +436,8 @@ testthat::test_that(description, {
                                id_cols = id_cols,
                                value_cols = value_cols,
                                col_stem = "age",
-                               col_type = "interval"))
+                               col_type = "interval"),
+                         regexp = "input data is missing in `dt`")
 })
 
 # set up test input data.table
@@ -392,7 +452,8 @@ testthat::test_that(description, {
                                id_cols = id_cols,
                                value_cols = value_cols,
                                col_stem = "age",
-                               col_type = "interval"))
+                               col_type = "interval"),
+                         regexp = "Some overlapping intervals are in `dt`")
 })
 
 # Aggregate present day Iran Provinces ------------------------------------
@@ -471,7 +532,8 @@ test_that(description, {
                    col_stem = "location",
                    col_type = "categorical",
                    mapping = iran_mapping,
-                   missing_dt_severity = "none"))
+                   missing_dt_severity = "none"),
+               regexp = "Some aggregates are already in `dt`")
 })
 
 description <- "aggregation of Iran data with missing 'Tehran' and 'Alborz'
@@ -493,28 +555,8 @@ test_that(description, {
                    col_stem = "location",
                    col_type = "categorical",
                    mapping = iran_mapping,
-                   missing_dt_severity = "stop"))
-  expect_warning(agg(dt = new_input_dt,
-                     id_cols = id_cols,
-                     value_cols = value_cols,
-                     col_stem = "location",
-                     col_type = "categorical",
-                     mapping = iran_mapping,
-                     missing_dt_severity = "warning"))
-  expect_message(agg(dt = new_input_dt,
-                     id_cols = id_cols,
-                     value_cols = value_cols,
-                     col_stem = "location",
-                     col_type = "categorical",
-                     mapping = iran_mapping,
-                     missing_dt_severity = "message"))
-  expect_silent(agg(dt = new_input_dt,
-                    id_cols = id_cols,
-                    value_cols = value_cols,
-                    col_stem = "location",
-                    col_type = "categorical",
-                    mapping = iran_mapping,
-                    missing_dt_severity = "none"))
+                   missing_dt_severity = "stop"),
+               regexp = "input data is missing in `dt`")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -536,7 +578,8 @@ test_that(description, {
                    value_cols = value_cols,
                    col_stem = "location",
                    col_type = "categorical",
-                   mapping = iran_mapping))
+                   mapping = iran_mapping),
+               regexp = "Some aggregates are already in `dt`")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -584,7 +627,8 @@ test_that(description, {
                      value_cols = value_cols,
                      col_stem = "location",
                      col_type = "categorical",
-                     mapping = iran_mapping))
+                     mapping = iran_mapping),
+               regexp = "input data is missing in `dt`")
 
   output_dt <- scale(dt = new_input_dt,
                      id_cols = id_cols,
@@ -605,12 +649,14 @@ test_that(description, {
                      value_cols = value_cols,
                      col_stem = "location",
                      col_type = "categorical",
-                     mapping = iran_mapping))
+                     mapping = iran_mapping),
+               regexp = "input data is missing in `dt`")
   expect_error(scale(dt = new_input_dt,
                      id_cols = id_cols,
                      value_cols = value_cols,
                      col_stem = "location",
                      col_type = "categorical",
                      mapping = iran_mapping,
-                     collapse_missing = TRUE))
+                     collapse_missing = TRUE),
+               regexp = "input data is missing in `dt`")
 })

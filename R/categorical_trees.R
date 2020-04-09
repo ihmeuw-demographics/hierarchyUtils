@@ -434,7 +434,8 @@ agg_subtree <- function(dt,
                         col_type,
                         agg_function,
                         subtree,
-                        missing_dt_severity) {
+                        missing_dt_severity,
+                        collapse_interval_cols) {
 
   cols <- col_stem
   if (col_type == "interval") {
@@ -449,15 +450,17 @@ agg_subtree <- function(dt,
   children <- names(subtree$children)
 
   # collapse interval id columns to most detailed common intervals
-  for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-    dt <- collapse_common_intervals(
-      dt = dt,
-      id_cols = c(id_cols, if (col_type == "interval") col_stem),
-      value_cols = value_cols,
-      col_stem = stem,
-      agg_function = agg_function,
-      missing_dt_severity = missing_dt_severity
-    )
+  if (collapse_interval_cols) {
+    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+      dt <- collapse_common_intervals(
+        dt = dt,
+        id_cols = c(id_cols, if (col_type == "interval") col_stem),
+        value_cols = value_cols,
+        col_stem = stem,
+        agg_function = agg_function,
+        missing_dt_severity = missing_dt_severity
+      )
+    }
   }
 
   children_dt <- dt[get(col_stem) %in% children]
@@ -482,7 +485,8 @@ scale_subtree <- function(dt,
                           col_type,
                           agg_function,
                           subtree,
-                          missing_dt_severity) {
+                          missing_dt_severity,
+                          collapse_interval_cols) {
   parent <- subtree$name
   children <- names(subtree$children)
 
@@ -503,16 +507,19 @@ scale_subtree <- function(dt,
 
   # collapse interval id columns to most detailed common intervals so that
   # scaling factors can be calculated
-  for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-    subtree_dt <- collapse_common_intervals(
-      dt = subtree_dt,
-      id_cols = c(id_cols, if (col_type == "interval") col_stem),
-      value_cols = value_cols,
-      col_stem = stem,
-      agg_function = agg_function,
-      missing_dt_severity = missing_dt_severity
-    )
+  if (collapse_interval_cols) {
+    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+      subtree_dt <- collapse_common_intervals(
+        dt = subtree_dt,
+        id_cols = c(id_cols, if (col_type == "interval") col_stem),
+        value_cols = value_cols,
+        col_stem = stem,
+        agg_function = agg_function,
+        missing_dt_severity = missing_dt_severity
+      )
+    }
   }
+
   parent_dt <- subtree_dt[get(col_stem) %in% parent]
   children_dt <- subtree_dt[get(col_stem) %in% children]
 
@@ -525,7 +532,8 @@ scale_subtree <- function(dt,
     col_type,
     agg_function,
     subtree,
-    missing_dt_severity
+    missing_dt_severity,
+    collapse_interval_cols
   )
   setnames(sum_children_dt, value_cols, agg_value_cols)
 

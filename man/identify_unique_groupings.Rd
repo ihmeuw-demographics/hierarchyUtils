@@ -5,7 +5,13 @@
 \title{Determine unique sets of the agg/scale variable present in the input
 data.table}
 \usage{
-identify_unique_groupings(dt, id_cols, col_stem, col_type)
+identify_unique_groupings(
+  dt,
+  id_cols,
+  col_stem,
+  col_type,
+  collapse_interval_cols
+)
 }
 \arguments{
 \item{dt}{[\code{data.table()}]\cr
@@ -21,6 +27,12 @@ The name of the variable to be aggregated or scaled over. If aggregating an
 \item{col_type}{[\code{character(1)}]\cr
 The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.}
+
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals.}
 }
 \value{
 list with two named elements.

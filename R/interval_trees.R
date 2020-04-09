@@ -90,11 +90,13 @@ create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
   }
 
   # create each interval node and place in the full interval tree
-  for (i in 1:nrow(data_intervals_dt)) {
-    new_node <- create_interval_node(data_intervals_dt[i, get(cols[1])],
-                                     data_intervals_dt[i, get(cols[2])],
-                                     data_intervals_dt[i, get(col_stem)])
-    place_new_interval_node(interval_tree, new_node)
+  if (nrow(data_intervals_dt) > 0) {
+    for (i in 1:nrow(data_intervals_dt)) {
+      new_node <- create_interval_node(data_intervals_dt[i, get(cols[1])],
+                                       data_intervals_dt[i, get(cols[2])],
+                                       data_intervals_dt[i, get(col_stem)])
+      place_new_interval_node(interval_tree, new_node)
+    }
   }
 
   # check each non-leaf node and fill in any missing child intervals
@@ -197,6 +199,12 @@ place_new_interval_node <- function(current_node, new_node) {
 #'   Expected intervals that should be completely included in `ints_dt`.
 #'   Includes a column for the start of the interval and the end of the
 #'   interval.
+#' @param full_int_start \[`numeric(1)`\]\cr
+#'   Start of the complete interval that should be covered by the detailed
+#'   intervals in `ints_dt`.
+#' @param full_int_end \[`numeric(1)`\]\cr
+#'   End of the complete interval that should be covered by the detailed
+#'   intervals in `ints_dt`.
 #'
 #' @return  \[`data.table()`\] with columns for 'start' and 'end' of intervals
 #'   where intervals in `ints_dt` are missing or overlapping. If no intervals

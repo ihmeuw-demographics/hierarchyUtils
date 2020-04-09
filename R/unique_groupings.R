@@ -16,7 +16,8 @@
 identify_unique_groupings <- function(dt,
                                       id_cols,
                                       col_stem,
-                                      col_type) {
+                                      col_type,
+                                      collapse_interval_cols) {
 
   cols <- col_stem
   if (col_type == "interval") {
@@ -24,7 +25,10 @@ identify_unique_groupings <- function(dt,
   }
   interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
   categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
-  by_id_cols <- id_cols[!id_cols %in% cols & id_cols %in% categorical_id_cols]
+  by_id_cols <- id_cols[!id_cols %in% cols]
+  if (collapse_interval_cols) {
+    by_id_cols <- by_id_cols[by_id_cols %in% categorical_id_cols]
+  }
 
   # create a temporary column combining the start and end columns for intervals
   if (col_type == "interval") {
@@ -66,6 +70,7 @@ subset_unique_grouping <- function(dt,
                                    id_cols,
                                    col_stem,
                                    col_type,
+                                   collapse_interval_cols,
                                    groups,
                                    group_num) {
 
@@ -75,8 +80,10 @@ subset_unique_grouping <- function(dt,
   }
   interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
   categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
-  by_id_cols <- id_cols[!id_cols %in% cols & id_cols %in% categorical_id_cols]
-
+  by_id_cols <- id_cols[!id_cols %in% cols]
+  if (collapse_interval_cols) {
+    by_id_cols <- by_id_cols[by_id_cols %in% categorical_id_cols]
+  }
   # identify unique col combinations in this grouping
   group_string <- groups$unique_groupings[group_num, available_vars]
   unique_cols <- data.table::data.table(group = strsplit(group_string,

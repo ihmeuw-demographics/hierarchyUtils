@@ -14,7 +14,8 @@ identify_agg_dt_issues(
   col_type,
   mapping,
   agg_function = sum,
-  drop_present_aggs = FALSE
+  drop_present_aggs = FALSE,
+  collapse_interval_cols = FALSE
 )
 
 identify_scale_dt_issues(
@@ -25,7 +26,8 @@ identify_scale_dt_issues(
   col_type,
   mapping,
   agg_function = sum,
-  collapse_missing = FALSE
+  collapse_missing = FALSE,
+  collapse_interval_cols = FALSE
 )
 }
 \arguments{
@@ -61,6 +63,12 @@ Whether to drop aggregates (or overlapping intervals) that are already
 present in \code{dt} before aggregating. Default is 'False' and the function
 errors out.}
 
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals.}
+
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling a \code{categorical} variable, whether to collapse missing
 intermediate levels in \code{mapping}. Default is 'False' and the function
@@ -74,6 +82,30 @@ issue.
 \description{
 Identify issues in the input dataset for aggregation and scaling
 functions
+}
+\details{
+\code{\link[=identify_agg_dt_issues]{identify_agg_dt_issues()}} steps:
+\enumerate{
+\item For interval id variables (not including \code{col_stem}) if
+\code{collapse_interval_cols = TRUE}, checks for overlapping intervals and missing
+intervals and then collapses these interval variables to the most detailed
+common intervals.
+2  If \code{col_type = "interval"} then also checks for overlapping intervals and
+missing intervals but doesn't collapse this variable.
+\item Creates data.tree from mappings to be used for aggregation.
+\item If \code{col_type = "categorical"} checks for aggregates already present.
+\item Identifies any missing nodes in data.tree needed to make aggregations.
+}
+
+\code{\link[=identify_scale_dt_issues]{identify_scale_dt_issues()}} steps:
+\enumerate{
+\item For interval id variables (not including \code{col_stem}) if
+\code{collapse_interval_cols = TRUE}, checks for overlapping intervals and missing
+intervals and then collapses these interval variables to the most detailed
+common intervals.
+\item Creates data.tree from mappings to be used for scaling.
+\item Identifies any missing nodes in data.tree needed to make aggregations.
+}
 }
 \examples{
 ## Try to aggregate data with a location missing errors out

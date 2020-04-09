@@ -13,7 +13,8 @@ agg_subtree(
   col_type,
   agg_function,
   subtree,
-  missing_dt_severity
+  missing_dt_severity,
+  collapse_interval_cols
 )
 
 scale_subtree(
@@ -24,7 +25,8 @@ scale_subtree(
   col_type,
   agg_function,
   subtree,
-  missing_dt_severity
+  missing_dt_severity,
+  collapse_interval_cols
 )
 }
 \arguments{
@@ -57,6 +59,12 @@ How severe should the consequences of missing data that prevents
 aggregation or scaling from occurring be? Can be either 'stop', 'warning',
 'message', or 'none'. If not "stop", then only the possible aggregations or
 scaling is done using the available data.}
+
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals.}
 }
 \value{
 [\code{data.table()}] with same input columns for requested aggregates
