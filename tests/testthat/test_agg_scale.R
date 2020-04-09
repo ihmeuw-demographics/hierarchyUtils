@@ -240,7 +240,7 @@ gen_end(expected_dt_female, id_cols = c("year_start", "sex"),
         col_stem = "year", right_most_endpoint = 2010)
 expected_dt_female <- expected_dt_female[, data.table(age_mapping),
                                          by = c("year_start", "year_end", "sex")]
-expected_dt_female[, value := c(96, 5, 45, 30, 11)]
+expected_dt_female[, value := rep(c(96, 5, 45, 30, 11), 5)]
 
 expected_dt_male <- CJ(year_start = 2005, year_end = 2010, sex = "male")
 expected_dt_male <- expected_dt_male[, data.table(age_mapping),

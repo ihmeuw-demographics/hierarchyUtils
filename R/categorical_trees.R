@@ -558,20 +558,22 @@ scale_subtree <- function(dt,
 
   # determine which common intervals the original dataset maps to
   scalar_by_id_cols <- copy(by_id_cols)
-  subtree_dt <- dt[get(col_stem) %in% c(parent, children)]
-  for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-    common_intervals <- identify_common_intervals(subtree_dt, id_cols, stem)
-    subtree_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
-    data.table::setnames(subtree_dt, c("common_start", "common_end"),
-                         paste0("common_", stem, "_", c("start", "end")))
+  if (collapse_interval_cols) {
+    subtree_dt <- dt[get(col_stem) %in% c(parent, children)]
+    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+      common_intervals <- identify_common_intervals(subtree_dt, id_cols, stem)
+      subtree_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
+      data.table::setnames(subtree_dt, c("common_start", "common_end"),
+                           paste0("common_", stem, "_", c("start", "end")))
 
-    # set up scalars for later merge
-    data.table::setnames(sf_dt, paste0(stem, "_", c("start", "end")),
-                         paste0("common_", stem, "_", c("start", "end")))
-    scalar_by_id_cols[scalar_by_id_cols %in% paste0(stem, "_", c("start", "end"))] <-
-      paste0("common_", stem, "_", c("start", "end"))
+      # set up scalars for later merge
+      data.table::setnames(sf_dt, paste0(stem, "_", c("start", "end")),
+                           paste0("common_", stem, "_", c("start", "end")))
+      scalar_by_id_cols[scalar_by_id_cols %in% paste0(stem, "_", c("start", "end"))] <-
+        paste0("common_", stem, "_", c("start", "end"))
+    }
+    children_dt <- subtree_dt[get(col_stem) %in% children] # uncollapsed data
   }
-  children_dt <- subtree_dt[get(col_stem) %in% children] # uncollapsed data
 
   # calculate scaled child node values
   scaled_dt <- merge(children_dt, sf_dt, by = scalar_by_id_cols, all = T)
