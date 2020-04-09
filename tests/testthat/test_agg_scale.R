@@ -258,7 +258,7 @@ testthat::test_that("aggregating age intervals works", {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping)
-  testthat::expect_equal(output_dt, expected_dt)
+  testthat::expect_identical(output_dt, expected_dt)
 })
 
 description <- "aggregation of age-specific data with missing intervals throws
@@ -349,12 +349,12 @@ input_dt_agg2 <- agg(dt = input_dt_agg2,
 input_dt <- rbind(input_dt_detailed, input_dt_agg1, input_dt_agg2,
                   use.names = T)
 input_dt <- unique(input_dt)
-setkeyv(input_dt, id_cols)
 
 gen_length(input_dt, "age")
 input_dt[age_start == 0 & age_end == Inf, value := value * 4]
 input_dt[age_start == 95 & age_end == Inf, value := value * 2]
 input_dt[age_length == 5, value := value * 2]
+setkeyv(input_dt, id_cols)
 
 # aggregate the all-ages data for females to
 
@@ -367,6 +367,7 @@ setkeyv(expected_dt, id_cols)
 
 input_dt[, age_length := NULL]
 expected_dt[, age_length := NULL]
+setindex(expected_dt, NULL)
 
 testthat::test_that("scaling age intervals works", {
   output_dt <- scale(dt = input_dt,
@@ -375,7 +376,7 @@ testthat::test_that("scaling age intervals works", {
                      col_stem = "age",
                      col_type = "interval",
                      collapse_interval_cols = T)
-  testthat::expect_equal(output_dt, expected_dt)
+  testthat::expect_identical(output_dt, expected_dt)
 })
 
 description <- "error is thrown when scaling over an interval variable but there
