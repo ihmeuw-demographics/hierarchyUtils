@@ -156,7 +156,9 @@ expected_dt <- copy(input_dt)
 expected_dt[sex != "both", value := value * 2]
 setkeyv(expected_dt, id_cols)
 
-test_that("scaling sex-specific values to both sexes combined works", {
+description <- "scaling additive sex-specific values to both sexes combined
+works"
+test_that(description, {
   output_dt <- scale(dt = input_dt,
                      id_cols = id_cols,
                      value_cols = value_cols,
@@ -401,6 +403,38 @@ testthat::test_that(description, {
                      missing_dt_severity = "none",
                      collapse_interval_cols = TRUE)
   expect_identical(output_dt, new_expected_dt)
+})
+
+# Scale multiplicative sex-specific values to both sexes combined ---------
+
+id_cols <- c("year", "sex")
+value_cols <- "value"
+
+# set up test input data.table
+input_dt <- CJ(year = 2010, sex = c("female", "male"),
+               value = 0.9)
+input_dt_both <- CJ(year = 2010, sex = "both",
+                    value = 0.95)
+input_dt <- rbind(input_dt, input_dt_both, use.names = T)
+setkeyv(input_dt, id_cols)
+
+# set up expected output table
+expected_dt <- CJ(year = 2010, sex = c("female", "male"),
+                  value = sqrt(0.95))
+expected_dt <- rbind(expected_dt, input_dt_both, use.names = T)
+setkeyv(expected_dt, id_cols)
+
+description <- "scaling multiplicative sex-specific values to both sexes
+combined works"
+test_that(description, {
+  output_dt <- scale(dt = input_dt,
+                     id_cols = id_cols,
+                     value_cols = "value",
+                     col_stem = "sex",
+                     col_type = "categorical",
+                     mapping = sex_mapping,
+                     agg_function = prod)
+  expect_identical(output_dt, expected_dt)
 })
 
 # Test different weird age intervals are caught ---------------------------
