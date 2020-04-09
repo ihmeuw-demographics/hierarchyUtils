@@ -43,20 +43,20 @@ common set of intervals for a given interval variable and
 id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
 
 # set up test input data.table
-input_dt_male <- CJ(year_start = 2005, year_end = 2010,
-                    sex = "male",
-                    age_start = seq(0, 95, 5),
-                    value = 25)
+input_dt_male <- data.table::CJ(year_start = 2005, year_end = 2010,
+                                sex = "male",
+                                age_start = seq(0, 95, 5),
+                                value = 25)
 input_dt_male[age_start == 95, value := 5]
-input_dt_female <- CJ(year_start = 2005:2009,
-                      sex = "female",
-                      age_start = seq(0, 95, 1),
-                      value = 1)
+input_dt_female <- data.table::CJ(year_start = 2005:2009,
+                                  sex = "female",
+                                  age_start = seq(0, 95, 1),
+                                  value = 1)
 gen_end(input_dt_female, setdiff(id_cols, c("year_end", "age_end")),
         col_stem = "year", right_most_endpoint = 2010)
 input_dt <- rbind(input_dt_male, input_dt_female)
 gen_end(input_dt, setdiff(id_cols, "age_end"), col_stem = "age")
-setkeyv(input_dt, id_cols)
+data.table::setkeyv(input_dt, id_cols)
 
 common_intervals <- demUtils:::identify_common_intervals(
   dt = input_dt,

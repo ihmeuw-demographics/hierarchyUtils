@@ -11,7 +11,8 @@ collapse_common_intervals(
   value_cols,
   col_stem,
   agg_function = sum,
-  missing_dt_severity = "stop"
+  missing_dt_severity = "stop",
+  drop_present_aggs = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,11 @@ How severe should the consequences of missing intervals that prevent
 collapsing to the most detailed common set of intervals be? Can be either
 'stop', 'warning', 'message', or 'none'. If not "stop", then only the
 intervals that can be correctly collapsed will be done.}
+
+\item{drop_present_aggs}{[\code{logical(1)}]\cr
+Whether to drop aggregates (or overlapping intervals) that are already
+present in \code{dt} before aggregating. Default is 'False' and the function
+errors out.}
 }
 \value{
 [\code{data.table()}] with \code{id_cols} and \code{value_cols} columns but with
@@ -53,20 +59,20 @@ id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
 value_cols <- c("value")
 
 # set up test input data.table
-input_dt_male <- CJ(year_start = 2005, year_end = 2010,
-                    sex = "male",
-                    age_start = seq(0, 95, 5),
-                    value = 25)
+input_dt_male <- data.table::CJ(year_start = 2005, year_end = 2010,
+                                sex = "male",
+                                age_start = seq(0, 95, 5),
+                                value = 25)
 input_dt_male[age_start == 95, value := 5]
-input_dt_female <- CJ(year_start = 2005:2009,
-                      sex = "female",
-                      age_start = seq(0, 95, 1),
-                      value = 1)
+input_dt_female <- data.table::CJ(year_start = 2005:2009,
+                                  sex = "female",
+                                  age_start = seq(0, 95, 1),
+                                  value = 1)
 gen_end(input_dt_female, setdiff(id_cols, c("year_end", "age_end")),
         col_stem = "year", right_most_endpoint = 2010)
 input_dt <- rbind(input_dt_male, input_dt_female)
 gen_end(input_dt, setdiff(id_cols, "age_end"), col_stem = "age")
-setkeyv(input_dt, id_cols)
+data.table::setkeyv(input_dt, id_cols)
 
 
 collapsed_dt <- collapse_common_intervals(
