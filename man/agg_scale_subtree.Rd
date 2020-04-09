@@ -64,7 +64,8 @@ scaling is done using the available data.}
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
 an interval variable). Default is 'False'. If set to 'True' the interval
 columns are collapsed to the most detailed common intervals and will error
-out if there are overlapping intervals.}
+out if there are overlapping intervals. See details or vignettes for more
+information.}
 }
 \value{
 [\code{data.table()}] with same input columns for requested aggregates

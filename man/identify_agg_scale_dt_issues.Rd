@@ -67,7 +67,8 @@ errors out.}
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
 an interval variable). Default is 'False'. If set to 'True' the interval
 columns are collapsed to the most detailed common intervals and will error
-out if there are overlapping intervals.}
+out if there are overlapping intervals. See details or vignettes for more
+information.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling a \code{categorical} variable, whether to collapse missing

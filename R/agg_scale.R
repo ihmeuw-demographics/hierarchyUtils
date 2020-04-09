@@ -39,7 +39,8 @@
 #'   Whether to collapse interval `id_cols` (not including `col_stem` if it is
 #'   an interval variable). Default is 'False'. If set to 'True' the interval
 #'   columns are collapsed to the most detailed common intervals and will error
-#'   out if there are overlapping intervals.
+#'   out if there are overlapping intervals. See details or vignettes for more
+#'   information.
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns for
 #'   requested aggregates or with scaled values.
@@ -88,14 +89,15 @@
 #' location-years have 5-year age groups while other location-years have 1-year
 #' age groups.
 #'
-#' In addition it is okay if the interval variables included in `id_vars` are
-#' not all exactly the same, `agg` and `scale` will collapse to the most
-#' detailed common intervals [`collapse_common_intervals()`] prior to
-#' aggregation or scaling. An example of this is when aggregating subnational
-#' data to the national level (so `col_stem` is 'location' and `col_type` is
-#' 'categorical') but each subnational location contains different age groups.
-#' So [`agg()`] and [`scale()`] first aggregate to the most detailed common age
-#' groups before making location aggregates.
+#' If `collapse_interval_cols = TRUE` it is okay if the interval variables
+#' included in `id_vars` are not all exactly the same, `agg` and `scale` will
+#' collapse to the most detailed common intervals
+#' [`collapse_common_intervals()`] prior to aggregation or scaling. An example
+#' of this is when aggregating subnational data to the national level (so
+#' `col_stem` is 'location' and `col_type` is 'categorical') but each
+#' subnational location contains different age groups. [`agg()`] and [`scale()`]
+#' first aggregate to the most detailed common age groups before making location
+#' aggregates.
 #'
 #' The `agg` and `scale` functions currently only work when combining counts or
 #' probabilities. If the data is in rate-space then you need to convert to count

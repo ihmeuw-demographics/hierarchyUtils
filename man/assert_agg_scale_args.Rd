@@ -48,7 +48,8 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
 an interval variable). Default is 'False'. If set to 'True' the interval
 columns are collapsed to the most detailed common intervals and will error
-out if there are overlapping intervals.}
+out if there are overlapping intervals. See details or vignettes for more
+information.}
 
 \item{functionality}{whether \code{agg} or \code{scale} function inputs are being
 checked.}
