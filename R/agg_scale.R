@@ -243,7 +243,12 @@ agg <- function(dt,
     # determine which common intervals the original data and missing data maps to
     common_id_cols <- copy(id_cols)
     for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      common_intervals <- identify_common_intervals(dt, id_cols, stem)
+      common_intervals <- identify_common_intervals(
+        dt,
+        id_cols,
+        stem,
+        include_missing = TRUE
+      )
       dt <- merge_common_intervals(dt, common_intervals, stem)
       data.table::setnames(dt, c("common_start", "common_end"),
                            paste0("common_", stem, "_", c("start", "end")))

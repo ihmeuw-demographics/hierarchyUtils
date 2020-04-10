@@ -16,6 +16,10 @@
 #'   collapsing to the most detailed common set of intervals be? Can be either
 #'   'stop', 'warning', 'message', or 'none'. If not "stop", then only the
 #'   intervals that can be correctly collapsed will be done.
+#' @param include_missing \[`logical(1)`\]\cr
+#'   Whether to include missing intervals in the identified most detailed common
+#'   intervals. These missing intervals are not present in all combinations of
+#'   `id_cols`. Default is "FALSE".
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns but with
 #'   the `col_stem` intervals reduced to only the most detailed common set of
@@ -62,7 +66,8 @@ collapse_common_intervals <- function(dt,
                                       col_stem,
                                       agg_function = sum,
                                       missing_dt_severity = "stop",
-                                      drop_present_aggs = FALSE) {
+                                      drop_present_aggs = FALSE,
+                                      include_missing = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
@@ -107,6 +112,14 @@ collapse_common_intervals <- function(dt,
                           msg = "`missing_dt_severity` must be one of
                           'stop', 'warning', 'message', or 'none'")
 
+  # check `drop_present_aggs` argument
+  assertthat::assert_that(assertthat::is.flag(drop_present_aggs),
+                          msg = "`drop_present_aggs` must be a logical")
+
+  # check `include_missing` argument
+  assertthat::assert_that(assertthat::is.flag(include_missing),
+                          msg = "`include_missing` must be a logical")
+
   # Identify and collapse to most detailed common intervals -----------------
 
   original_col_order <- copy(names(dt))
@@ -140,7 +153,12 @@ collapse_common_intervals <- function(dt,
     }
   }
 
-  common_intervals <- identify_common_intervals(dt, id_cols, col_stem)
+  common_intervals <- identify_common_intervals(
+    dt,
+    id_cols,
+    col_stem,
+    include_missing = TRUE # these are identified below
+  )
   collapsed_dt <- merge_common_intervals(dt, common_intervals, col_stem)
 
   # check for missing intervals
@@ -163,14 +181,14 @@ collapse_common_intervals <- function(dt,
       common_intervals,
       col_stem
     )
-    full_missing_dt <- full_missing_dt[, c(by_id_cols,
+    full_missing_dt <- full_missing_dt[, c(if (include_missing) by_id_cols,
                                            c("common_start", "common_end")),
                                        with = F]
     full_missing_dt <- unique(full_missing_dt)
     # drop the common intervals that the missing intervals are part of
     full_missing_dt[, drop := TRUE]
     collapsed_dt <- merge(collapsed_dt, full_missing_dt, all = T,
-                          by = c(by_id_cols,
+                          by = c(if (include_missing) by_id_cols,
                                  c("common_start", "common_end")))
     collapsed_dt <- collapsed_dt[is.na(drop)]
   }
@@ -231,7 +249,10 @@ collapse_common_intervals <- function(dt,
 #' )
 #'
 #' @rdname helper_common_intervals
-identify_common_intervals <- function(dt, id_cols, col_stem) {
+identify_common_intervals <- function(dt,
+                                      id_cols,
+                                      col_stem,
+                                      include_missing = FALSE) {
 
   cols <- paste0(col_stem, "_", c("start", "end"))
   by_id_cols <- id_cols[!id_cols %in% cols]
@@ -246,14 +267,48 @@ identify_common_intervals <- function(dt, id_cols, col_stem) {
   intervals <- unique(intervals)
 
   check_each_pair <- function(ints_dt1, ints_dt2) {
-    combined_ints <- rbind(ints_dt1, ints_dt2)
-    overlap <- identify_overlapping_intervals(
-      ints_dt = combined_ints,
-      full_int_start = min(combined_ints[[1]]),
-      full_int_end = max(combined_ints[[2]])
+    ints1 <- intervals::Intervals_full(as.matrix(ints_dt1),
+                                          closed = c(TRUE, FALSE))
+    ints2 <- intervals::Intervals_full(as.matrix(ints_dt2),
+                                          closed = c(TRUE, FALSE))
+
+    # reduce the intervals in each input by finding all the intervals that
+    # overlap at all with each other and combining them
+    common_ints <- unique(c(ints1, ints2))
+    overlap_mapping <- intervals::interval_overlap(
+      from = common_ints,
+      to = common_ints
     )
-    overlap <- unique(overlap)
-    return(overlap)
+    while (any(sapply(overlap_mapping, length) > 1)) {
+      collapsed_ints_list <- lapply(1:length(overlap_mapping), function(i) {
+        intervals::interval_union(
+          from = common_ints[i],
+          to = common_ints[overlap_mapping[[i]]]
+        )
+      })
+      common_ints <- unique(Reduce(c, collapsed_ints_list))
+      overlap_mapping <- intervals::interval_overlap(
+        from = common_ints,
+        to = common_ints
+      )
+    }
+
+    # remove intervals that were missing from the original intervals
+    if (!include_missing) {
+      remove_intervals <- intervals::interval_union(
+        intervals::interval_complement(ints1),
+        intervals::interval_complement(ints2)
+      )
+      overlap_mapping <- intervals::interval_overlap(
+        from = common_ints,
+        to = remove_intervals
+      )
+      common_ints <- common_ints[sapply(overlap_mapping, length) == 0]
+    }
+
+    common_ints_dt <- data.table::as.data.table(common_ints)
+    data.table::setnames(common_ints_dt, c("start", "end"))
+    return(common_ints_dt)
   }
 
   # identify the most detailed common set of intervals

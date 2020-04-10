@@ -12,7 +12,8 @@ collapse_common_intervals(
   col_stem,
   agg_function = sum,
   missing_dt_severity = "stop",
-  drop_present_aggs = FALSE
+  drop_present_aggs = FALSE,
+  include_missing = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,11 @@ intervals that can be correctly collapsed will be done.}
 Whether to drop aggregates (or overlapping intervals) that are already
 present in \code{dt} before aggregating. Default is 'False' and the function
 errors out.}
+
+\item{include_missing}{[\code{logical(1)}]\cr
+Whether to include missing intervals in the identified most detailed common
+intervals. These missing intervals are not present in all combinations of
+\code{id_cols}. Default is "FALSE".}
 }
 \value{
 [\code{data.table()}] with \code{id_cols} and \code{value_cols} columns but with

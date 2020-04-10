@@ -319,6 +319,12 @@ testthat::test_that(description, {
 
 # Scale over age intervals ------------------------------------------------
 
+# set up input dt
+# single year age groups, single calendar years for females
+# five year age groups, single calendar years for females
+# five year age groups, five calendar years for males
+# all-ages, five calendar years for females and males
+
 input_dt_detailed <- copy(input_dt)
 
 age_mapping <- data.table(age_start = seq(0, 90, 5),
@@ -382,12 +388,15 @@ testthat::test_that("scaling age intervals works", {
 description <- "error is thrown when scaling over an interval variable but there
 are missing intervals"
 testthat::test_that(description, {
+  # missing one single year age group in females only
   new_input_dt <- input_dt[!(age_start == 24 & year_start == 2008)]
+
   new_expected_dt <- expected_dt[!(age_start == 24 & year_start == 2008)]
   gen_length(new_expected_dt, "age")
   new_expected_dt[between(age_start, 20, 24) & age_length == 1 &
                     year_start == 2008, value := value / 4]
   new_expected_dt[, age_length := NULL]
+
   expect_error(scale(dt = new_input_dt,
                      id_cols = id_cols,
                      value_cols = value_cols,

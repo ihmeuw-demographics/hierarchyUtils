@@ -458,7 +458,8 @@ agg_subtree <- function(dt,
         value_cols = value_cols,
         col_stem = stem,
         agg_function = agg_function,
-        missing_dt_severity = missing_dt_severity
+        missing_dt_severity = missing_dt_severity,
+        include_missing = FALSE
       )
     }
   }
@@ -509,14 +510,39 @@ scale_subtree <- function(dt,
   # scaling factors can be calculated
   if (collapse_interval_cols) {
     for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      subtree_dt <- collapse_common_intervals(
+      stem_cols <- paste0(stem, "_", c("start", "end"))
+      common_intervals <- identify_common_intervals(
         dt = subtree_dt,
         id_cols = c(id_cols, if (col_type == "interval") col_stem),
-        value_cols = value_cols,
         col_stem = stem,
-        agg_function = agg_function,
-        missing_dt_severity = missing_dt_severity
+        include_missing = TRUE # these are identified below
       )
+      subtree_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
+
+      missing_dt <- subtree_dt[, identify_missing_intervals(.SD, common_intervals),
+                               .SDcols = stem_cols,
+                               by = setdiff(id_cols, stem_cols)]
+      data.table::setnames(missing_dt, c("start", "end"), stem_cols)
+      missing_dt <- merge_common_intervals(missing_dt, common_intervals, stem)
+      # need to ignore the variable being aggregated so that all parent and
+      # children nodes are dropped for missing intervals
+      missing_dt <- missing_dt[, c(setdiff(by_id_cols, stem_cols),
+                                   "common_start", "common_end"), with = F]
+      missing_dt <- unique(missing_dt)
+      missing_dt[, drop := TRUE]
+
+      subtree_dt <- merge(subtree_dt, missing_dt, all = TRUE,
+                          by = c(setdiff(by_id_cols, stem_cols), "common_start",
+                                 "common_end"))
+      subtree_dt <- subtree_dt[is.na(drop)]
+      subtree_dt[, drop := NULL]
+      subtree_dt[, c(stem_cols) := NULL]
+      data.table::setnames(subtree_dt, c("common_start", "common_end"), stem_cols)
+
+      # aggregate so that rows are all unique again
+      subtree_dt <- subtree_dt[, lapply(.SD, agg_function),
+                               .SDcols = value_cols,
+                               by = c(id_cols, if (col_type == "interval") col_stem)]
     }
   }
 
@@ -561,7 +587,12 @@ scale_subtree <- function(dt,
   if (collapse_interval_cols) {
     subtree_dt <- dt[get(col_stem) %in% c(parent, children)]
     for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      common_intervals <- identify_common_intervals(subtree_dt, id_cols, stem)
+      common_intervals <- identify_common_intervals(
+        dt = subtree_dt,
+        id_cols = id_cols,
+        col_stem = stem,
+        include_missing = TRUE
+      )
       subtree_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
       data.table::setnames(subtree_dt, c("common_start", "common_end"),
                            paste0("common_", stem, "_", c("start", "end")))

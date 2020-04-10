@@ -152,7 +152,12 @@ identify_agg_dt_issues <- function(dt,
       }
 
       # identify missing intervals
-      common_intervals <- identify_common_intervals(grouping$dt, id_cols, stem)
+      common_intervals <- identify_common_intervals(
+        dt = grouping$dt,
+        id_cols = id_cols,
+        col_stem = stem,
+        include_missing = TRUE
+      )
       missing_dt <- grouping$dt[, identify_missing_intervals(
         .SD,
         common_intervals
@@ -170,7 +175,8 @@ identify_agg_dt_issues <- function(dt,
           col_stem = stem,
           agg_function = agg_function,
           missing_dt_severity = "none", # we've identified these above
-          drop_present_aggs = FALSE # these should already be dropped
+          drop_present_aggs = FALSE, # these should already be dropped
+          include_missing = TRUE
         )
       }
     }
@@ -311,7 +317,12 @@ identify_scale_dt_issues <- function(dt,
       }
 
       # identify missing intervals
-      common_intervals <- identify_common_intervals(grouping$dt, id_cols, stem)
+      common_intervals <- identify_common_intervals(
+        dt = grouping$dt,
+        id_cols = id_cols,
+        col_stem = stem,
+        include_missing = TRUE
+      )
       missing_dt <- grouping$dt[, identify_missing_intervals(
         .SD,
         common_intervals
@@ -329,7 +340,8 @@ identify_scale_dt_issues <- function(dt,
           col_stem = stem,
           agg_function = agg_function,
           missing_dt_severity = "none", # we've identified these above
-          drop_present_aggs = FALSE # these should already be dropped
+          drop_present_aggs = FALSE, # these should already be dropped
+          include_missing = TRUE
         )
       }
     }

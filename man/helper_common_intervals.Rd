@@ -5,7 +5,7 @@
 \alias{merge_common_intervals}
 \title{Helper functions for collapsing to the most detailed common intervals}
 \usage{
-identify_common_intervals(dt, id_cols, col_stem)
+identify_common_intervals(dt, id_cols, col_stem, include_missing = FALSE)
 
 merge_common_intervals(dt, common_intervals, col_stem)
 }
@@ -19,6 +19,11 @@ ID columns that uniquely identify each row of \code{dt}.}
 \item{col_stem}{[\code{character(1)}]\cr
 The name of the variable to collapse, should not include the '_start' or
 '_end' suffix for the interval variable.}
+
+\item{include_missing}{[\code{logical(1)}]\cr
+Whether to include missing intervals in the identified most detailed common
+intervals. These missing intervals are not present in all combinations of
+\code{id_cols}. Default is "FALSE".}
 
 \item{common_intervals}{[\code{data.table()}]\cr
 Common intervals returned by \code{\link[=identify_common_intervals]{identify_common_intervals()}}}
