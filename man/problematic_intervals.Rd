@@ -5,13 +5,18 @@
 \alias{identify_overlapping_intervals}
 \title{Identify missing or overlapping intervals}
 \usage{
-identify_missing_intervals(ints_dt, full_int_start = 0, full_int_end = Inf)
+identify_missing_intervals(ints_dt, expected_ints_dt)
 
 identify_overlapping_intervals(ints_dt, full_int_start = 0, full_int_end = Inf)
 }
 \arguments{
 \item{ints_dt}{[\code{data.table()}]\cr
 Unique intervals to check as returned by \code{\link[=subset_unique_grouping]{subset_unique_grouping()}}.
+Includes a column for the start of the interval and the end of the
+interval.}
+
+\item{expected_ints_dt}{[\code{data.table()}]\cr
+Expected intervals that should be completely included in \code{ints_dt}.
 Includes a column for the start of the interval and the end of the
 interval.}
 

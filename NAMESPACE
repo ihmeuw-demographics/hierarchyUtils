@@ -2,6 +2,7 @@
 
 export(agg)
 export(assert_is_unique_dt)
+export(collapse_common_intervals)
 export(create_agg_tree)
 export(create_scale_tree)
 export(gen_end)

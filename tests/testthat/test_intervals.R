@@ -109,7 +109,8 @@ check_ages <- dt[, list(age_start, age_end)]
 
 test_that("missing age intervals are correctly identified", {
   output <- identify_missing_intervals(check_ages[!age_start %in%
-                                                    c(0:4, 85:89, 95)])
+                                                    c(0:4, 85:89, 95)],
+                                       data.table(0, Inf))
   expected <- data.table(start = c(0, 85, 95), end = c(5, 90, Inf))
   setkeyv(expected, c("start", "end"))
 
@@ -145,3 +146,178 @@ test_that("overlapping age intervals are correctly identified", {
   expect_identical(output, expected)
 })
 
+
+# Test that most detailed common intervals are identified -----------------
+
+id_cols <- c("sex", "age_start", "age_end")
+
+# set up test input data.table
+input_dt_male <- data.table(sex = "male", age_start = seq(0, 95, 1),
+                            age_end = c(seq(1, 95, 1), Inf))
+input_dt_female <- data.table(sex = "female", age_start = seq(0, 95, 5),
+                              age_end = c(seq(5, 95, 5), Inf))
+input_dt <- rbind(input_dt_male, input_dt_female)
+
+expected_dt <- data.table(common_start = seq(0, 95, 5),
+                          common_end = c(seq(5, 95, 5), Inf))
+setkeyv(expected_dt, c("common_start", "common_end"))
+
+description <- "common intervals for five year and single year age groups are
+identified"
+test_that(description, {
+  output_dt <- identify_common_intervals(
+    dt = input_dt,
+    id_cols = id_cols,
+    col_stem = "age"
+  )
+  expect_identical(output_dt, expected_dt)
+})
+
+# set up test input data.table
+input_dt_male <- data.table(sex = "male", age_start = c(0, 5, 10, 20),
+                            age_end = c(5, 10, 20, Inf))
+input_dt_female <- data.table(sex = "female", age_start = c(0, 5, 15, 20),
+                              age_end = c(5, 15, 20, Inf))
+input_dt <- rbind(input_dt_male, input_dt_female)
+
+expected_dt <- data.table(common_start = c(0, 5, 20),
+                          common_end = c(5, 20, Inf))
+setkeyv(expected_dt, c("common_start", "common_end"))
+
+description <- "common intervals for overlapping age groups are identified"
+test_that(description, {
+  output_dt <- identify_common_intervals(
+    dt = input_dt,
+    id_cols = id_cols,
+    col_stem = "age"
+  )
+  expect_identical(output_dt, expected_dt)
+})
+
+# set up test input data.table
+input_dt_male <- data.table(sex = "male",
+                            age_start = c(seq(0, 23, 1), seq(25, 95, 1)),
+                            age_end = c(seq(1, 24, 1), seq(26, 95, 1), Inf))
+input_dt_female <- data.table(sex = "female", age_start = seq(0, 95, 5),
+                              age_end = c(seq(5, 95, 5), Inf))
+input_dt <- rbind(input_dt_male, input_dt_female)
+
+expected_dt <- data.table(common_start = c(seq(0, 15, 5), seq(25, 95, 5)),
+                          common_end = c(seq(5, 20, 5), seq(30, 95, 5), Inf))
+setkeyv(expected_dt, c("common_start", "common_end"))
+
+description <- "common intervals for five year and single year age groups are
+identified when some are missing"
+test_that(description, {
+  output_dt <- identify_common_intervals(
+    dt = input_dt,
+    id_cols = id_cols,
+    col_stem = "age"
+  )
+  expect_identical(output_dt, expected_dt)
+
+  new_expected_dt <- data.table(common_start = seq(0, 95, 5),
+                                common_end = c(seq(5, 95, 5), Inf))
+  setkeyv(new_expected_dt, c("common_start", "common_end"))
+  output_dt <- identify_common_intervals(
+    dt = input_dt,
+    id_cols = id_cols,
+    col_stem = "age",
+    include_missing = TRUE
+  )
+  expect_identical(output_dt, new_expected_dt)
+
+})
+
+# Test that intervals are collapsed correctly to common set ---------------
+
+id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
+value_cols <- c("value")
+
+# set up test input data.table
+input_dt_male <- CJ(year_start = 2005, year_end = 2010,
+                    sex = "male",
+                    age_start = seq(0, 95, 5),
+                    value = 25)
+input_dt_male[age_start == 95, value := 5]
+input_dt_female <- CJ(year_start = 2005:2009,
+                      sex = "female",
+                      age_start = seq(0, 95, 1),
+                      value = 1)
+gen_end(input_dt_female, setdiff(id_cols, c("year_end", "age_end")),
+        col_stem = "year", right_most_endpoint = 2010)
+input_dt <- rbind(input_dt_male, input_dt_female)
+gen_end(input_dt, setdiff(id_cols, "age_end"), col_stem = "age")
+
+input_dt_agg_age <- CJ(year_start = 2005, year_end = 2010,
+                       sex = c("female", "male"),
+                       age_start = 0, age_end = Inf,
+                       value = 480)
+input_dt <- rbind(input_dt, input_dt_agg_age)
+setkeyv(input_dt, id_cols)
+
+expected_dt <- CJ(year_start = 2005, year_end = 2010,
+                  sex = c("male", "female"),
+                  age_start = seq(0, 95, 5),
+                  value = 25)
+expected_dt[age_start == 95, value := 5]
+gen_end(expected_dt, setdiff(id_cols, "age_end"), col_stem = "age")
+setkeyv(expected_dt, id_cols)
+
+test_that("intervals are collapsed correctly to common set", {
+  collapsed_dt <- collapse_common_intervals(
+    dt = input_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "year"
+  )
+  expect_error(collapse_common_intervals(
+    dt = collapsed_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "age"
+  ), regexp = "Some overlapping intervals are already in `dt`.")
+
+  collapsed_dt <- collapse_common_intervals(
+    dt = collapsed_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "age",
+    drop_present_aggs = T
+  )
+  expect_identical(collapsed_dt, expected_dt)
+})
+
+test_that("intervals are collapsed correctly to common set when some are missing", {
+  new_input_dt <- copy(input_dt)
+  # drop the all ages-aggregate
+  new_input_dt <- new_input_dt[!(age_start == 0 & age_end == Inf)]
+  # drop one single year age group
+  new_input_dt <- new_input_dt[!(sex == "female" & age_start == 24 & year_start == 2006)]
+
+  new_expected_dt <- expected_dt[age_start != 20]
+
+  expect_error(collapse_common_intervals(
+    dt = new_input_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "year"
+  ), regexp = "Some intervals in `dt` are missing")
+  collapsed_dt <- collapse_common_intervals(
+    dt = new_input_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "year",
+    missing_dt_severity = "none",
+    include_missing = TRUE
+  )
+  collapsed_dt <- collapse_common_intervals(
+    dt = collapsed_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "age",
+    missing_dt_severity = "none",
+    include_missing = FALSE
+  )
+  expect_identical(collapsed_dt, new_expected_dt)
+})

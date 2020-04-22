@@ -4,17 +4,22 @@
 \alias{subset_unique_grouping}
 \title{Subset to data for one unique set of the agg/scale variable}
 \usage{
-subset_unique_grouping(dt, groups, group_num, col_stem, col_type, by_id_cols)
+subset_unique_grouping(
+  dt,
+  id_cols,
+  col_stem,
+  col_type,
+  collapse_interval_cols,
+  groups,
+  group_num
+)
 }
 \arguments{
 \item{dt}{[\code{data.table()}]\cr
 Data to be aggregated or scaled.}
 
-\item{groups}{[\code{list(2)}]\cr
-Output of \code{\link[=identify_unique_groupings]{identify_unique_groupings()}}.}
-
-\item{group_num}{[\code{integer(1)}]\cr
-Integer row of \code{groups$unique_groupings} to subset data to.}
+\item{id_cols}{[\code{character()}]\cr
+ID columns that uniquely identify each row of \code{dt}.}
 
 \item{col_stem}{[\code{character(1)}]\cr
 The name of the variable to be aggregated or scaled over. If aggregating an
@@ -24,8 +29,18 @@ The name of the variable to be aggregated or scaled over. If aggregating an
 The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.}
 
-\item{by_id_cols}{[\code{character()}]\cr
-The \code{id_cols} without the agg/scale variable(s) included.}
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals. See details or vignettes for more
+information.}
+
+\item{groups}{[\code{list(2)}]\cr
+Output of \code{\link[=identify_unique_groupings]{identify_unique_groupings()}}.}
+
+\item{group_num}{[\code{integer(1)}]\cr
+Integer row of \code{groups$unique_groupings} to subset data to.}
 }
 \value{
 list with two named elements.

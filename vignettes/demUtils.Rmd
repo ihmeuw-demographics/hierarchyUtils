@@ -112,7 +112,7 @@ The root node of the tree shown below is "Iran" at the national level. The leaf 
 # visualize why some aggregates can't be made, what data is missing, etc.
 agg_tree <- demUtils::create_agg_tree(
   mapping = iran_mapping, 
-  exists = iran_pop_aggs[year == 2006 & source_name != "DYB", location],
+  exists = iran_pop_aggs[year == 2006 & source_name != "DYB", unique(location)],
   col_type = "categorical")
 demUtils::vis_tree(agg_tree)
 ```

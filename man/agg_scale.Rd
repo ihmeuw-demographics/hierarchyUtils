@@ -15,7 +15,8 @@ agg(
   mapping,
   agg_function = sum,
   missing_dt_severity = "stop",
-  drop_present_aggs = FALSE
+  drop_present_aggs = FALSE,
+  collapse_interval_cols = FALSE
 )
 
 scale(
@@ -27,7 +28,8 @@ scale(
   mapping = NULL,
   agg_function = sum,
   missing_dt_severity = "stop",
-  collapse_missing = FALSE
+  collapse_missing = FALSE,
+  collapse_interval_cols = FALSE
 )
 }
 \arguments{
@@ -68,6 +70,13 @@ scaling is done using the available data.}
 Whether to drop aggregates (or overlapping intervals) that are already
 present in \code{dt} before aggregating. Default is 'False' and the function
 errors out.}
+
+\item{collapse_interval_cols}{[\code{logical(1)}]\cr
+Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals. See details or vignettes for more
+information.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling a \code{categorical} variable, whether to collapse missing
@@ -127,6 +136,16 @@ okay if different combinations of \code{id_vars} have different \code{col_stem} 
 available. For example if making age aggregates, it is okay if some
 location-years have 5-year age groups while other location-years have 1-year
 age groups.
+
+If \code{collapse_interval_cols = TRUE} it is okay if the interval variables
+included in \code{id_vars} are not all exactly the same, \code{agg} and \code{scale} will
+collapse to the most detailed common intervals
+\code{\link[=collapse_common_intervals]{collapse_common_intervals()}} prior to aggregation or scaling. An example
+of this is when aggregating subnational data to the national level (so
+\code{col_stem} is 'location' and \code{col_type} is 'categorical') but each
+subnational location contains different age groups. \code{\link[=agg]{agg()}} and \code{\link[=scale]{scale()}}
+first aggregate to the most detailed common age groups before making location
+aggregates.
 
 The \code{agg} and \code{scale} functions currently only work when combining counts or
 probabilities. If the data is in rate-space then you need to convert to count

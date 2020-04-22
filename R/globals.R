@@ -5,5 +5,6 @@
 # https://community.rstudio.com/t/how-to-solve-no-visible-binding-for-global-variable-note/28887
 utils::globalVariables(c("start", "end", "available_vars",
                          "check", "group", "overlap", "issue",
+                         "common_start", "common_end",
                          "vis_group", "colour", "full",
                          "N"))
