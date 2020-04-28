@@ -133,7 +133,8 @@ functions</p>
   <span class='no'>col_type</span>,
   <span class='no'>mapping</span>,
   <span class='kw'>agg_function</span> <span class='kw'>=</span> <span class='no'>sum</span>,
-  <span class='kw'>drop_present_aggs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>drop_present_aggs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>collapse_interval_cols</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
 <span class='fu'>identify_scale_dt_issues</span>(
@@ -144,7 +145,8 @@ functions</p>
   <span class='no'>col_type</span>,
   <span class='no'>mapping</span>,
   <span class='kw'>agg_function</span> <span class='kw'>=</span> <span class='no'>sum</span>,
-  <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>collapse_interval_cols</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -199,6 +201,15 @@ present in <code>dt</code> before aggregating. Default is 'False' and the functi
 errors out.</p></td>
     </tr>
     <tr>
+      <th>collapse_interval_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>]<br />
+Whether to collapse interval <code>id_cols</code> (not including <code>col_stem</code> if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals. See details or vignettes for more
+information.</p></td>
+    </tr>
+    <tr>
       <th>collapse_missing</th>
       <td><p>[<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>]<br />
 When scaling a <code>categorical</code> variable, whether to collapse missing
@@ -212,6 +223,29 @@ errors out due to missing data.</p></td>
     <p>[<code>data.table()</code>] with problematic rows in <code>dt</code>. Only includes
 original <code>id_cols</code> columns and a new column "issue" describing each row's
 issue.</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>identify_agg_dt_issues()</code> steps:</p><ol>
+<li><p>For interval id variables (not including <code>col_stem</code>) if
+<code>collapse_interval_cols = TRUE</code>, checks for overlapping intervals and missing
+intervals and then collapses these interval variables to the most detailed
+common intervals.
+2  If <code>col_type = "interval"</code> then also checks for overlapping intervals and
+missing intervals but doesn't collapse this variable.</p></li>
+<li><p>Creates data.tree from mappings to be used for aggregation.</p></li>
+<li><p>If <code>col_type = "categorical"</code> checks for aggregates already present.</p></li>
+<li><p>Identifies any missing nodes in data.tree needed to make aggregations.</p></li>
+</ol>
+
+<p><code>identify_scale_dt_issues()</code> steps:</p><ol>
+<li><p>For interval id variables (not including <code>col_stem</code>) if
+<code>collapse_interval_cols = TRUE</code>, checks for overlapping intervals and missing
+intervals and then collapses these interval variables to the most detailed
+common intervals.</p></li>
+<li><p>Creates data.tree from mappings to be used for scaling.</p></li>
+<li><p>Identifies any missing nodes in data.tree needed to make aggregations.</p></li>
+</ol>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>## Try to aggregate data with a location missing errors out</span>
@@ -275,7 +309,7 @@ issue.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

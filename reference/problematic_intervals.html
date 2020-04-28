@@ -120,7 +120,7 @@
     <p>Identify missing or overlapping intervals</p>
     </div>
 
-    <pre class="usage"><span class='fu'>identify_missing_intervals</span>(<span class='no'>ints_dt</span>, <span class='kw'>full_int_start</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>full_int_end</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
+    <pre class="usage"><span class='fu'>identify_missing_intervals</span>(<span class='no'>ints_dt</span>, <span class='no'>expected_ints_dt</span>)
 
 <span class='fu'>identify_overlapping_intervals</span>(<span class='no'>ints_dt</span>, <span class='kw'>full_int_start</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>full_int_end</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)</pre>
 
@@ -131,6 +131,13 @@
       <th>ints_dt</th>
       <td><p>[<code>data.table()</code>]<br />
 Unique intervals to check as returned by <code><a href='subset_unique_grouping.html'>subset_unique_grouping()</a></code>.
+Includes a column for the start of the interval and the end of the
+interval.</p></td>
+    </tr>
+    <tr>
+      <th>expected_ints_dt</th>
+      <td><p>[<code>data.table()</code>]<br />
+Expected intervals that should be completely included in <code>ints_dt</code>.
 Includes a column for the start of the interval and the end of the
 interval.</p></td>
     </tr>
@@ -169,7 +176,7 @@ are missing or overlapping then zero-row [<code>data.table()</code>] is returned
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

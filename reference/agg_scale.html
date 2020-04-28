@@ -138,7 +138,8 @@ level.</p>
   <span class='no'>mapping</span>,
   <span class='kw'>agg_function</span> <span class='kw'>=</span> <span class='no'>sum</span>,
   <span class='kw'>missing_dt_severity</span> <span class='kw'>=</span> <span class='st'>"stop"</span>,
-  <span class='kw'>drop_present_aggs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>drop_present_aggs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>collapse_interval_cols</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
 <span class='fu'>scale</span>(
@@ -150,7 +151,8 @@ level.</p>
   <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>agg_function</span> <span class='kw'>=</span> <span class='no'>sum</span>,
   <span class='kw'>missing_dt_severity</span> <span class='kw'>=</span> <span class='st'>"stop"</span>,
-  <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>collapse_interval_cols</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -213,6 +215,15 @@ present in <code>dt</code> before aggregating. Default is 'False' and the functi
 errors out.</p></td>
     </tr>
     <tr>
+      <th>collapse_interval_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>]<br />
+Whether to collapse interval <code>id_cols</code> (not including <code>col_stem</code> if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals. See details or vignettes for more
+information.</p></td>
+    </tr>
+    <tr>
       <th>collapse_missing</th>
       <td><p>[<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>]<br />
 When scaling a <code>categorical</code> variable, whether to collapse missing
@@ -263,6 +274,15 @@ okay if different combinations of <code>id_vars</code> have different <code>col_
 available. For example if making age aggregates, it is okay if some
 location-years have 5-year age groups while other location-years have 1-year
 age groups.</p>
+<p>If <code>collapse_interval_cols = TRUE</code> it is okay if the interval variables
+included in <code>id_vars</code> are not all exactly the same, <code>agg</code> and <code>scale</code> will
+collapse to the most detailed common intervals
+<code><a href='collapse_common_intervals.html'>collapse_common_intervals()</a></code> prior to aggregation or scaling. An example
+of this is when aggregating subnational data to the national level (so
+<code>col_stem</code> is 'location' and <code>col_type</code> is 'categorical') but each
+subnational location contains different age groups. <code>agg()</code> and <code>scale()</code>
+first aggregate to the most detailed common age groups before making location
+aggregates.</p>
 <p>The <code>agg</code> and <code>scale</code> functions currently only work when combining counts or
 probabilities. If the data is in rate-space then you need to convert to count
 space first, aggregate/scale, and then convert back.</p>
@@ -329,7 +349,7 @@ space first, aggregate/scale, and then convert back.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

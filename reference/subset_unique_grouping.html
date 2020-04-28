@@ -120,7 +120,15 @@
     <p>Subset to data for one unique set of the agg/scale variable</p>
     </div>
 
-    <pre class="usage"><span class='fu'>subset_unique_grouping</span>(<span class='no'>dt</span>, <span class='no'>groups</span>, <span class='no'>group_num</span>, <span class='no'>col_stem</span>, <span class='no'>col_type</span>, <span class='no'>by_id_cols</span>)</pre>
+    <pre class="usage"><span class='fu'>subset_unique_grouping</span>(
+  <span class='no'>dt</span>,
+  <span class='no'>id_cols</span>,
+  <span class='no'>col_stem</span>,
+  <span class='no'>col_type</span>,
+  <span class='no'>collapse_interval_cols</span>,
+  <span class='no'>groups</span>,
+  <span class='no'>group_num</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -131,14 +139,9 @@
 Data to be aggregated or scaled.</p></td>
     </tr>
     <tr>
-      <th>groups</th>
-      <td><p>[<code><a href='https://rdrr.io/r/base/list.html'>list(2)</a></code>]<br />
-Output of <code><a href='identify_unique_groupings.html'>identify_unique_groupings()</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>group_num</th>
-      <td><p>[<code><a href='https://rdrr.io/r/base/integer.html'>integer(1)</a></code>]<br />
-Integer row of <code>groups$unique_groupings</code> to subset data to.</p></td>
+      <th>id_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
+ID columns that uniquely identify each row of <code>dt</code>.</p></td>
     </tr>
     <tr>
       <th>col_stem</th>
@@ -153,9 +156,23 @@ The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.</p></td>
     </tr>
     <tr>
-      <th>by_id_cols</th>
-      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
-The <code>id_cols</code> without the agg/scale variable(s) included.</p></td>
+      <th>collapse_interval_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>]<br />
+Whether to collapse interval <code>id_cols</code> (not including <code>col_stem</code> if it is
+an interval variable). Default is 'False'. If set to 'True' the interval
+columns are collapsed to the most detailed common intervals and will error
+out if there are overlapping intervals. See details or vignettes for more
+information.</p></td>
+    </tr>
+    <tr>
+      <th>groups</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/list.html'>list(2)</a></code>]<br />
+Output of <code><a href='identify_unique_groupings.html'>identify_unique_groupings()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>group_num</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/integer.html'>integer(1)</a></code>]<br />
+Integer row of <code>groups$unique_groupings</code> to subset data to.</p></td>
     </tr>
     </table>
 
@@ -190,7 +207,7 @@ combination of the variable being aggregated or scaled over.</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
