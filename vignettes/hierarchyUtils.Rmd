@@ -2,12 +2,12 @@
 title: "Introduction to hierarchyUtils"
 output: rmarkdown::html_vignette
 vignette: >
-%\VignetteIndexEntry{hierarchyUtils}
+  %\VignetteIndexEntry{hierarchyUtils}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  ---
+---
   
-  ```{r, include = FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 8)
 ```
 
