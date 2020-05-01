@@ -1,18 +1,18 @@
 ---
-title: "Introduction to demUtils"
+title: "Introduction to hierarchyUtils"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{demUtils}
+%\VignetteIndexEntry{hierarchyUtils}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
----
+  ---
   
-```{r, include = FALSE}
+  ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 8)
 ```
 
 ```{r setup, include = FALSE}
-library(demUtils)
+library(hierarchyUtils)
 library(data.table)
 library(ggplot2)
 ```
@@ -23,7 +23,7 @@ Demographics data is often organized into different hierarchical groupings of va
 
 * numeric intervals: age, income, education years etc.
 
-Iran census population counts included in the package are shown below and documented at `?demUtils::iran_pop`. Examples of categorical variables included in this dataset are `location`, `year`, `sex`, `source_name`, `nid` and `underlying_nid` while `age_start` and `age_end` are one numeric interval variable.
+Iran census population counts included in the package are shown below and documented at `?hierarchyUtils::iran_pop`. Examples of categorical variables included in this dataset are `location`, `year`, `sex`, `source_name`, `nid` and `underlying_nid` while `age_start` and `age_end` are one numeric interval variable.
 
 ```{r iran_pop}
 # TODO remove this once handling unknown age groups correctly
@@ -34,7 +34,7 @@ iran_pop <- iran_pop[year == 2006 & location == "Tehran 1986-1995",
 print(iran_pop)
 ```
 
-The `demUtils` package provides a variety of utility functions that can be used to work with this kind of data. There are functions included to:
+The `hierarchyUtils` package provides a variety of utility functions that can be used to work with this kind of data. There are functions included to:
 
 * aggregate data to different levels of a defined hierarchy for the categorical or numeric intervals variables. 
 
@@ -42,7 +42,7 @@ The `demUtils` package provides a variety of utility functions that can be used 
 
 ## Aggregate ages and both sexes combined
 
-`demUtils::iran_pop` provides sex and age specific population counts for censuses between `r min(iran_pop$year)` and `r max(iran_pop$year)` in Iran. Each of these censuses includes a different set of most detailed age groups which can make comparisons across censuses more difficult without aggregation to common age groups first.
+`hierarchyUtils::iran_pop` provides sex and age specific population counts for censuses between `r min(iran_pop$year)` and `r max(iran_pop$year)` in Iran. Each of these censuses includes a different set of most detailed age groups which can make comparisons across censuses more difficult without aggregation to common age groups first.
 
 ```{r ages_available, echo = FALSE, fig.height = 5}
 plot_data <- iran_pop[grepl("Iran", location) & source_name == "DYB"]
@@ -55,7 +55,7 @@ ggplot(plot_data) +
   theme_bw()
 ```
 
-By aggregating to a common set of aggregate age groups using `demUtils::agg` we can more easily compare population counts over time. One of the benefits of this function is that the input data does not need to be square, meaning the age groups in each census year for example can be different.
+By aggregating to a common set of aggregate age groups using `hierarchyUtils::agg` we can more easily compare population counts over time. One of the benefits of this function is that the input data does not need to be square, meaning the age groups in each census year for example can be different.
 
 Here we can first aggregate the interval variable `age` which depends on `age_start` and `age_end` columns in the input dataset. 
 
@@ -66,12 +66,12 @@ id_cols <- names(iran_pop)[!names(iran_pop) %in% value_cols]
 # aggregate to aggregate age groups
 agg_age_mapping <- data.table(age_start = c(0, 0, 15, 60), age_end = c(Inf, 5, 60, Inf))
 agg_age_mapping
-iran_pop_aggs <- demUtils::agg(dt = iran_pop, 
-                               id_cols = id_cols,
-                               value_cols = value_cols,
-                               col_stem = "age",
-                               col_type = "interval",
-                               mapping = agg_age_mapping)
+iran_pop_aggs <- hierarchyUtils::agg(dt = iran_pop,
+                                     id_cols = id_cols,
+                                     value_cols = value_cols,
+                                     col_stem = "age",
+                                     col_type = "interval",
+                                     mapping = agg_age_mapping)
 ```
 
 Then we can aggregate the categorical variable `sex`.
@@ -80,12 +80,12 @@ Then we can aggregate the categorical variable `sex`.
 # aggregate to both sexes combined
 sex_mapping <- data.table(parent = "both", child = c("female", "male"))
 sex_mapping
-iran_pop_aggs_both_sexes <- demUtils::agg(dt = iran_pop_aggs, 
-                                          id_cols = id_cols,
-                                          value_cols = value_cols,
-                                          col_stem = "sex",
-                                          col_type = "categorical",
-                                          mapping = sex_mapping)
+iran_pop_aggs_both_sexes <- hierarchyUtils::agg(dt = iran_pop_aggs,
+                                                id_cols = id_cols,
+                                                value_cols = value_cols,
+                                                col_stem = "sex",
+                                                col_type = "categorical",
+                                                mapping = sex_mapping)
 iran_pop_aggs <- rbind(iran_pop_aggs, iran_pop_aggs_both_sexes, use.names = T)
 ```
 
@@ -101,33 +101,33 @@ There are also some years in the dataset where data is only available at the pro
 
 One difficulty with this data is that the province boundaries have changed over time in Iran so sometimes data is only available for historical locations (locations that existed in previous years but that have since been split into multiple locations).
 
-A mapping of how province boundaries have changed from the 1956 census to present day is included in the package and documented at `?demUtils::iran_mapping`.
+A mapping of how province boundaries have changed from the 1956 census to present day is included in the package and documented at `?hierarchyUtils::iran_mapping`.
 
-[Tree data structures](https://en.wikipedia.org/wiki/Tree_(data_structure)) are really useful for representing hierarchical data which is exactly the type of data that is being manipulated when aggregating or scaling data to different levels of a hierarchy. The mappings used to define the hierarchical structure of categorical data in `demUtils` must have a `parent` and `child` column defining relationships between nodes in the tree (like in `demUtils::iran_mapping`). 
+[Tree data structures](https://en.wikipedia.org/wiki/Tree_(data_structure)) are really useful for representing hierarchical data which is exactly the type of data that is being manipulated when aggregating or scaling data to different levels of a hierarchy. The mappings used to define the hierarchical structure of categorical data in `hierarchyUtils` must have a `parent` and `child` column defining relationships between nodes in the tree (like in `hierarchyUtils::iran_mapping`).
 
 The root node of the tree shown below is "Iran" at the national level. The leaf nodes of the tree are the present day provinces and all other nodes are the historical provinces. Colored in green is everywhere data is directly available for each location, blue are locations where aggregations are possible and red is where data is missing (or aggregation is not possible). Here we can see in 2006 that a historical province called "Tehran" included two present day provinces, "Tehran" and "Alborz".
 
 ```{r location_mapping, fig.height = 5}
-# this function is used internally by `demUtils::agg` but is available to help
+# this function is used internally by `hierarchyUtils::agg` but is available to help
 # visualize why some aggregates can't be made, what data is missing, etc.
-agg_tree <- demUtils::create_agg_tree(
+agg_tree <- hierarchyUtils::create_agg_tree(
   mapping = iran_mapping, 
   exists = iran_pop_aggs[year == 2006 & source_name != "DYB", unique(location)],
   col_type = "categorical")
-demUtils::vis_tree(agg_tree)
+hierarchyUtils::vis_tree(agg_tree)
 ```
 
 Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. `drop_present_aggs = T` because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. `missing_dt_severity = "none"` because in some source-years we don't have the present day provinces and its okay to just make the aggregates that are possible given the data that is available. 
 
 ```{r aggregate_location}
-iran_pop_aggs_location <- demUtils::agg(dt = iran_pop_aggs, 
-                                        id_cols = id_cols,
-                                        value_cols = value_cols,
-                                        col_stem = "location",
-                                        col_type = "categorical",
-                                        mapping = iran_mapping,
-                                        drop_present_aggs = T,
-                                        missing_dt_severity = "none")
+iran_pop_aggs_location <- hierarchyUtils::agg(dt = iran_pop_aggs,
+                                              id_cols = id_cols,
+                                              value_cols = value_cols,
+                                              col_stem = "location",
+                                              col_type = "categorical",
+                                              mapping = iran_mapping,
+                                              drop_present_aggs = T,
+                                              missing_dt_severity = "none")
 iran_pop_aggs <- rbind(iran_pop_aggs, iran_pop_aggs_location)
 ```
 
@@ -135,7 +135,7 @@ The population for these aggregates age groups at the national level can now be 
 
 ```{r plot_total_pop, echo = FALSE, fig.height = 10}
 # create a column called "age" to describe each age interval
-demUtils::gen_name(iran_pop_aggs, col_stem = "age")
+hierarchyUtils::gen_name(iran_pop_aggs, col_stem = "age")
 iran_pop_aggs[age_name == "0 plus", age_name := "All-ages"]
 
 ggplot(iran_pop_aggs[grepl("Iran", location)],

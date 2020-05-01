@@ -1,9 +1,9 @@
 #' @title Generate columns to help describe numeric variable intervals
 #'
-#' @description demUtils assumes numeric interval variables are grouped into
-#' left-closed, right-open intervals. \eqn{a <= x < b}. Each interval can be
-#' described by their endpoints from which interval lengths and nicer formatted
-#' interval names can be created.
+#' @description hierarchyUtils assumes numeric interval variables are grouped
+#' into left-closed, right-open intervals. \eqn{a <= x < b}. Each interval can
+#' be described by their endpoints from which interval lengths and nicer
+#' formatted interval names can be created.
 #'
 #' @param dt \[`data.table()`\]\cr
 #'   `col_stem`-specific data.

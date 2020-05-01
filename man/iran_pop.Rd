@@ -4,7 +4,8 @@
 \name{iran_pop}
 \alias{iran_pop}
 \title{Iran Census Population Counts}
-\format{A data.table with 10764 rows and 9 columns:
+\format{
+A data.table with 10764 rows and 9 columns:
 \itemize{
 \item location: name of the location (corresponds to a location in
 \code{iran_mapping}).
@@ -20,7 +21,8 @@ Exchange (GHDx) that directly provided the population count.
 Health Data Exchange (GHDx) that the source can be attributed to if
 provided by a data vendor (like the Demographic Year Book, DYB).
 \item population: population count for the location-sex-age_group-source.
-}}
+}
+}
 \usage{
 iran_pop
 }

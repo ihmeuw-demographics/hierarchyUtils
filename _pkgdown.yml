@@ -9,14 +9,14 @@ reference:
   - gen_name
 
 - title: "Aggregation and scaling"
-  desc: "Functions for aggregating and scaling hierarchcical data"
+  desc: "Functions for aggregating and scaling hierarchical data"
 - contents:
   - agg
   - scale
 
 - title: "Debugging aggregation and scaling"
   desc: "Functions for debugging errors/warnings when aggregating and scaling
-  hierarchcical data"
+  hierarchical data"
 - contents:
   - identify_agg_dt_issues
   - identify_scale_dt_issues
@@ -25,7 +25,7 @@ reference:
   - vis_tree
 
 - title: "Example data"
-  desc: "Example hierarchical data and mappings to use with `demUtils` functions"
+  desc: "Example hierarchical data and mappings to use with `hierarchyUtils` functions"
 - contents:
   - iran_pop
   - iran_mapping
