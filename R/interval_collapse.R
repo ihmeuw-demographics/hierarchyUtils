@@ -236,13 +236,13 @@ collapse_common_intervals <- function(dt,
 #' gen_end(input_dt, setdiff(id_cols, "age_end"), col_stem = "age")
 #' data.table::setkeyv(input_dt, id_cols)
 #'
-#' common_intervals <- demUtils:::identify_common_intervals(
+#' common_intervals <- hierarchyUtils:::identify_common_intervals(
 #'   dt = input_dt,
 #'   id_cols = id_cols,
 #'   col_stem = "year"
 #' )
 #'
-#' result_dt <- demUtils:::merge_common_intervals(
+#' result_dt <- hierarchyUtils:::merge_common_intervals(
 #'   dt = input_dt,
 #'   common_intervals = common_intervals,
 #'   col_stem = "year"

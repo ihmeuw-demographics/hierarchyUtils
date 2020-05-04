@@ -4,11 +4,13 @@
 \name{iran_mapping}
 \alias{iran_mapping}
 \title{Iran Provinces Mapping from 1950 to Today}
-\format{A data.table with 47 rows and 2 columns:
+\format{
+A data.table with 47 rows and 2 columns:
 \itemize{
 \item parent: the aggregate location.
 \item child: one of the constituent locations.
-}}
+}
+}
 \usage{
 iran_mapping
 }

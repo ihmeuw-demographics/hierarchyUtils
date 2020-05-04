@@ -45,10 +45,10 @@ also be '+'. Ignored when \code{format = "interval"}.}
 Invisibly returns reference to modified \code{dt}.
 }
 \description{
-demUtils assumes numeric interval variables are grouped into
-left-closed, right-open intervals. \eqn{a <= x < b}. Each interval can be
-described by their endpoints from which interval lengths and nicer formatted
-interval names can be created.
+hierarchyUtils assumes numeric interval variables are grouped
+into left-closed, right-open intervals. \eqn{a <= x < b}. Each interval can
+be described by their endpoints from which interval lengths and nicer
+formatted interval names can be created.
 }
 \details{
 \code{gen_end} generates a new column '\code{{col_stem}}_end' for the

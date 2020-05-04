@@ -1,4 +1,4 @@
 library(testthat)
-library(demUtils)
+library(hierarchyUtils)
 
-test_check("demUtils")
+test_check("hierarchyUtils")

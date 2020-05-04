@@ -1,18 +1,17 @@
-Package: demUtils
+Package: hierarchyUtils
 Version: 0.0.0.9000
-Title: Utility Functions for Common Demographics Data Problems
-Description: Demographics data is often hierarchically structured.
-  Categorical and numeric interval variables like location, sex, age, race,
-  ethnicity, education, marital status, etc. have different levels of detail.
-  The demUtils package provides functions for formatting, aggregating, scaling,
-  and other related tasks useful for hierarchical data.
+Title: Utility Functions for Hierarchically Structured Data
+Description: The hierarchyUtils package provides functions for formatting,
+    aggregating, scaling, and other related tasks useful for hierarchical data.
+    Hierarchical data can be organized by categorical or numeric interval
+    variables that have different levels of detail.
 Authors@R: c(person("Charlton", "Callender", email = "chacalle@uw.edu", role = "aut"),
              person("Grant", "Nguyen", email = "gngu@uw.edu", role = "aut"),
              person("Katie", "Paulson", email = "krpaul@uw.edu", role = "aut"),
              person("Spencer", "Pease", email = "spease@uw.edu", role = "aut"),
              person("Haidong", "Wang", email = "haidong@uw.edu", role = "cre"),
              person("Institute for Health Metrics and Evaluation", role = c("cph", "fnd")))
-URL: https://github.com/ihmeuw/demUtils/
+URL: https://github.com/ihmeuw-demographics/hierarchyUtils/
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
