@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Generate columns to help describe numeric variable intervals — gen_end • demUtils</title>
+<title>Generate columns to help describe numeric variable intervals — gen_end • hierarchyUtils</title>
 
 
 <!-- jquery -->
@@ -40,10 +40,10 @@
 
 
 <meta property="og:title" content="Generate columns to help describe numeric variable intervals — gen_end" />
-<meta property="og:description" content="demUtils assumes numeric interval variables are grouped into
-left-closed, right-open intervals. \(a &amp;lt;= x &amp;lt; b\). Each interval can be
-described by their endpoints from which interval lengths and nicer formatted
-interval names can be created." />
+<meta property="og:description" content="hierarchyUtils assumes numeric interval variables are grouped
+into left-closed, right-open intervals. \(a &amp;lt;= x &amp;lt; b\). Each interval can
+be described by their endpoints from which interval lengths and nicer
+formatted interval names can be created." />
 
 
 
@@ -74,7 +74,7 @@ interval names can be created." />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">demUtils</a>
+        <a class="navbar-link" href="../index.html">hierarchyUtils</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -88,7 +88,7 @@ interval names can be created." />
   </a>
 </li>
 <li>
-  <a href="../articles/demUtils.html">Get started</a>
+  <a href="../articles/hierarchyUtils.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -96,7 +96,7 @@ interval names can be created." />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/ihmeuw/demUtils/">
+  <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -115,15 +115,15 @@ interval names can be created." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Generate columns to help describe numeric variable intervals</h1>
-    <small class="dont-index">Source: <a href='https://github.com/ihmeuw/demUtils/blob/master/R/interval_formatting.R'><code>R/interval_formatting.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw-demographics/hierarchyUtils/blob/master/R/interval_formatting.R'><code>R/interval_formatting.R</code></a></small>
     <div class="hidden name"><code>gen_interval_cols.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>demUtils assumes numeric interval variables are grouped into
-left-closed, right-open intervals. \(a &lt;= x &lt; b\). Each interval can be
-described by their endpoints from which interval lengths and nicer formatted
-interval names can be created.</p>
+    <p>hierarchyUtils assumes numeric interval variables are grouped
+into left-closed, right-open intervals. \(a &lt;= x &lt; b\). Each interval can
+be described by their endpoints from which interval lengths and nicer
+formatted interval names can be created.</p>
     </div>
 
     <pre class="usage"><span class='fu'>gen_end</span>(<span class='no'>dt</span>, <span class='no'>id_cols</span>, <span class='no'>col_stem</span>, <span class='kw'>right_most_endpoint</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
