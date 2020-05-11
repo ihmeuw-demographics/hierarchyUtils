@@ -38,7 +38,6 @@ Imports:
     assertable (>= 0.2.7),
     checkmate,
     data.tree,
-    intervals,
-    methods
+    intervals
 Remotes:
     ihmeuw-demographics/demUtils
