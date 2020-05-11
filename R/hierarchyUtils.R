@@ -9,4 +9,5 @@
 #' @name hierarchyUtils
 #'
 #' @importFrom utils globalVariables
+#' @importFrom utils capture.output
 NULL
