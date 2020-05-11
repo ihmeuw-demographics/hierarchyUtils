@@ -99,7 +99,7 @@ collapse_common_intervals <- function(dt,
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }
-  assert_is_unique_dt(dt, id_cols)
+  demUtils::assert_is_unique_dt(dt, id_cols)
   for (col in cols) {
     assertive::assert_is_numeric(dt[[col]])
   }
