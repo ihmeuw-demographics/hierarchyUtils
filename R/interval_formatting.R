@@ -97,7 +97,7 @@ gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
                                        "' column already in `dt`"))
   assertive::assert_is_numeric(dt[[start_col]])
   assertive::assert_all_are_not_na(dt[[start_col]])
-  assert_is_unique_dt(dt, id_cols)
+  demUtils::assert_is_unique_dt(dt, id_cols)
 
   # Calculate left-closed endpoints -----------------------------------------
 

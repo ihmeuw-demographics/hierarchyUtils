@@ -550,7 +550,7 @@ assert_agg_scale_args <- function(dt,
     if (col_type == "interval") expected_mapping_cols <- cols
     assertable::assert_colnames(mapping, expected_mapping_cols, only_colnames = T,
                                 quiet = T)
-    assert_is_unique_dt(mapping, expected_mapping_cols)
+    demUtils::assert_is_unique_dt(mapping, expected_mapping_cols)
   } else {
     assertthat::assert_that(assertive::is_null(mapping),
                             msg = "When scaling an interval variable `mapping`
@@ -581,7 +581,7 @@ assert_agg_scale_args <- function(dt,
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }
-  assert_is_unique_dt(dt, id_cols)
+  demUtils::assert_is_unique_dt(dt, id_cols)
   if (col_type == "interval") {
     for (col in cols) {
       assertive::assert_is_numeric(dt[[col]])

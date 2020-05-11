@@ -30,7 +30,8 @@ RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Language: en-US
 Depends: R (>= 2.10)
-Imports: 
+Imports:
+    demUtils,
     data.table,
     assertthat,
     assertive,
@@ -39,3 +40,5 @@ Imports:
     data.tree,
     intervals,
     methods
+Remotes:
+    ihmeuw-demographics/demUtils
