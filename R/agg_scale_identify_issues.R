@@ -135,11 +135,9 @@ identify_agg_dt_issues <- function(dt,
       stem_cols <- paste0(stem, "_", c("start", "end"))
 
       # identify overlapping intervals
-      overlapping_dt <- grouping$dt[, identify_overlapping_intervals(
-        .SD,
-        min(.SD[[stem_cols[1]]]),
-        max(.SD[[stem_cols[2]]])
-      ), .SDcols = stem_cols, by = setdiff(id_cols, stem_cols)]
+      overlapping_dt <- grouping$dt[, identify_overlapping_intervals(.SD),
+                                    .SDcols = stem_cols,
+                                    by = setdiff(id_cols, stem_cols)]
       data.table::setnames(overlapping_dt, c("start", "end"), stem_cols)
       overlapping_dt[, issue := "overlapping intervals present"]
       check_dt <- rbind(check_dt, overlapping_dt, use.names = T)
@@ -300,11 +298,9 @@ identify_scale_dt_issues <- function(dt,
       stem_cols <- paste0(stem, "_", c("start", "end"))
 
       # identify overlapping intervals
-      overlapping_dt <- grouping$dt[, identify_overlapping_intervals(
-        .SD,
-        min(.SD[[stem_cols[1]]]),
-        max(.SD[[stem_cols[2]]])
-      ), .SDcols = stem_cols, by = setdiff(id_cols, stem_cols)]
+      overlapping_dt <- grouping$dt[, identify_overlapping_intervals(.SD),
+                                    .SDcols = stem_cols,
+                                    by = setdiff(id_cols, stem_cols)]
       data.table::setnames(overlapping_dt, c("start", "end"), stem_cols)
       overlapping_dt[, issue := "overlapping intervals present"]
       check_dt <- rbind(check_dt, overlapping_dt, use.names = T)
@@ -400,7 +396,7 @@ identify_scale_dt_issues <- function(dt,
                              filterFun = function(x) subtree$level == x$level - 1)
 
           overlapping_intervals <- identify_overlapping_intervals(
-            data.table(start, end), subtree$left, subtree$right
+            data.table(start, end)
           )
           data.table::setnames(overlapping_intervals, c("start", "end"), cols)
           overlapping_intervals_dt <- grouping$dt[, data.table(overlapping_intervals),

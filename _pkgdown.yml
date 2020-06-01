@@ -8,6 +8,14 @@ reference:
   - gen_length
   - gen_name
 
+- title: "Checking interval data"
+  desc: "Functions for checking numeric interval columns"
+- contents:
+  - identify_missing_intervals
+  - assert_no_missing_intervals
+  - identify_overlapping_intervals
+  - assert_no_overlapping_intervals
+
 - title: "Aggregation and scaling"
   desc: "Functions for aggregating and scaling hierarchical data"
 - contents:
