@@ -24,7 +24,7 @@
 #' )
 #' missing_dt <- identify_missing_intervals(
 #'   ints_dt = ints_dt[!start %in% c(0, 10, 95)],
-#'   expected_ints_dt = data.table(start = 0, end = Inf)
+#'   expected_ints_dt = data.table::data.table(start = 0, end = Inf)
 #' )
 #'
 #' @export
