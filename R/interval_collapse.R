@@ -130,11 +130,8 @@ collapse_common_intervals <- function(dt,
   by_id_cols <- id_cols[!id_cols %in% cols]
 
   # check for overlapping intervals
-  overlapping_dt <- dt[, identify_overlapping_intervals(
-    .SD,
-    min(.SD[[cols[1]]]),
-    max(.SD[[cols[2]]])
-  ), .SDcols = cols, by = by_id_cols]
+  overlapping_dt <- dt[, identify_overlapping_intervals(.SD),
+                       .SDcols = cols, by = by_id_cols]
   data.table::setnames(overlapping_dt, c("start", "end"), cols)
   overlapping_dt[, issue := "overlapping intervals present"]
 

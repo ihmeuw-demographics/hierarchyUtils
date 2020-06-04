@@ -128,7 +128,7 @@ create_scale_tree <- function(mapping,
           data.table(start, end), data.table(x$parent$left, x$parent$right)
         )
         overlapping_intervals <- identify_overlapping_intervals(
-          data.table(start, end), x$parent$left, x$parent$right
+          data.table(start, end)
         )
         if (nrow(missing_intervals) != 0 | nrow(overlapping_intervals) != 0) {
           return(FALSE)
