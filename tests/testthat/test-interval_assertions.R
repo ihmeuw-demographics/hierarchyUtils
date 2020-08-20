@@ -68,3 +68,17 @@ testthat::test_that("missing intervals are identified correctly", {
   )
 
 })
+
+
+# Going from name to start and end of interval works ----------------------
+
+names <- c("[-20, 0)", "[-Inf, -20)", "[0, 10)", "[-Inf, Inf)")
+expected_result <- data.table(
+  start = c(-20, -Inf, 0, -Inf),
+  end = c(0, -20, 10, Inf)
+)
+
+testthat::test_that("interval name correctly converted to 'start' and 'end'", {
+  result <- as.data.table(name_to_start_end(names))
+  testthat::expect_identical(result, expected_result)
+})
