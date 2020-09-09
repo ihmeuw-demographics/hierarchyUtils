@@ -130,29 +130,29 @@ level.</p>
     </div>
 
     <pre class="usage"><span class='fu'>agg</span>(
-  <span class='no'>dt</span>,
-  <span class='no'>id_cols</span>,
-  <span class='no'>value_cols</span>,
-  <span class='no'>col_stem</span>,
-  <span class='no'>col_type</span>,
-  <span class='no'>mapping</span>,
-  <span class='kw'>agg_function</span> <span class='kw'>=</span> <span class='no'>sum</span>,
-  <span class='kw'>missing_dt_severity</span> <span class='kw'>=</span> <span class='st'>"stop"</span>,
-  <span class='kw'>drop_present_aggs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>collapse_interval_cols</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>dt</span>,
+  <span class='kw'>id_cols</span>,
+  <span class='kw'>value_cols</span>,
+  <span class='kw'>col_stem</span>,
+  <span class='kw'>col_type</span>,
+  <span class='kw'>mapping</span>,
+  agg_function = <span class='kw'>sum</span>,
+  missing_dt_severity = <span class='st'>"stop"</span>,
+  drop_present_aggs = <span class='fl'>FALSE</span>,
+  collapse_interval_cols = <span class='fl'>FALSE</span>
 )
 
 <span class='fu'>scale</span>(
-  <span class='no'>dt</span>,
-  <span class='no'>id_cols</span>,
-  <span class='no'>value_cols</span>,
-  <span class='no'>col_stem</span>,
-  <span class='no'>col_type</span>,
-  <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>agg_function</span> <span class='kw'>=</span> <span class='no'>sum</span>,
-  <span class='kw'>missing_dt_severity</span> <span class='kw'>=</span> <span class='st'>"stop"</span>,
-  <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>collapse_interval_cols</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>dt</span>,
+  <span class='kw'>id_cols</span>,
+  <span class='kw'>value_cols</span>,
+  <span class='kw'>col_stem</span>,
+  <span class='kw'>col_type</span>,
+  mapping = <span class='kw'>NULL</span>,
+  agg_function = <span class='kw'>sum</span>,
+  missing_dt_severity = <span class='st'>"stop"</span>,
+  collapse_missing = <span class='fl'>FALSE</span>,
+  collapse_interval_cols = <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -290,49 +290,52 @@ space first, aggregate/scale, and then convert back.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># aggregate count data from present day Iran provinces to historical</span>
 <span class='co'># provinces and Iran as a whole</span>
-<span class='no'>input_dt</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/J.html'>CJ</a></span>(<span class='kw'>location</span> <span class='kw'>=</span> <span class='no'>iran_mapping</span>[!<span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='no'>child</span>),
-                                                   <span class='no'>child</span>],
-                           <span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2011</span>,
-                           <span class='kw'>value</span> <span class='kw'>=</span> <span class='fl'>1</span>)
-<span class='no'>output_dt</span> <span class='kw'>&lt;-</span> <span class='fu'>agg</span>(<span class='kw'>dt</span> <span class='kw'>=</span> <span class='no'>input_dt</span>,
-                 <span class='kw'>id_cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"location"</span>, <span class='st'>"year"</span>),
-                 <span class='kw'>value_cols</span> <span class='kw'>=</span> <span class='st'>"value"</span>,
-                 <span class='kw'>col_stem</span> <span class='kw'>=</span> <span class='st'>"location"</span>,
-                 <span class='kw'>col_type</span> <span class='kw'>=</span> <span class='st'>"categorical"</span>,
-                 <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='no'>iran_mapping</span>)
+<span class='kw'>input_dt</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/J.html'>CJ</a></span>(location = <span class='kw'>iran_mapping</span>[<span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='kw'>child</span>),
+                                                   <span class='kw'>child</span>],
+                           year = <span class='fl'>2011</span>,
+                           value = <span class='fl'>1</span>)
+<span class='kw'>output_dt</span> <span class='op'>&lt;-</span> <span class='fu'>agg</span>(dt = <span class='kw'>input_dt</span>,
+                 id_cols = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"location"</span>, <span class='st'>"year"</span>),
+                 value_cols = <span class='st'>"value"</span>,
+                 col_stem = <span class='st'>"location"</span>,
+                 col_type = <span class='st'>"categorical"</span>,
+                 mapping = <span class='kw'>iran_mapping</span>)
 
 <span class='co'># scale count data from present day Iran provinces to Iran national value</span>
-<span class='no'>input_dt</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/J.html'>CJ</a></span>(<span class='kw'>location</span> <span class='kw'>=</span> <span class='no'>iran_mapping</span>[!<span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='no'>child</span>),
-                                                   <span class='no'>child</span>],
-                           <span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2011</span>,
-                           <span class='kw'>value</span> <span class='kw'>=</span> <span class='fl'>1</span>)
-<span class='no'>input_dt_agg</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(
-  <span class='kw'>location</span> <span class='kw'>=</span> <span class='st'>"Iran (Islamic Republic of)"</span>,
-  <span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2011</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='fl'>62</span>
+<span class='kw'>input_dt</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/J.html'>CJ</a></span>(location = <span class='kw'>iran_mapping</span>[<span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='kw'>child</span>),
+                                                   <span class='kw'>child</span>],
+                           year = <span class='fl'>2011</span>,
+                           value = <span class='fl'>1</span>)
+<span class='kw'>input_dt_agg</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(
+  location = <span class='st'>"Iran (Islamic Republic of)"</span>,
+  year = <span class='fl'>2011</span>, value = <span class='fl'>62</span>
 )
-<span class='no'>input_dt</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='no'>input_dt</span>, <span class='no'>input_dt_agg</span>)
-<span class='no'>output_dt</span> <span class='kw'>&lt;-</span> <span class='fu'>scale</span>(<span class='kw'>dt</span> <span class='kw'>=</span> <span class='no'>input_dt</span>,
-                   <span class='kw'>id_cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"location"</span>, <span class='st'>"year"</span>),
-                   <span class='kw'>value_cols</span> <span class='kw'>=</span> <span class='st'>"value"</span>,
-                   <span class='kw'>col_stem</span> <span class='kw'>=</span> <span class='st'>"location"</span>,
-                   <span class='kw'>col_type</span> <span class='kw'>=</span> <span class='st'>"categorical"</span>,
-                   <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='no'>iran_mapping</span>,
-                   <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</div><div class='input'>
+<span class='kw'>input_dt</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='kw'>input_dt</span>, <span class='kw'>input_dt_agg</span>)
+<span class='kw'>output_dt</span> <span class='op'>&lt;-</span> <span class='fu'>scale</span>(dt = <span class='kw'>input_dt</span>,
+                   id_cols = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"location"</span>, <span class='st'>"year"</span>),
+                   value_cols = <span class='st'>"value"</span>,
+                   col_stem = <span class='st'>"location"</span>,
+                   col_type = <span class='st'>"categorical"</span>,
+                   mapping = <span class='kw'>iran_mapping</span>,
+                   collapse_missing = <span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</div><div class='input'>
 <span class='co'># aggregate age-specific count data</span>
-<span class='no'>input_dt</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(<span class='kw'>year</span> <span class='kw'>=</span> <span class='fl'>2010</span>,
-                        <span class='kw'>age_start</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>95</span>, <span class='fl'>1</span>),
-                        <span class='kw'>value1</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>value2</span> <span class='kw'>=</span> <span class='fl'>2</span>)
-<span class='fu'><a href='gen_interval_cols.html'>gen_end</a></span>(<span class='no'>input_dt</span>, <span class='kw'>id_cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"year"</span>, <span class='st'>"age_start"</span>), <span class='kw'>col_stem</span> <span class='kw'>=</span> <span class='st'>"age"</span>)
-<span class='no'>age_mapping</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(<span class='kw'>age_start</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>15</span>, <span class='fl'>85</span>),
-                                      <span class='kw'>age_end</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5</span>, <span class='fl'>60</span>, <span class='fl'>Inf</span>))
-<span class='no'>output_dt</span> <span class='kw'>&lt;-</span> <span class='fu'>agg</span>(<span class='kw'>dt</span> <span class='kw'>=</span> <span class='no'>input_dt</span>,
-                 <span class='kw'>id_cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"year"</span>, <span class='st'>"age_start"</span>, <span class='st'>"age_end"</span>),
-                 <span class='kw'>value_cols</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"value1"</span>, <span class='st'>"value2"</span>),
-                 <span class='kw'>col_stem</span> <span class='kw'>=</span> <span class='st'>"age"</span>,
-                 <span class='kw'>col_type</span> <span class='kw'>=</span> <span class='st'>"interval"</span>,
-                 <span class='kw'>mapping</span> <span class='kw'>=</span> <span class='no'>age_mapping</span>)
+<span class='kw'>input_dt</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(year = <span class='fl'>2010</span>,
+                        age_start = <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>95</span>, <span class='fl'>1</span>),
+                        value1 = <span class='fl'>1</span>, value2 = <span class='fl'>2</span>)
+<span class='fu'><a href='gen_end.html'>gen_end</a></span>(<span class='kw'>input_dt</span>, id_cols = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"year"</span>, <span class='st'>"age_start"</span>), col_stem = <span class='st'>"age"</span>)
+<span class='kw'>age_mapping</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(age_start = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>15</span>, <span class='fl'>85</span>),
+                                      age_end = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>5</span>, <span class='fl'>60</span>, <span class='fl'>Inf</span>))
+<span class='kw'>output_dt</span> <span class='op'>&lt;-</span> <span class='fu'>agg</span>(dt = <span class='kw'>input_dt</span>,
+                 id_cols = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"year"</span>, <span class='st'>"age_start"</span>, <span class='st'>"age_end"</span>),
+                 value_cols = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"value1"</span>, <span class='st'>"value2"</span>),
+                 col_stem = <span class='st'>"age"</span>,
+                 col_type = <span class='st'>"interval"</span>,
+                 mapping = <span class='kw'>age_mapping</span>)
 
-<span class='co'># scale age-specific probability data</span></div></pre>
+<span class='co'># scale age-specific probability data</span>
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -348,7 +351,7 @@ space first, aggregate/scale, and then convert back.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

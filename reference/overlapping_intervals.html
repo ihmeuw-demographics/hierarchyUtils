@@ -122,9 +122,9 @@ overlapping intervals." />
 overlapping intervals.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>assert_no_overlapping_intervals</span>(<span class='no'>ints_dt</span>)
+    <pre class="usage"><span class='fu'>assert_no_overlapping_intervals</span>(<span class='kw'>ints_dt</span>)
 
-<span class='fu'>identify_overlapping_intervals</span>(<span class='no'>ints_dt</span>)</pre>
+<span class='fu'>identify_overlapping_intervals</span>(<span class='kw'>ints_dt</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,11 +146,14 @@ intervals are overlapping then a zero-row [<code>data.table()</code>] is returne
 <code>identify_overlapping_intervals</code> returns a non-empty data.table.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>ints_dt</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>data.table</span><span class='kw ns'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(
-  <span class='kw'>start</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>95</span>, <span class='fl'>5</span>), <span class='fl'>0</span>),
-  <span class='kw'>end</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>5</span>, <span class='fl'>95</span>, <span class='fl'>5</span>), <span class='fl'>Inf</span>, <span class='fl'>Inf</span>)
+    <pre class="examples"><div class='input'><span class='kw'>ints_dt</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(
+  start = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0</span>, <span class='fl'>95</span>, <span class='fl'>5</span>), <span class='fl'>0</span>),
+  end = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>5</span>, <span class='fl'>95</span>, <span class='fl'>5</span>), <span class='fl'>Inf</span>, <span class='fl'>Inf</span>)
 )
-<span class='no'>overlapping_dt</span> <span class='kw'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span>(<span class='no'>ints_dt</span>)</div></pre>
+<span class='kw'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span>(<span class='kw'>ints_dt</span>)
+
+
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -166,7 +169,7 @@ intervals are overlapping then a zero-row [<code>data.table()</code>] is returne
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>

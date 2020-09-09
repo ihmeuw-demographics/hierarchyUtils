@@ -125,11 +125,11 @@ hierarchical categorical or interval data</h1>
 different levels of categorical or interval data are related to each other.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_agg_tree</span>(<span class='no'>mapping</span>, <span class='no'>exists</span>, <span class='no'>col_type</span>)
+    <pre class="usage"><span class='fu'>create_agg_tree</span>(<span class='kw'>mapping</span>, <span class='kw'>exists</span>, <span class='kw'>col_type</span>)
 
-<span class='fu'>create_scale_tree</span>(<span class='no'>mapping</span>, <span class='no'>exists</span>, <span class='no'>col_type</span>, <span class='kw'>collapse_missing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>create_scale_tree</span>(<span class='kw'>mapping</span>, <span class='kw'>exists</span>, <span class='kw'>col_type</span>, collapse_missing = <span class='fl'>FALSE</span>)
 
-<span class='fu'>vis_tree</span>(<span class='no'>tree</span>)</pre>
+<span class='fu'>vis_tree</span>(<span class='kw'>tree</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -194,23 +194,26 @@ be scaled are colored blue and nodes without data directly provided</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># aggregation example where all present day locations exist except for Tehran</span>
-<span class='no'>locations_present</span> <span class='kw'>&lt;-</span> <span class='no'>iran_mapping</span>[!<span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='no'>child</span>) <span class='kw'>&amp;</span>
-                                   <span class='no'>child</span> <span class='kw'>!=</span> <span class='st'>"Tehran"</span>, <span class='no'>child</span>]
-<span class='no'>agg_tree</span> <span class='kw'>&lt;-</span> <span class='fu'>create_agg_tree</span>(<span class='no'>iran_mapping</span>, <span class='kw'>exists</span> <span class='kw'>=</span> <span class='no'>locations_present</span>,
-                            <span class='kw'>col_type</span> <span class='kw'>=</span> <span class='st'>"categorical"</span>)
-<span class='fu'>vis_tree</span>(<span class='no'>agg_tree</span>)</div><div class='output co'>#&gt; [1] "Node$fieldsAll will be deprecated in the next release. Please use Node$attributesAll instead."</div><div class='input'>
+<span class='kw'>locations_present</span> <span class='op'>&lt;-</span> <span class='kw'>iran_mapping</span>[<span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='kw'>child</span>) <span class='op'>&amp;</span>
+                                   <span class='kw'>child</span> != <span class='st'>"Tehran"</span>, <span class='kw'>child</span>]
+<span class='kw'>agg_tree</span> <span class='op'>&lt;-</span> <span class='fu'>create_agg_tree</span>(<span class='kw'>iran_mapping</span>, exists = <span class='kw'>locations_present</span>,
+                            col_type = <span class='st'>"categorical"</span>)
+<span class='fu'>vis_tree</span>(<span class='kw'>agg_tree</span>)
+</div><div class='output co'>#&gt; [1] "Node$fieldsAll will be deprecated in the next release. Please use Node$attributesAll instead."</div><div class='input'>
 <span class='co'># scaling example where all present day locations exist without collapsing</span>
-<span class='no'>locations_present</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>iran_mapping</span>[!<span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='no'>child</span>), <span class='no'>child</span>], <span class='st'>"Iran"</span>)
-<span class='no'>scale_tree</span> <span class='kw'>&lt;-</span> <span class='fu'>create_scale_tree</span>(<span class='no'>iran_mapping</span>,
-                                <span class='kw'>exists</span> <span class='kw'>=</span> <span class='no'>locations_present</span>,
-                                <span class='kw'>col_type</span> <span class='kw'>=</span> <span class='st'>"categorical"</span>)
-<span class='fu'>vis_tree</span>(<span class='no'>scale_tree</span>)</div><div class='output co'>#&gt; [1] "Node$fieldsAll will be deprecated in the next release. Please use Node$attributesAll instead."</div><div class='input'>
+<span class='kw'>locations_present</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>iran_mapping</span>[<span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span>(<span class='st'>"[0-9]+"</span>, <span class='kw'>child</span>), <span class='kw'>child</span>], <span class='st'>"Iran"</span>)
+<span class='kw'>scale_tree</span> <span class='op'>&lt;-</span> <span class='fu'>create_scale_tree</span>(<span class='kw'>iran_mapping</span>,
+                                exists = <span class='kw'>locations_present</span>,
+                                col_type = <span class='st'>"categorical"</span>)
+<span class='fu'>vis_tree</span>(<span class='kw'>scale_tree</span>)
+</div><div class='output co'>#&gt; [1] "Node$fieldsAll will be deprecated in the next release. Please use Node$attributesAll instead."</div><div class='input'>
 <span class='co'># scaling example where all present day locations exist and collapsing tree</span>
-<span class='no'>scale_tree</span> <span class='kw'>&lt;-</span> <span class='fu'>create_scale_tree</span>(<span class='no'>iran_mapping</span>,
-                                <span class='kw'>exists</span> <span class='kw'>=</span> <span class='no'>locations_present</span>,
-                                <span class='kw'>col_type</span> <span class='kw'>=</span> <span class='st'>"categorical"</span>,
-                                <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-<span class='fu'>vis_tree</span>(<span class='no'>scale_tree</span>)</div><div class='output co'>#&gt; [1] "Node$fieldsAll will be deprecated in the next release. Please use Node$attributesAll instead."</div><div class='input'>
+<span class='kw'>scale_tree</span> <span class='op'>&lt;-</span> <span class='fu'>create_scale_tree</span>(<span class='kw'>iran_mapping</span>,
+                                exists = <span class='kw'>locations_present</span>,
+                                col_type = <span class='st'>"categorical"</span>,
+                                collapse = <span class='fl'>TRUE</span>)
+<span class='fu'>vis_tree</span>(<span class='kw'>scale_tree</span>)
+</div><div class='output co'>#&gt; [1] "Node$fieldsAll will be deprecated in the next release. Please use Node$attributesAll instead."</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -227,7 +230,7 @@ be scaled are colored blue and nodes without data directly provided</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.0.</p>
 </div>
 
       </footer>
