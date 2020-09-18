@@ -479,7 +479,11 @@ agg_subtree <- function(dt,
   if (col_type == "interval") {
     parent_dt[, paste0(col_stem, c("_start", "_end")) := name_to_start_end(parent)]
   } else {
-    parent_name_value <- type.convert(x = parent, typeof(dt[[col_stem]]))
+    # make sure parent name is same type as in the original dataset
+    parent_name_value <- utils::type.convert(
+      x = parent, as.is = TRUE,
+      typeof(dt[[col_stem]])
+    )
     parent_dt[, col_stem := parent_name_value]
     setnames(parent_dt, "col_stem", col_stem)
   }
