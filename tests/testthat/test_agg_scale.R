@@ -704,3 +704,30 @@ test_that(description, {
                      collapse_missing = TRUE),
                regexp = "input data is missing in `dt`")
 })
+
+
+# Test numeric "categorical" variable scaling -----------------------------
+
+input_dt <- data.table(
+  location_id = 1:3,
+  sex = "all"
+)
+input_dt[, value := rnorm(.N)]
+
+mapping <- data.table(
+  child = 2:3,
+  parent = 1
+)
+
+test_that("numeric 'categorical' variable works", {
+  expect_silent(
+    scale(
+      dt = input_dt,
+      id_cols = c("location_id", "sex"),
+      value_cols = "value",
+      col_stem = "location_id",
+      col_type = "categorical",
+      mapping = mapping
+    )
+  )
+})
