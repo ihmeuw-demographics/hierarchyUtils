@@ -37,7 +37,7 @@ errors out due to missing data.}
 }
 \value{
 \code{\link[=create_agg_tree]{create_agg_tree()}} and \code{\link[=create_scale_tree]{create_scale_tree()}} return a
-[\code{data.tree()}] with fields for whether each node has data available
+[\code{data.tree()}] with attributes for whether each node has data available
 ('exists') and whether aggregation to or scaling of each node is possible
 ('agg_possible' or 'scale_possible'). For \code{\link[=create_scale_tree]{create_scale_tree()}}, also
 includes a field for whether children of each node can be scaled

@@ -720,7 +720,7 @@ mapping <- data.table(
 )
 
 test_that("numeric 'categorical' variable works", {
-  expect_silent(
+  expect_error(
     scale(
       dt = input_dt,
       id_cols = c("location_id", "sex"),
@@ -728,6 +728,7 @@ test_that("numeric 'categorical' variable works", {
       col_stem = "location_id",
       col_type = "categorical",
       mapping = mapping
-    )
+    ),
+    NA
   )
 })

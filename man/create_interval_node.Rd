@@ -17,7 +17,7 @@ the right endpoint of the interval tree node.}
 name of the node in interval notation.}
 }
 \value{
-[\code{data.tree()}] node with 'name', 'left', 'right' fields.
+[\code{data.tree()}] node with 'name', 'left', 'right' attributes
 }
 \description{
 Create a node for an interval tree
