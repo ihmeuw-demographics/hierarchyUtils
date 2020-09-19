@@ -117,7 +117,7 @@ create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
 #' @param name \[`character(1)`\]\cr
 #'   name of the node in interval notation.
 #'
-#' @return \[`data.tree()`\] node with 'name', 'left', 'right' fields.
+#' @return \[`data.tree()`\] node with 'name', 'left', 'right' attributes
 create_interval_node <- function(start, end, name) {
   new_node <- data.tree::Node$new(name)
   new_node$Set(left = start)

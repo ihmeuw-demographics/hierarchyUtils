@@ -25,7 +25,7 @@
 #' be scaled are colored blue and nodes without data directly provided
 #'
 #' @return [create_agg_tree()] and [create_scale_tree()] return a
-#'   \[`data.tree()`\] with fields for whether each node has data available
+#'   \[`data.tree()`\] with attributes for whether each node has data available
 #'   ('exists') and whether aggregation to or scaling of each node is possible
 #'   ('agg_possible' or 'scale_possible'). For [create_scale_tree()], also
 #'   includes a field for whether children of each node can be scaled
@@ -188,7 +188,7 @@ create_base_tree <- function(mapping, exists, col_type) {
     }
   }
 
-  # create left and right endpoint fields for interval trees
+  # create left and right endpoint attributes for interval trees
   if (col_type == "interval") {
     parsed_name <- name_to_start_end(tree$Get("name"))
     tree$Set(left = parsed_name$start)
@@ -245,7 +245,7 @@ vis_tree <- function(tree) {
 
   # determine whether this is an aggregate or scale tree
   type <- "agg"
-  if ("scale_possible" %in% tree$fieldsAll) type <- "scale"
+  if ("scale_possible" %in% tree$attributesAll) type <- "scale"
 
   # create node attribute for three types of nodes
   group_node <- function(x) {
@@ -318,7 +318,7 @@ identify_missing_agg <- function(tree) {
 #' @rdname problematic_tree_nodes
 identify_missing_scale <- function(tree) {
 
-  if (all(c("left", "right") %in% tree$fields)) {
+  if (all(c("left", "right") %in% tree$attributes)) {
     col_type <- "interval"
   } else {
     col_type <- "categorical"
@@ -479,7 +479,12 @@ agg_subtree <- function(dt,
   if (col_type == "interval") {
     parent_dt[, paste0(col_stem, c("_start", "_end")) := name_to_start_end(parent)]
   } else {
-    parent_dt[, col_stem := parent]
+    # make sure parent name is same type as in the original dataset
+    parent_name_value <- utils::type.convert(
+      x = parent, as.is = TRUE,
+      typeof(dt[[col_stem]])
+    )
+    parent_dt[, col_stem := parent_name_value]
     setnames(parent_dt, "col_stem", col_stem)
   }
   return(parent_dt)

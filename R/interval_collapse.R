@@ -262,6 +262,7 @@ identify_common_intervals <- function(dt,
     return(split_dt)
   })
   intervals <- unique(intervals)
+  intervals <- intervals[mapply(function(ints_dt) nrow(ints_dt) > 0, intervals)]
 
   check_each_pair <- function(ints_dt1, ints_dt2) {
     ints1 <- intervals::Intervals_full(as.matrix(ints_dt1),
