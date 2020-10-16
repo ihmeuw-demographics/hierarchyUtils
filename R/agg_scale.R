@@ -185,6 +185,8 @@ agg <- function(dt,
   dt <- copy(dt)
   mapping <- copy(mapping)
 
+  message("Aggregating ", col_stem)
+
   # Do aggregation ----------------------------------------------------------
 
   if (col_type == "interval") {
@@ -228,7 +230,10 @@ agg <- function(dt,
 
   # aggregate children to parents for sub-trees where aggregation possible
   result_dt <- dt[0]
-  for (subtree in subtrees) {
+  for (i in 1:length(subtrees)) {
+
+    subtree <- subtrees[[i]]
+    message("Aggregate ", i, " of ", length(subtrees), ": ", subtree$name)
 
     # append already aggregated data to grouping dt so that next subtree has
     # access
@@ -339,6 +344,8 @@ scale <- function(dt,
   dt <- copy(dt)
   mapping <- copy(mapping)
 
+  message("Scaling ", col_stem)
+
   # Do scaling --------------------------------------------------------------
 
   if (col_type == "interval") {
@@ -366,7 +373,10 @@ scale <- function(dt,
   )
 
   # scale children to parents for subtrees where scaling is possible
-  for (subtree in subtrees) {
+  for (i in 1:length(subtrees)) {
+
+    subtree <- subtrees[[i]]
+    message("Scaling ", i, " of ", length(subtrees), ": ", subtree$name)
 
     # check if aggregation is possible given available data
     if (!subtree$scale_children_possible) {
