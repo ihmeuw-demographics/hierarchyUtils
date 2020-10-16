@@ -35,6 +35,14 @@ setkeyv(expected_dt, id_cols)
 description <- "aggregation to boths sexes combined with different ages and
 years works"
 test_that(description, {
+  expect_error(agg(dt = input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "sex",
+                   col_type = "categorical",
+                   mapping = sex_mapping),
+               regexp = "expected input data is missing")
+
   output_dt <- agg(dt = input_dt,
                    id_cols = id_cols,
                    value_cols = value_cols,
@@ -60,7 +68,7 @@ test_that(description, {
                    col_stem = "sex",
                    col_type = "categorical",
                    mapping = sex_mapping),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 
   expect_error(agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -69,20 +77,31 @@ test_that(description, {
                    col_type = "categorical",
                    mapping = sex_mapping,
                    collapse_interval_cols = T),
-               regexp = "Some aggregates are already in `dt`")
+               regexp = "overlapping intervals")
 })
 
 description <- "error is thrown when both sexes combined aggregate is already
 included in input"
 test_that(description, {
   new_input_dt <- rbind(input_dt, expected_dt)
+  setkeyv(new_input_dt, key(input_dt))
   expect_error(agg(dt = new_input_dt,
                    id_cols = id_cols,
                    value_cols = value_cols,
                    col_stem = "sex",
                    col_type = "categorical",
-                   mapping = sex_mapping),
+                   mapping = sex_mapping,
+                   collapse_interval_cols = T),
                regexp = "Some aggregates are already in `dt`.")
+
+  output_dt <- agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "sex",
+                   col_type = "categorical",
+                   mapping = sex_mapping,
+                   collapse_interval_cols = T)
+  expect_identical(output_dt, expected_dt)
 })
 
 description <- "error is thrown when aggregating data with one missing sex"
@@ -94,7 +113,7 @@ test_that(description, {
                    col_stem = "sex",
                    col_type = "categorical",
                    mapping = sex_mapping),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 })
 
 description <- "error is thrown when aggregating data with some missing ages or
@@ -109,24 +128,9 @@ test_that(description, {
                    value_cols = value_cols,
                    col_stem = "sex",
                    col_type = "categorical",
-                   mapping = sex_mapping),
-               regexp = "input data is missing in `dt`")
-  expect_error(agg(dt = new_input_dt,
-                   id_cols = id_cols,
-                   value_cols = value_cols,
-                   col_stem = "sex",
-                   col_type = "categorical",
                    mapping = sex_mapping,
                    collapse_interval_cols = TRUE),
-               regexp = "input data is missing in `dt`")
-  expect_error(agg(dt = new_input_dt,
-                   id_cols = id_cols,
-                   value_cols = value_cols,
-                   col_stem = "sex",
-                   col_type = "categorical",
-                   mapping = sex_mapping,
-                   missing_dt_severity = "none"),
-               regexp = "`dt` is empty")
+               regexp = "missing making it impossible to collapse")
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
                    value_cols = value_cols,
@@ -179,7 +183,7 @@ test_that(description, {
                      col_type = "categorical",
                      mapping = sex_mapping,
                      collapse_interval_cols = T),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 
   new_input_dt <- input_dt[sex != "both"]
   expect_error(scale(dt = new_input_dt,
@@ -189,7 +193,7 @@ test_that(description, {
                      col_type = "categorical",
                      mapping = sex_mapping,
                      collapse_interval_cols = T),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 
 })
 
@@ -209,7 +213,7 @@ test_that(description, {
                      col_type = "categorical",
                      mapping = sex_mapping,
                      collapse_interval_cols = T),
-               regexp = "input data is missing in `dt`")
+               regexp = "missing making it impossible to collapse")
 
   output_dt <- scale(dt = new_input_dt,
                      id_cols = id_cols,
@@ -279,7 +283,7 @@ testthat::test_that(description, {
                    col_type = "interval",
                    mapping = age_mapping,
                    missing_dt_severity = "stop"),
-               regexp = "input data is missing in `dt`")
+               regexp = "missing making it impossible to collapse")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -289,6 +293,32 @@ testthat::test_that(description, {
                    mapping = age_mapping,
                    missing_dt_severity = "none")
   expect_identical(output_dt, new_expected_dt)
+
+  new_input_dt <- input_dt[!(sex == "female" & (age_start <= 2 | age_end >= 95))]
+  setkeyv(new_input_dt, id_cols)
+
+  new_expected_dt <- expected_dt[!(sex == "female" & (age_start <= 2 | age_end >= 95))]
+  setkeyv(new_expected_dt, id_cols)
+
+  # check severity
+  expect_error(agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "age",
+                   col_type = "interval",
+                   mapping = age_mapping,
+                   missing_dt_severity = "stop"),
+               regexp = "missing making it impossible to collapse")
+
+  output_dt <- agg(dt = new_input_dt,
+                   id_cols = id_cols,
+                   value_cols = value_cols,
+                   col_stem = "age",
+                   col_type = "interval",
+                   mapping = age_mapping,
+                   missing_dt_severity = "none")
+  expect_identical(output_dt, new_expected_dt)
+
 })
 
 description <- "aggregation of age-specific data with aggregates already
@@ -393,8 +423,8 @@ testthat::test_that(description, {
 
   new_expected_dt <- expected_dt[!(age_start == 24 & year_start == 2008)]
   gen_length(new_expected_dt, "age")
-  new_expected_dt[between(age_start, 20, 24) & age_length == 1 &
-                    year_start == 2008, value := value / 4]
+  new_expected_dt[between(age_start, 20, 24) & age_length == 1,
+                  value := value / 4]
   new_expected_dt[, age_length := NULL]
 
   expect_error(scale(dt = new_input_dt,
@@ -403,7 +433,7 @@ testthat::test_that(description, {
                      col_stem = "age",
                      col_type = "interval",
                      collapse_interval_cols = TRUE),
-               regexp = "input data is missing in `dt`")
+               regexp = "missing making it impossible to collapse")
 
   output_dt <- scale(dt = new_input_dt,
                      id_cols = id_cols,
@@ -481,7 +511,7 @@ testthat::test_that(description, {
                                value_cols = value_cols,
                                col_stem = "age",
                                col_type = "interval"),
-                         regexp = "input data is missing in `dt`")
+                         regexp = "expected input data is missing")
 })
 
 # set up test input data.table
@@ -600,7 +630,7 @@ test_that(description, {
                    col_type = "categorical",
                    mapping = iran_mapping,
                    missing_dt_severity = "stop"),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -672,7 +702,7 @@ test_that(description, {
                      col_stem = "location",
                      col_type = "categorical",
                      mapping = iran_mapping),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 
   output_dt <- scale(dt = new_input_dt,
                      id_cols = id_cols,
@@ -694,7 +724,7 @@ test_that(description, {
                      col_stem = "location",
                      col_type = "categorical",
                      mapping = iran_mapping),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
   expect_error(scale(dt = new_input_dt,
                      id_cols = id_cols,
                      value_cols = value_cols,
@@ -702,7 +732,7 @@ test_that(description, {
                      col_type = "categorical",
                      mapping = iran_mapping,
                      collapse_missing = TRUE),
-               regexp = "input data is missing in `dt`")
+               regexp = "expected input data is missing")
 })
 
 

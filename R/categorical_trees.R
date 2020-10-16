@@ -108,7 +108,6 @@ create_scale_tree <- function(mapping,
 
   if (collapse_missing & col_type == "categorical") collapse_tree(tree)
 
-
   # check which groups we can scale given the values available
   check_scale_possible <- function(x) {
     if (data.tree::isRoot(x)) {
@@ -377,8 +376,6 @@ identify_present_agg <- function(tree) {
 #' the bottom of the tree and goes up. For scaling, traverses in pre-order so
 #' that scaling starts from the top of the tree and goes down.
 #'
-#' Only includes nodes that can be aggregated to or scaled.
-#'
 #' @inheritParams create_agg_tree
 #'
 #' @rdname create_subtrees
@@ -390,14 +387,14 @@ create_agg_subtrees <- function(mapping, exists, col_type) {
   subtrees <- data.tree::Traverse(
     tree, traversal = "post-order",
     filterFun = function(x) {
-      data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "agg_possible")
+      data.tree::isNotLeaf(x)
     }
   )
 
   # drop the last subtree since it is a mapping from the full interval to
   # each aggregate which can't be used to aggregate. It is separately
   # included as a subtree if needed
-  if (col_type == "interval" & tree$agg_possible) {
+  if (col_type == "interval") {
     subtrees <- subtrees[-length(subtrees)]
   }
 
@@ -412,11 +409,11 @@ create_scale_subtrees <- function(mapping,
 
   tree <- create_scale_tree(mapping, exists, col_type, collapse_missing)
 
-  # identify each nonleaf (and its subtree) where scaling of children nodes is possible
+  # identify each nonleaf (and its subtree)
   subtrees <- data.tree::Traverse(
     tree, traversal = "pre-order",
     filterFun = function(x) {
-      data.tree::isNotLeaf(x) & data.tree::GetAttribute(x, "scale_children_possible")
+      data.tree::isNotLeaf(x)
     }
   )
   return(subtrees)
@@ -456,22 +453,43 @@ agg_subtree <- function(dt,
   parent <- subtree$name
   children <- names(subtree$children)
 
+  children_dt <- dt[get(col_stem) %in% children]
+  if (nrow(children_dt) == 0) return(children_dt)
+
   # collapse interval id columns to most detailed common intervals
   if (collapse_interval_cols) {
-    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      dt <- collapse_common_intervals(
-        dt = dt,
-        id_cols = c(id_cols, if (col_type == "interval") col_stem),
+    # remove the name variable that will need to be recreated once collapsed
+    if (col_type == "interval") {
+      children_dt[[col_stem]] <- NULL
+    }
+    for (stem in setdiff(interval_id_cols_stems, col_stem)) {
+      children_dt <- collapse_common_intervals(
+        dt = children_dt[, .SD, .SDcols = c(id_cols, value_cols)],
+        id_cols = id_cols,
         value_cols = value_cols,
         col_stem = stem,
         agg_function = agg_function,
         missing_dt_severity = missing_dt_severity,
-        include_missing = FALSE
+        include_missing = TRUE
       )
+    }
+    # recreate the name column with collapsed intervals
+    if (col_type == "interval") {
+      gen_name(children_dt, col_stem = col_stem, format = "interval")
+      data.table::setnames(children_dt, paste0(col_stem, "_name"), col_stem)
     }
   }
 
-  children_dt <- dt[get(col_stem) %in% children]
+  children_dt <- check_agg_scale_subtree_dt(
+    children_dt,
+    id_cols,
+    col_stem,
+    col_type,
+    missing_dt_severity,
+    expected_col_stem = children
+  )
+
+  # do aggregation
   parent_dt <- children_dt[, lapply(.SD, agg_function), .SDcols = value_cols,
                            by = by_id_cols]
 
@@ -521,45 +539,55 @@ scale_subtree <- function(dt,
   # collapse interval id columns to most detailed common intervals so that
   # scaling factors can be calculated
   if (collapse_interval_cols) {
-    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      stem_cols <- paste0(stem, "_", c("start", "end"))
-      common_intervals <- identify_common_intervals(
-        dt = subtree_dt,
-        id_cols = c(id_cols, if (col_type == "interval") col_stem),
+    # remove the name variable that will need to be recreated once collapsed
+    if (col_type == "interval") {
+      subtree_dt[[col_stem]] <- NULL
+    }
+    for (stem in setdiff(interval_id_cols_stems, col_stem)) {
+      subtree_dt <- collapse_common_intervals(
+        dt = subtree_dt[, .SD, .SDcols = c(id_cols, value_cols)],
+        id_cols = id_cols,
+        value_cols = value_cols,
         col_stem = stem,
-        include_missing = TRUE # these are identified below
+        agg_function = agg_function,
+        missing_dt_severity = missing_dt_severity,
+        include_missing = TRUE
       )
-      subtree_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
-
-      missing_dt <- subtree_dt[, identify_missing_intervals(.SD, common_intervals),
-                               .SDcols = stem_cols,
-                               by = setdiff(id_cols, stem_cols)]
-      data.table::setnames(missing_dt, c("start", "end"), stem_cols)
-      missing_dt <- merge_common_intervals(missing_dt, common_intervals, stem)
-      # need to ignore the variable being aggregated so that all parent and
-      # children nodes are dropped for missing intervals
-      missing_dt <- missing_dt[, c(setdiff(by_id_cols, stem_cols),
-                                   "common_start", "common_end"), with = F]
-      missing_dt <- unique(missing_dt)
-      missing_dt[, drop := TRUE]
-
-      subtree_dt <- merge(subtree_dt, missing_dt, all = TRUE,
-                          by = c(setdiff(by_id_cols, stem_cols), "common_start",
-                                 "common_end"))
-      subtree_dt <- subtree_dt[is.na(drop)]
-      subtree_dt[, drop := NULL]
-      subtree_dt[, c(stem_cols) := NULL]
-      data.table::setnames(subtree_dt, c("common_start", "common_end"), stem_cols)
-
-      # aggregate so that rows are all unique again
-      subtree_dt <- subtree_dt[, lapply(.SD, agg_function),
-                               .SDcols = value_cols,
-                               by = c(id_cols, if (col_type == "interval") col_stem)]
+    }
+    # recreate the name column with collapsed intervals
+    if (col_type == "interval") {
+      gen_name(subtree_dt, col_stem = col_stem, format = "interval")
+      data.table::setnames(subtree_dt, paste0(col_stem, "_name"), col_stem)
     }
   }
 
-  parent_dt <- subtree_dt[get(col_stem) %in% parent]
+  # subset to children dataset and check dataset
   children_dt <- subtree_dt[get(col_stem) %in% children]
+  children_dt <- check_agg_scale_subtree_dt(
+    children_dt,
+    id_cols,
+    col_stem,
+    col_type,
+    missing_dt_severity,
+    expected_col_stem = children
+  )
+
+  # subset to parent dataset and check dataset
+  parent_dt <- subtree_dt[get(col_stem) %in% parent]
+  # subset to `id_cols` combinations that are part of the children dataset
+  parent_dt <- merge(
+    unique(children_dt[, .SD, .SDcols = by_id_cols]),
+    parent_dt,
+    by = by_id_cols, all.x = TRUE
+  )
+  parent_dt <- check_agg_scale_subtree_dt(
+    parent_dt,
+    id_cols,
+    col_stem,
+    col_type,
+    missing_dt_severity,
+    expected_col_stem = parent
+  )
 
   # aggregate children to parent level
   sum_children_dt <- agg_subtree(
@@ -591,20 +619,22 @@ scale_subtree <- function(dt,
     }
   }
   sf_dt[, c(cols, value_cols, agg_value_cols) := NULL]
-  if (col_type == "interval") sf_dt[, c(col_stem) := NULL]
+  if (col_type == "interval" & col_stem %in% names(sf_dt)) sf_dt[, c(col_stem) := NULL]
   if (identical(agg_function, prod)) sf_dt[, N := NULL]
 
   # determine which common intervals the original dataset maps to
   scalar_by_id_cols <- copy(by_id_cols)
   if (collapse_interval_cols) {
     subtree_dt <- dt[get(col_stem) %in% c(parent, children)]
-    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
+    for (stem in setdiff(interval_id_cols_stems, col_stem)) {
       common_intervals <- identify_common_intervals(
         dt = subtree_dt,
         id_cols = id_cols,
         col_stem = stem,
         include_missing = TRUE
       )
+      data.table::setnames(common_intervals, paste0(stem, c("_start", "_end")),
+                           c("common_start", "common_end"))
       subtree_dt <- merge_common_intervals(subtree_dt, common_intervals, stem)
       data.table::setnames(subtree_dt, c("common_start", "common_end"),
                            paste0("common_", stem, "_", c("start", "end")))
@@ -625,4 +655,76 @@ scale_subtree <- function(dt,
   }
   scaled_dt <- scaled_dt[, c(id_cols, scaled_value_cols), with = F]
   return(scaled_dt)
+}
+
+
+#' @title Check subtree data.table before aggregation and scaling
+#'
+#' @description Check subtree data.table before aggregation and scaling after
+#' interval id columns have been collapsed if specified. At this point
+#' data.table should be square with all expected values for the `col_stem`
+#' variable.
+#'
+#' @inheritParams agg
+#' @param expected_col_stem \[`character()`\]\cr
+#'   expected values for the `col_stem` variable in `dt`.
+#'
+#' @return `dt` with any missing data dropped.
+check_agg_scale_subtree_dt <- function(dt,
+                                       id_cols,
+                                       col_stem,
+                                       col_type,
+                                       missing_dt_severity,
+                                       expected_col_stem) {
+  cols <- col_stem
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
+  }
+  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
+  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
+  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
+  by_id_cols <- id_cols[!id_cols %in% cols]
+
+  # determine the expected dataset
+  expected_dt <- dt[, list(col_stem = expected_col_stem), by = by_id_cols]
+  data.table::setnames(expected_dt, "col_stem", col_stem)
+  expected_dt[, data_expected := TRUE]
+
+  # combine actual and expected datasets
+  dt[, data_exists := TRUE]
+  diagnostic_id_cols <- c(by_id_cols, col_stem)
+  diagnostic_dt <- merge(
+    dt, expected_dt,
+    all = T,
+    by = diagnostic_id_cols
+  )
+  diagnostic_dt[is.na(data_exists), data_exists := FALSE]
+  diagnostic_dt[is.na(data_expected), data_expected := FALSE]
+
+  # check if any expected rows are missing
+  missing_dt <- diagnostic_dt[!data_exists & data_expected,
+                              .SD, .SDcols = diagnostic_id_cols]
+  empty_missing_dt <- function(dt) nrow(dt) == 0
+  error_msg <-
+    paste0("expected input data is missing.\n",
+           "* See `missing_dt_severity` argument if it is okay to only make ",
+           "aggregate/scale data that are possible given what is available.\n",
+           paste0(capture.output(missing_dt), collapse = "\n"))
+  assertive::assert_engine(empty_missing_dt, missing_dt,
+                           msg = error_msg, severity = missing_dt_severity)
+
+  # if missing data but `missing_dt_severity` is not 'error' then drop missing data
+  if (nrow(missing_dt) > 0) {
+    missing_dt[, drop := TRUE]
+    missing_dt[[col_stem]] <- NULL
+    missing_dt <- unique(missing_dt)
+    dt <- merge(
+      dt, missing_dt,
+      all = TRUE, by = setdiff(diagnostic_id_cols, col_stem)
+    )
+    dt <- dt[is.na(drop)]
+    dt[, drop := NULL]
+  }
+
+  return(dt)
 }

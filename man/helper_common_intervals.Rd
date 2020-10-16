@@ -14,7 +14,8 @@ merge_common_intervals(dt, common_intervals, col_stem)
 Dataset containing the interval variable.}
 
 \item{id_cols}{[\code{character()}]\cr
-ID columns that uniquely identify each row of \code{dt}.}
+ID columns that uniquely identify each row of \code{dt}. If 'NULL' then common
+intervals across entire dataset are identified.}
 
 \item{col_stem}{[\code{character(1)}]\cr
 The name of the variable to collapse, should not include the '_start' or
@@ -30,8 +31,8 @@ Common intervals returned by \code{\link[=identify_common_intervals]{identify_co
 }
 \value{
 \code{\link[=identify_common_intervals]{identify_common_intervals()}} returns a [\code{data.table()}] with two
-columns called 'common_start' and 'common_end' defining the most detailed
-common set of intervals for the \code{col_stem} interval variable.
+columns called '{col_stem}_start' and '{col_stem}_end' defining the most
+detailed common set of intervals for the \code{col_stem} interval variable.
 
 \code{\link[=identify_common_intervals]{identify_common_intervals()}} returns a [\code{data.table()}] with the
 same columns and rows as originally in \code{dt}, with two additional columns

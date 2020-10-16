@@ -156,6 +156,7 @@ collapse_common_intervals <- function(dt,
     col_stem,
     include_missing = TRUE # these are identified below
   )
+  data.table::setnames(common_intervals, cols, c("common_start", "common_end"))
   collapsed_dt <- merge_common_intervals(dt, common_intervals, col_stem)
 
   # check for missing intervals
@@ -209,10 +210,13 @@ collapse_common_intervals <- function(dt,
 #'   [`merge_common_intervals()`] merges these on to the original dataset.
 #'
 #' @inheritParams collapse_common_intervals
+#' @param id_cols \[`character()`\]\cr
+#'   ID columns that uniquely identify each row of `dt`. If 'NULL' then common
+#'   intervals across entire dataset are identified.
 #'
 #' @return [`identify_common_intervals()`] returns a \[`data.table()`\] with two
-#'   columns called 'common_start' and 'common_end' defining the most detailed
-#'   common set of intervals for the `col_stem` interval variable.
+#'   columns called '{col_stem}_start' and '{col_stem}_end' defining the most
+#'   detailed common set of intervals for the `col_stem` interval variable.
 #'
 #' @examples
 #' id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
@@ -254,15 +258,20 @@ identify_common_intervals <- function(dt,
   cols <- paste0(col_stem, "_", c("start", "end"))
   by_id_cols <- id_cols[!id_cols %in% cols]
 
-  # identify unique interval combinations in dataset
-  intervals <- unname(split(dt, by = by_id_cols))
-  intervals <- lapply(intervals, function(split_dt) {
-    split_dt <- split_dt[, cols, with = F]
-    data.table::setnames(split_dt, cols, c("start", "end"))
-    return(split_dt)
-  })
-  intervals <- unique(intervals)
-  intervals <- intervals[mapply(function(ints_dt) nrow(ints_dt) > 0, intervals)]
+  if (is.null(id_cols)) {
+    intervals <- unique(dt[, cols, with = F])
+    intervals <- list(intervals, intervals)
+  } else {
+    # identify unique interval combinations in dataset
+    intervals <- unname(split(dt, by = by_id_cols))
+    intervals <- lapply(intervals, function(split_dt) {
+      split_dt <- split_dt[, cols, with = F]
+      data.table::setnames(split_dt, cols, c("start", "end"))
+      return(split_dt)
+    })
+    intervals <- unique(intervals)
+    intervals <- intervals[mapply(function(ints_dt) nrow(ints_dt) > 0, intervals)]
+  }
 
   check_each_pair <- function(ints_dt1, ints_dt2) {
     ints1 <- intervals::Intervals_full(as.matrix(ints_dt1),
@@ -311,9 +320,8 @@ identify_common_intervals <- function(dt,
 
   # identify the most detailed common set of intervals
   common_intervals <- Reduce(check_each_pair, intervals)
-  data.table::setnames(common_intervals, c("start", "end"),
-                       c("common_start", "common_end"))
-  data.table::setkeyv(common_intervals, c("common_start", "common_end"))
+  data.table::setnames(common_intervals, c("start", "end"), cols)
+  data.table::setkeyv(common_intervals, cols)
   return(common_intervals)
 }
 

@@ -181,6 +181,18 @@ agg <- function(dt,
   if (col_type == "interval") {
     cols <- paste0(col_stem, "_", c("start", "end"))
 
+    # collapse entire dataset to most detailed common set of intervals for the
+    # {col_stem} variable being aggregated over
+    dt <- collapse_common_intervals(
+      dt = dt[, .SD, .SDcols = c(id_cols, value_cols)],
+      id_cols = id_cols,
+      value_cols = value_cols,
+      col_stem = col_stem,
+      agg_function = agg_function,
+      missing_dt_severity = missing_dt_severity,
+      include_missing = TRUE
+    )
+
     # create one column to describe each interval
     gen_name(mapping, col_stem = col_stem, format = "interval")
     data.table::setnames(mapping, paste0(col_stem, "_name"), col_stem)
@@ -197,7 +209,7 @@ agg <- function(dt,
     mapping <- data.tree::ToDataFrameNetwork(interval_tree)
   }
 
-  # identify each nonleaf node where aggregation is possible and its subtree
+  # identify each nonleaf node and its subtree
   subtrees <- create_agg_subtrees(
     mapping = mapping,
     exists = unique(dt[[col_stem]]),
@@ -205,12 +217,32 @@ agg <- function(dt,
   )
 
   # aggregate children to parents for sub-trees where aggregation possible
-  result_dt <- NULL
+  result_dt <- dt[0]
   for (subtree in subtrees) {
 
     # append already aggregated data to grouping dt so that next subtree has
     # access
     agg_data <- rbind(dt, result_dt, use.names= T)
+
+    # check if aggregation is possible given available data
+    if (!subtree$agg_possible) {
+      missing_nodes <- subtree$Get("name", filterFun = function(x) {
+        !x$exists & identical(x$parent, subtree)
+      })
+      missing_dt <- data.table(col_stem = missing_nodes)
+      data.table::setnames(missing_dt, "col_stem", col_stem)
+      empty_missing_dt <- function(dt) nrow(dt) == 0
+      error_msg <-
+        paste0("expected input data is missing.\n",
+               "* See `missing_dt_severity` argument if it is okay to only make ",
+               "aggregate/scale data that are possible given what is available.\n",
+               paste0(capture.output(missing_dt), collapse = "\n"))
+      assertive::assert_engine(empty_missing_dt, missing_dt,
+                               msg = error_msg, severity = missing_dt_severity)
+
+      # skip aggregation for this subtree
+      next()
+    }
 
     aggregated_same_groupings_dt <- agg_subtree(
       agg_data,
@@ -273,13 +305,10 @@ scale <- function(dt,
 
   # Do scaling --------------------------------------------------------------
 
-
   if (col_type == "interval") {
     cols <- paste0(col_stem, "_", c("start", "end"))
 
     # create one column to describe each interval
-    gen_name(mapping, col_stem = col_stem, format = "interval")
-    data.table::setnames(mapping, paste0(col_stem, "_name"), col_stem)
     gen_name(dt, col_stem = col_stem, format = "interval")
     data.table::setnames(dt, paste0(col_stem, "_name"), col_stem)
 
@@ -292,8 +321,7 @@ scale <- function(dt,
     mapping <- data.tree::ToDataFrameNetwork(interval_tree)
   }
 
-  # identify each nonleaf node (and its subtree) where scaling of children
-  # nodes is possible
+  # identify each nonleaf node (and its subtree)
   subtrees <- create_scale_subtrees(
     mapping = mapping,
     exists = unique(dt[[col_stem]]),
@@ -303,6 +331,26 @@ scale <- function(dt,
 
   # scale children to parents for subtrees where scaling is possible
   for (subtree in subtrees) {
+
+    # check if aggregation is possible given available data
+    if (!subtree$scale_children_possible) {
+      missing_nodes <- subtree$Get("name", filterFun = function(x) {
+        !x$exists
+      })
+      missing_dt <- data.table(col_stem = missing_nodes)
+      data.table::setnames(missing_dt, "col_stem", col_stem)
+      empty_missing_dt <- function(dt) nrow(dt) == 0
+      error_msg <-
+        paste0("expected input data is missing.\n",
+               "* See `missing_dt_severity` argument if it is okay to only make ",
+               "aggregate/scale data that are possible given what is available.\n",
+               paste0(capture.output(missing_dt), collapse = "\n"))
+      assertive::assert_engine(empty_missing_dt, missing_dt,
+                               msg = error_msg, severity = missing_dt_severity)
+
+      # skip aggregation for this subtree
+      next()
+    }
 
     scaled_same_groupings_dt <- scale_subtree(
       dt,
