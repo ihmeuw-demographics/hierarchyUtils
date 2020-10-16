@@ -57,7 +57,7 @@ ggplot(plot_data) +
 
 By aggregating to a common set of aggregate age groups using `hierarchyUtils::agg` we can more easily compare population counts over time. One of the benefits of this function is that the input data does not need to be square, meaning the age groups in each census year for example can be different.
 
-Here we can first aggregate the interval variable `age` which depends on `age_start` and `age_end` columns in the input dataset. 
+Here we can first aggregate the interval variable `age` which depends on `age_start` and `age_end` columns in the input dataset. `present_agg_severity = "include"` because some location-years most detailed age groups are equal to the aggregates specified in `agg_age_mapping so we need to include those in the resulting aggregates.
 
 ```{r aggregate_age}
 value_cols = "population"
@@ -66,12 +66,17 @@ id_cols <- names(iran_pop)[!names(iran_pop) %in% value_cols]
 # aggregate to aggregate age groups
 agg_age_mapping <- data.table(age_start = c(0, 0, 15, 60), age_end = c(Inf, 5, 60, Inf))
 agg_age_mapping
-iran_pop_aggs <- hierarchyUtils::agg(dt = iran_pop,
-                                     id_cols = id_cols,
-                                     value_cols = value_cols,
-                                     col_stem = "age",
-                                     col_type = "interval",
-                                     mapping = agg_age_mapping)
+iran_pop_aggs <- hierarchyUtils::agg(
+  dt = iran_pop,
+  id_cols = id_cols,
+  value_cols = value_cols,
+  col_stem = "age",
+  col_type = "interval",
+  mapping = agg_age_mapping,
+  # this is specified since some location-years most detailed age groups are
+  # equal to the aggregates specified in `agg_age_mapping`
+  present_agg_severity = "include"
+)
 ```
 
 Then we can aggregate the categorical variable `sex`.
@@ -80,12 +85,14 @@ Then we can aggregate the categorical variable `sex`.
 # aggregate to both sexes combined
 sex_mapping <- data.table(parent = "both", child = c("female", "male"))
 sex_mapping
-iran_pop_aggs_both_sexes <- hierarchyUtils::agg(dt = iran_pop_aggs,
-                                                id_cols = id_cols,
-                                                value_cols = value_cols,
-                                                col_stem = "sex",
-                                                col_type = "categorical",
-                                                mapping = sex_mapping)
+iran_pop_aggs_both_sexes <- hierarchyUtils::agg(
+  dt = iran_pop_aggs,
+  id_cols = id_cols,
+  value_cols = value_cols,
+  col_stem = "sex",
+  col_type = "categorical",
+  mapping = sex_mapping
+)
 iran_pop_aggs <- rbind(iran_pop_aggs, iran_pop_aggs_both_sexes, use.names = T)
 ```
 
@@ -111,23 +118,25 @@ The root node of the tree shown below is "Iran" at the national level. The leaf 
 # this function is used internally by `hierarchyUtils::agg` but is available to help
 # visualize why some aggregates can't be made, what data is missing, etc.
 agg_tree <- hierarchyUtils::create_agg_tree(
-  mapping = iran_mapping, 
+  mapping = iran_mapping,
   exists = iran_pop_aggs[year == 2006 & source_name != "DYB", unique(location)],
   col_type = "categorical")
 hierarchyUtils::vis_tree(agg_tree)
 ```
 
-Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. `drop_present_aggs = T` because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. `missing_dt_severity = "none"` because in some source-years we don't have the present day provinces and its okay to just make the aggregates that are possible given the data that is available. 
+Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. `present_agg_severity = 'none'` because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. `missing_dt_severity = "none"` because in some source-years we don't have the present day provinces and its okay to just make the aggregates that are possible given the data that is available.
 
 ```{r aggregate_location}
-iran_pop_aggs_location <- hierarchyUtils::agg(dt = iran_pop_aggs,
-                                              id_cols = id_cols,
-                                              value_cols = value_cols,
-                                              col_stem = "location",
-                                              col_type = "categorical",
-                                              mapping = iran_mapping,
-                                              drop_present_aggs = T,
-                                              missing_dt_severity = "none")
+iran_pop_aggs_location <- hierarchyUtils::agg(
+  dt = iran_pop_aggs,
+  id_cols = id_cols,
+  value_cols = value_cols,
+  col_stem = "location",
+  col_type = "categorical",
+  mapping = iran_mapping,
+  present_agg_severity = "none",
+  missing_dt_severity = "none"
+)
 iran_pop_aggs <- rbind(iran_pop_aggs, iran_pop_aggs_location)
 ```
 
