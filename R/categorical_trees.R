@@ -438,6 +438,7 @@ agg_subtree <- function(dt,
                         agg_function,
                         subtree,
                         missing_dt_severity,
+                        overlapping_dt_severity,
                         collapse_interval_cols) {
 
   cols <- col_stem
@@ -469,7 +470,7 @@ agg_subtree <- function(dt,
         col_stem = stem,
         agg_function = agg_function,
         missing_dt_severity = missing_dt_severity,
-        overlapping_dt_severity = "message",
+        overlapping_dt_severity = overlapping_dt_severity,
         include_missing = TRUE
       )
     }
@@ -517,6 +518,7 @@ scale_subtree <- function(dt,
                           agg_function,
                           subtree,
                           missing_dt_severity,
+                          overlapping_dt_severity,
                           collapse_interval_cols) {
   parent <- subtree$name
   children <- names(subtree$children)
@@ -551,7 +553,7 @@ scale_subtree <- function(dt,
         col_stem = stem,
         agg_function = agg_function,
         missing_dt_severity = missing_dt_severity,
-        overlapping_dt_severity = "message",
+        overlapping_dt_severity = overlapping_dt_severity,
         include_missing = TRUE
       )
     }
@@ -600,6 +602,7 @@ scale_subtree <- function(dt,
     agg_function,
     subtree,
     missing_dt_severity,
+    overlapping_dt_severity,
     collapse_interval_cols
   )
   setnames(sum_children_dt, value_cols, agg_value_cols)
@@ -707,28 +710,30 @@ check_agg_scale_subtree_dt <- function(dt,
   diagnostic_dt[is.na(data_expected), data_expected := FALSE]
 
   # check if any expected rows are missing
-  missing_dt <- diagnostic_dt[!data_exists & data_expected,
-                              .SD, .SDcols = diagnostic_id_cols]
-  empty_missing_dt <- function(dt) nrow(dt) == 0
-  error_msg <-
-    paste0("expected input data is missing.\n",
-           "* See `missing_dt_severity` argument if it is okay to only make ",
-           "aggregate/scale data that are possible given what is available.\n",
-           paste0(capture.output(missing_dt), collapse = "\n"))
-  assertive::assert_engine(empty_missing_dt, missing_dt,
-                           msg = error_msg, severity = missing_dt_severity)
+  if (missing_dt_severity != "skip") {
+    missing_dt <- diagnostic_dt[!data_exists & data_expected,
+                                .SD, .SDcols = diagnostic_id_cols]
+    empty_missing_dt <- function(dt) nrow(dt) == 0
+    error_msg <-
+      paste0("expected input data is missing.\n",
+             "* See `missing_dt_severity` argument if it is okay to only make ",
+             "aggregate/scale data that are possible given what is available.\n",
+             paste0(capture.output(missing_dt), collapse = "\n"))
+    assertive::assert_engine(empty_missing_dt, missing_dt,
+                             msg = error_msg, severity = missing_dt_severity)
 
-  # if missing data but `missing_dt_severity` is not 'error' then drop missing data
-  if (nrow(missing_dt) > 0) {
-    missing_dt[, drop := TRUE]
-    missing_dt[[col_stem]] <- NULL
-    missing_dt <- unique(missing_dt)
-    dt <- merge(
-      dt, missing_dt,
-      all = TRUE, by = setdiff(diagnostic_id_cols, col_stem)
-    )
-    dt <- dt[is.na(drop)]
-    dt[, drop := NULL]
+    # if missing data but `missing_dt_severity` is not 'error' then drop missing data
+    if (nrow(missing_dt) > 0) {
+      missing_dt[, drop := TRUE]
+      missing_dt[[col_stem]] <- NULL
+      missing_dt <- unique(missing_dt)
+      dt <- merge(
+        dt, missing_dt,
+        all = TRUE, by = setdiff(diagnostic_id_cols, col_stem)
+      )
+      dt <- dt[is.na(drop)]
+      dt[, drop := NULL]
+    }
   }
 
   return(dt)

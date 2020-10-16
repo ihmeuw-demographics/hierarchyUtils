@@ -16,6 +16,7 @@ agg(
   agg_function = sum,
   missing_dt_severity = "stop",
   present_agg_severity = "stop",
+  overlapping_dt_severity = "stop",
   collapse_interval_cols = FALSE
 )
 
@@ -28,6 +29,7 @@ scale(
   mapping = NULL,
   agg_function = sum,
   missing_dt_severity = "stop",
+  overlapping_dt_severity = "stop",
   collapse_interval_cols = FALSE,
   collapse_missing = FALSE
 )
@@ -62,19 +64,27 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 
 \item{missing_dt_severity}{[\code{character(1)}]\cr
 How severe should the consequences of missing data that prevents
-aggregation or scaling from occurring be? Can be either 'stop', 'warning',
-'message', or 'none'. If not "stop", then only the possible aggregations or
-scaling is done using the available data.}
+aggregation or scaling from occurring be? Can be either 'skip', 'stop',
+'warning', 'message', or 'none'. If 'skip', the checks for missing data are
+skipped. If not 'stop', then only the possible aggregations or scaling is
+done using the available data.}
 
 \item{present_agg_severity}{[\code{logical(1)}]\cr
 How severe should the consequences of aggregate data (versus only the most
-detailed level be)? Can be either 'include', 'stop', 'warning', 'message',
-or 'none'. If 'include', then the data will be included in any aggregates.
-If anything else other then 'stop', the data will be dropped rather than
-included in possible aggregations.
+detailed level be)? Can be either 'skip', 'stop', 'warning', 'message',
+or 'none'. If 'skip', then the data will be included in any aggregates
+because the checks will be skipped. If anything else other then 'stop', the
+data will be dropped rather than included in possible aggregations.
 Whether to drop aggregates (or overlapping intervals) that are already
 present in \code{dt} before aggregating. Default is 'False' and the function
 errors out.}
+
+\item{overlapping_dt_severity}{[\code{character(1)}]\cr
+When \code{collapse_interval_cols = TRUE}, how severe should the consequences of
+overlapping intervals that change or prevent collapsing to the most
+detailed common set of intervals be? Can be either 'skip', 'stop',
+'warning', 'message', or 'none'. If not "stop", then overlapping intervals
+will be dropped and the function continues.}
 
 \item{collapse_interval_cols}{[\code{logical(1)}]\cr
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is

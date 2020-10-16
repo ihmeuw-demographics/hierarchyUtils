@@ -236,7 +236,7 @@ testthat::test_that("aggregating age intervals works", {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping,
-                   present_agg_severity = "include")
+                   present_agg_severity = "skip")
   testthat::expect_identical(output_dt, expected_dt)
 })
 
@@ -258,7 +258,7 @@ testthat::test_that(description, {
                    col_type = "interval",
                    mapping = age_mapping,
                    missing_dt_severity = "stop",
-                   present_agg_severity = "include"),
+                   present_agg_severity = "skip"),
                regexp = "missing making it impossible to collapse")
 
   output_dt <- agg(dt = new_input_dt,
@@ -268,7 +268,7 @@ testthat::test_that(description, {
                    col_type = "interval",
                    mapping = age_mapping,
                    missing_dt_severity = "none",
-                   present_agg_severity = "include")
+                   present_agg_severity = "skip")
   expect_identical(output_dt, new_expected_dt)
 
   new_input_dt <- input_dt[!(sex == "female" & (age_start <= 2 | age_end >= 95))]
@@ -285,7 +285,7 @@ testthat::test_that(description, {
                    col_type = "interval",
                    mapping = age_mapping,
                    missing_dt_severity = "stop",
-                   present_agg_severity = "include"),
+                   present_agg_severity = "skip"),
                regexp = "missing making it impossible to collapse")
 
   output_dt <- agg(dt = new_input_dt,
@@ -295,7 +295,7 @@ testthat::test_that(description, {
                    col_type = "interval",
                    mapping = age_mapping,
                    missing_dt_severity = "none",
-                   present_agg_severity = "include")
+                   present_agg_severity = "skip")
   expect_identical(output_dt, new_expected_dt)
 })
 
@@ -334,7 +334,7 @@ input_dt_agg1 <- agg(dt = input_dt_detailed,
                      col_stem = "age",
                      col_type = "interval",
                      mapping = age_mapping,
-                     present_agg_severity = "include")
+                     present_agg_severity = "skip")
 
 age_mapping <- data.table(age_start = 0, age_end = Inf)
 input_dt_agg2 <- agg(dt = input_dt_detailed,
@@ -343,7 +343,7 @@ input_dt_agg2 <- agg(dt = input_dt_detailed,
                      col_stem = "age",
                      col_type = "interval",
                      mapping = age_mapping,
-                     present_agg_severity = "include")
+                     present_agg_severity = "skip")
 year_mapping <- data.table(year_start = 2005, year_end = 2010)
 input_dt_agg2 <- agg(dt = input_dt_agg2,
                      id_cols = id_cols,
@@ -351,7 +351,7 @@ input_dt_agg2 <- agg(dt = input_dt_agg2,
                      col_stem = "year",
                      col_type = "interval",
                      mapping = year_mapping,
-                     present_agg_severity = "include")
+                     present_agg_severity = "skip")
 
 # combine together different inputs
 input_dt <- rbind(input_dt_detailed, input_dt_agg1, input_dt_agg2,

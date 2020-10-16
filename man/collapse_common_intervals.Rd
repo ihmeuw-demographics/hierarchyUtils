@@ -37,14 +37,15 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 \item{missing_dt_severity}{[\code{character(1)}]\cr
 How severe should the consequences of missing intervals that prevent
 collapsing to the most detailed common set of intervals be? Can be either
-'stop', 'warning', 'message', or 'none'. If not "stop", then only the
+'skip', 'stop', 'warning', 'message', or 'none'. If not "stop", then only the
 intervals that can be correctly collapsed will be done.}
 
 \item{overlapping_dt_severity}{[\code{character(1)}]\cr
-How severe should the consequences of overlapping intervals that change or
-prevent collapsing to the most detailed common set of intervals be? Can be
-either 'stop', 'warning', 'message', or 'none'. If not "stop", then
-overlapping intervals will be dropped and the function continues.}
+When \code{collapse_interval_cols = TRUE}, how severe should the consequences of
+overlapping intervals that change or prevent collapsing to the most
+detailed common set of intervals be? Can be either 'skip', 'stop',
+'warning', 'message', or 'none'. If not "stop", then overlapping intervals
+will be dropped and the function continues.}
 
 \item{include_missing}{[\code{logical(1)}]\cr
 Whether to include missing intervals in the identified most detailed common

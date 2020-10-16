@@ -14,13 +14,8 @@
 #' @param missing_dt_severity \[`character(1)`\]\cr
 #'   How severe should the consequences of missing intervals that prevent
 #'   collapsing to the most detailed common set of intervals be? Can be either
-#'   'stop', 'warning', 'message', or 'none'. If not "stop", then only the
+#'   'skip', 'stop', 'warning', 'message', or 'none'. If not "stop", then only the
 #'   intervals that can be correctly collapsed will be done.
-#' @param overlapping_dt_severity \[`character(1)`\]\cr
-#'   How severe should the consequences of overlapping intervals that change or
-#'   prevent collapsing to the most detailed common set of intervals be? Can be
-#'   either 'stop', 'warning', 'message', or 'none'. If not "stop", then
-#'   overlapping intervals will be dropped and the function continues.
 #' @param include_missing \[`logical(1)`\]\cr
 #'   Whether to include missing intervals in the identified most detailed common
 #'   intervals. These missing intervals are not present in all combinations of
@@ -110,7 +105,7 @@ collapse_common_intervals <- function(dt,
   }
 
   # check `missing_dt_severity` argument
-  severity_choices <- c("stop", "warning","message", "none")
+  severity_choices <- c("skip", "stop", "warning","message", "none")
   assertthat::assert_that(
     assertthat::is.string(missing_dt_severity),
     checkmate::checkChoice(missing_dt_severity, severity_choices),
@@ -119,7 +114,7 @@ collapse_common_intervals <- function(dt,
   )
 
   # check `overlapping_dt_severity` argument
-  severity_choices <- c("stop", "warning","message", "none")
+  severity_choices <- c("skip", "stop", "warning","message", "none")
   assertthat::assert_that(
     assertthat::is.string(overlapping_dt_severity),
     checkmate::checkChoice(overlapping_dt_severity, severity_choices),
@@ -140,23 +135,27 @@ collapse_common_intervals <- function(dt,
   by_id_cols <- id_cols[!id_cols %in% cols]
 
   # check for overlapping intervals
-  overlapping_dt <- dt[, identify_overlapping_intervals(.SD),
-                       .SDcols = cols, by = by_id_cols]
-  data.table::setnames(overlapping_dt, c("start", "end"), cols)
-  overlapping_dt[, issue := "overlapping intervals present"]
+  if (overlapping_dt_severity != "skip") {
+    overlapping_dt <- dt[
+      , identify_overlapping_intervals(unique(.SD)),
+      .SDcols = cols, by = by_id_cols
+      ]
+    data.table::setnames(overlapping_dt, c("start", "end"), cols)
+    overlapping_dt[, issue := "overlapping intervals present"]
 
-  empty_dt <- function(dt) nrow(dt) == 0
-  error_msg <-
-    paste0("Some overlapping intervals were identified in `dt`.\n",
-           "These will be automatically dropped.\n",
-           paste0(capture.output(overlapping_dt), collapse = "\n"))
-  assertive::assert_engine(empty_dt, overlapping_dt,
-                           msg = error_msg, severity = overlapping_dt_severity)
+    empty_dt <- function(dt) nrow(dt) == 0
+    error_msg <-
+      paste0("Some overlapping intervals were identified in `dt`.\n",
+             "These will be automatically dropped.\n",
+             paste0(capture.output(overlapping_dt), collapse = "\n"))
+    assertive::assert_engine(empty_dt, overlapping_dt,
+                             msg = error_msg, severity = overlapping_dt_severity)
 
-  # drop overlapping intervals
-  dt <- merge(dt, overlapping_dt, by = id_cols, all = T)
-  dt <- dt[is.na(issue)]
-  dt[, issue := NULL]
+    # drop overlapping intervals
+    dt <- merge(dt, overlapping_dt, by = id_cols, all = T)
+    dt <- dt[is.na(issue)]
+    dt[, issue := NULL]
+  }
 
   common_intervals <- identify_common_intervals(
     dt,
@@ -167,36 +166,40 @@ collapse_common_intervals <- function(dt,
   data.table::setnames(common_intervals, cols, c("common_start", "common_end"))
   collapsed_dt <- merge_common_intervals(dt, common_intervals, col_stem)
 
-  # check for missing intervals
-  missing_dt <- collapsed_dt[, identify_missing_intervals(.SD, common_intervals),
-                             .SDcols = cols, by = by_id_cols]
-  data.table::setnames(missing_dt, c("start", "end"), cols)
-  empty_missing_dt <- function(dt) nrow(dt) == 0
-  error_msg <-
-    paste0("Some intervals in `dt` are missing making it impossible to collapse ",
-           "the desired column.\n",
-           paste0(capture.output(missing_dt), collapse = "\n"))
-  assertive::assert_engine(empty_missing_dt, missing_dt,
-                           msg = error_msg, severity = missing_dt_severity)
+  if (missing_dt_severity != "skip") {
+    # check for missing intervals
+    missing_dt <- collapsed_dt[
+      , identify_missing_intervals(unique(.SD), common_intervals),
+      .SDcols = cols, by = by_id_cols
+      ]
+    data.table::setnames(missing_dt, c("start", "end"), cols)
+    empty_missing_dt <- function(dt) nrow(dt) == 0
+    error_msg <-
+      paste0("Some intervals in `dt` are missing making it impossible to collapse ",
+             "the desired column.\n",
+             paste0(capture.output(missing_dt), collapse = "\n"))
+    assertive::assert_engine(empty_missing_dt, missing_dt,
+                             msg = error_msg, severity = missing_dt_severity)
 
-  # drop the common intervals that the missing intervals are part of
-  if (nrow(missing_dt) > 0) {
-    # determine the common intervals for the detailed missing dataset
-    full_missing_dt <- merge_common_intervals(
-      missing_dt,
-      common_intervals,
-      col_stem
-    )
-    full_missing_dt <- full_missing_dt[, c(if (include_missing) by_id_cols,
-                                           c("common_start", "common_end")),
-                                       with = F]
-    full_missing_dt <- unique(full_missing_dt)
     # drop the common intervals that the missing intervals are part of
-    full_missing_dt[, drop := TRUE]
-    collapsed_dt <- merge(collapsed_dt, full_missing_dt, all = T,
-                          by = c(if (include_missing) by_id_cols,
-                                 c("common_start", "common_end")))
-    collapsed_dt <- collapsed_dt[is.na(drop)]
+    if (nrow(missing_dt) > 0) {
+      # determine the common intervals for the detailed missing dataset
+      full_missing_dt <- merge_common_intervals(
+        missing_dt,
+        common_intervals,
+        col_stem
+      )
+      full_missing_dt <- full_missing_dt[, c(if (include_missing) by_id_cols,
+                                             c("common_start", "common_end")),
+                                         with = F]
+      full_missing_dt <- unique(full_missing_dt)
+      # drop the common intervals that the missing intervals are part of
+      full_missing_dt[, drop := TRUE]
+      collapsed_dt <- merge(collapsed_dt, full_missing_dt, all = T,
+                            by = c(if (include_missing) by_id_cols,
+                                   c("common_start", "common_end")))
+      collapsed_dt <- collapsed_dt[is.na(drop)]
+    }
   }
 
   # aggregate so that rows are all unique again

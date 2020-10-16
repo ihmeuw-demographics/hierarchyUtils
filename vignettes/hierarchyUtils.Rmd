@@ -57,7 +57,7 @@ ggplot(plot_data) +
 
 By aggregating to a common set of aggregate age groups using `hierarchyUtils::agg` we can more easily compare population counts over time. One of the benefits of this function is that the input data does not need to be square, meaning the age groups in each census year for example can be different.
 
-Here we can first aggregate the interval variable `age` which depends on `age_start` and `age_end` columns in the input dataset. `present_agg_severity = "include"` because some location-years most detailed age groups are equal to the aggregates specified in `agg_age_mapping so we need to include those in the resulting aggregates.
+Here we can first aggregate the interval variable `age` which depends on `age_start` and `age_end` columns in the input dataset. `present_agg_severity = "skip"` because some location-years most detailed age groups are equal to the aggregates specified in `agg_age_mapping so we need to include those in the resulting aggregates.
 
 ```{r aggregate_age}
 value_cols = "population"
@@ -75,7 +75,7 @@ iran_pop_aggs <- hierarchyUtils::agg(
   mapping = agg_age_mapping,
   # this is specified since some location-years most detailed age groups are
   # equal to the aggregates specified in `agg_age_mapping`
-  present_agg_severity = "include"
+  present_agg_severity = "skip"
 )
 ```
 

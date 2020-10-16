@@ -13,6 +13,7 @@ assert_agg_scale_args(
   mapping,
   agg_function,
   missing_dt_severity,
+  overlapping_dt_severity,
   collapse_interval_cols,
   functionality
 )
@@ -47,9 +48,17 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 
 \item{missing_dt_severity}{[\code{character(1)}]\cr
 How severe should the consequences of missing data that prevents
-aggregation or scaling from occurring be? Can be either 'stop', 'warning',
-'message', or 'none'. If not "stop", then only the possible aggregations or
-scaling is done using the available data.}
+aggregation or scaling from occurring be? Can be either 'skip', 'stop',
+'warning', 'message', or 'none'. If 'skip', the checks for missing data are
+skipped. If not 'stop', then only the possible aggregations or scaling is
+done using the available data.}
+
+\item{overlapping_dt_severity}{[\code{character(1)}]\cr
+When \code{collapse_interval_cols = TRUE}, how severe should the consequences of
+overlapping intervals that change or prevent collapsing to the most
+detailed common set of intervals be? Can be either 'skip', 'stop',
+'warning', 'message', or 'none'. If not "stop", then overlapping intervals
+will be dropped and the function continues.}
 
 \item{collapse_interval_cols}{[\code{logical(1)}]\cr
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
