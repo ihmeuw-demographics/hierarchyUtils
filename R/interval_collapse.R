@@ -16,6 +16,11 @@
 #'   collapsing to the most detailed common set of intervals be? Can be either
 #'   'stop', 'warning', 'message', or 'none'. If not "stop", then only the
 #'   intervals that can be correctly collapsed will be done.
+#' @param overlapping_dt_severity \[`character(1)`\]\cr
+#'   How severe should the consequences of overlapping intervals that change or
+#'   prevent collapsing to the most detailed common set of intervals be? Can be
+#'   either 'stop', 'warning', 'message', or 'none'. If not "stop", then
+#'   overlapping intervals will be dropped and the function continues.
 #' @param include_missing \[`logical(1)`\]\cr
 #'   Whether to include missing intervals in the identified most detailed common
 #'   intervals. These missing intervals are not present in all combinations of
@@ -66,7 +71,7 @@ collapse_common_intervals <- function(dt,
                                       col_stem,
                                       agg_function = sum,
                                       missing_dt_severity = "stop",
-                                      drop_present_aggs = FALSE,
+                                      overlapping_dt_severity = "stop",
                                       include_missing = FALSE) {
 
   # Validate arguments ------------------------------------------------------
@@ -105,17 +110,22 @@ collapse_common_intervals <- function(dt,
   }
 
   # check `missing_dt_severity` argument
-  assertthat::assert_that(assertthat::is.string(missing_dt_severity),
-                          checkmate::checkChoice(missing_dt_severity,
-                                                 c("stop", "warning",
-                                                   "message", "none")),
-                          msg = "`missing_dt_severity` must be one of
-                          'stop', 'warning', 'message', or 'none'")
+  severity_choices <- c("stop", "warning","message", "none")
+  assertthat::assert_that(
+    assertthat::is.string(missing_dt_severity),
+    checkmate::checkChoice(missing_dt_severity, severity_choices),
+    msg = paste0("`missing_dt_severity` must be one of '",
+                 paste(severity_choices, collapse = "', '"), "'")
+  )
 
-  # check `drop_present_aggs` argument
-  assertthat::assert_that(assertthat::is.flag(drop_present_aggs),
-                          msg = "`drop_present_aggs` must be a logical")
-
+  # check `overlapping_dt_severity` argument
+  severity_choices <- c("stop", "warning","message", "none")
+  assertthat::assert_that(
+    assertthat::is.string(overlapping_dt_severity),
+    checkmate::checkChoice(overlapping_dt_severity, severity_choices),
+    msg = paste0("`overlapping_dt_severity` must be one of '",
+                 paste(severity_choices, collapse = "', '"), "'")
+  )
   # check `include_missing` argument
   assertthat::assert_that(assertthat::is.flag(include_missing),
                           msg = "`include_missing` must be a logical")
@@ -135,20 +145,18 @@ collapse_common_intervals <- function(dt,
   data.table::setnames(overlapping_dt, c("start", "end"), cols)
   overlapping_dt[, issue := "overlapping intervals present"]
 
-  if (nrow(overlapping_dt) > 0) {
-    if (drop_present_aggs) {
-      dt <- merge(dt, overlapping_dt, by = id_cols, all = T)
-      dt <- dt[is.na(issue)]
-      dt[, issue := NULL]
-    } else {
-      error_msg <-
-        paste0("Some overlapping intervals are already in `dt`.\n",
-               "* See `drop_present_aggs` argument if it is okay to drop ",
-               "these before collapsing intervals.\n",
-               paste0(capture.output(overlapping_dt), collapse = "\n"))
-      stop(error_msg)
-    }
-  }
+  empty_dt <- function(dt) nrow(dt) == 0
+  error_msg <-
+    paste0("Some overlapping intervals were identified in `dt`.\n",
+           "These will be automatically dropped.\n",
+           paste0(capture.output(overlapping_dt), collapse = "\n"))
+  assertive::assert_engine(empty_dt, overlapping_dt,
+                           msg = error_msg, severity = overlapping_dt_severity)
+
+  # drop overlapping intervals
+  dt <- merge(dt, overlapping_dt, by = id_cols, all = T)
+  dt <- dt[is.na(issue)]
+  dt[, issue := NULL]
 
   common_intervals <- identify_common_intervals(
     dt,
@@ -242,6 +250,8 @@ collapse_common_intervals <- function(dt,
 #'   id_cols = id_cols,
 #'   col_stem = "year"
 #' )
+#' data.table::setnames(common_intervals, c("year_start", "year_end"),
+#'                      c("common_start", "common_end"))
 #'
 #' result_dt <- hierarchyUtils:::merge_common_intervals(
 #'   dt = input_dt,

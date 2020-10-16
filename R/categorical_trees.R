@@ -422,7 +422,6 @@ create_scale_subtrees <- function(mapping,
 #' Aggregate or scale one subtree's children values to the parent level
 #'
 #' @inheritParams agg
-#' @inheritParams identify_unique_groupings
 #' @param subtree one subtree of the list returned by [create_agg_subtrees()] or
 #'   [create_scale_subtrees()].
 #'
@@ -470,6 +469,7 @@ agg_subtree <- function(dt,
         col_stem = stem,
         agg_function = agg_function,
         missing_dt_severity = missing_dt_severity,
+        overlapping_dt_severity = "message",
         include_missing = TRUE
       )
     }
@@ -551,6 +551,7 @@ scale_subtree <- function(dt,
         col_stem = stem,
         agg_function = agg_function,
         missing_dt_severity = missing_dt_severity,
+        overlapping_dt_severity = "message",
         include_missing = TRUE
       )
     }
@@ -684,6 +685,10 @@ check_agg_scale_subtree_dt <- function(dt,
   interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
   categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
   by_id_cols <- id_cols[!id_cols %in% cols]
+
+  # preserve type in original dataset
+  col_value_type <- typeof(dt[[col_stem]])
+  expected_col_stem <- utils::type.convert(x = expected_col_stem, col_value_type)
 
   # determine the expected dataset
   expected_dt <- dt[, list(col_stem = expected_col_stem), by = by_id_cols]

@@ -53,33 +53,6 @@ test_that(description, {
   expect_identical(output_dt, expected_dt)
 })
 
-description <- "aggregation to boths sexes combined errors when aggregate ages
-are included in dataset"
-test_that(description, {
-  input_dt_agg_age <- CJ(year_start = 2005, year_end = 2010,
-                         sex = c("female", "male"),
-                         age_start = 0, age_end = Inf,
-                         value = 480)
-  new_input_dt <- rbind(input_dt, input_dt_agg_age)
-
-  expect_error(agg(dt = new_input_dt,
-                   id_cols = id_cols,
-                   value_cols = value_cols,
-                   col_stem = "sex",
-                   col_type = "categorical",
-                   mapping = sex_mapping),
-               regexp = "expected input data is missing")
-
-  expect_error(agg(dt = new_input_dt,
-                   id_cols = id_cols,
-                   value_cols = value_cols,
-                   col_stem = "sex",
-                   col_type = "categorical",
-                   mapping = sex_mapping,
-                   collapse_interval_cols = T),
-               regexp = "overlapping intervals")
-})
-
 description <- "error is thrown when both sexes combined aggregate is already
 included in input"
 test_that(description, {
@@ -92,7 +65,7 @@ test_that(description, {
                    col_type = "categorical",
                    mapping = sex_mapping,
                    collapse_interval_cols = T),
-               regexp = "Some aggregates are already in `dt`.")
+               regexp = "aggregate data is already present")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -100,6 +73,7 @@ test_that(description, {
                    col_stem = "sex",
                    col_type = "categorical",
                    mapping = sex_mapping,
+                   present_agg_severity = "none",
                    collapse_interval_cols = T)
   expect_identical(output_dt, expected_dt)
 })
@@ -261,7 +235,8 @@ testthat::test_that("aggregating age intervals works", {
                    value_cols = value_cols,
                    col_stem = "age",
                    col_type = "interval",
-                   mapping = age_mapping)
+                   mapping = age_mapping,
+                   present_agg_severity = "include")
   testthat::expect_identical(output_dt, expected_dt)
 })
 
@@ -282,7 +257,8 @@ testthat::test_that(description, {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping,
-                   missing_dt_severity = "stop"),
+                   missing_dt_severity = "stop",
+                   present_agg_severity = "include"),
                regexp = "missing making it impossible to collapse")
 
   output_dt <- agg(dt = new_input_dt,
@@ -291,7 +267,8 @@ testthat::test_that(description, {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping,
-                   missing_dt_severity = "none")
+                   missing_dt_severity = "none",
+                   present_agg_severity = "include")
   expect_identical(output_dt, new_expected_dt)
 
   new_input_dt <- input_dt[!(sex == "female" & (age_start <= 2 | age_end >= 95))]
@@ -307,7 +284,8 @@ testthat::test_that(description, {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping,
-                   missing_dt_severity = "stop"),
+                   missing_dt_severity = "stop",
+                   present_agg_severity = "include"),
                regexp = "missing making it impossible to collapse")
 
   output_dt <- agg(dt = new_input_dt,
@@ -316,14 +294,13 @@ testthat::test_that(description, {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping,
-                   missing_dt_severity = "none")
+                   missing_dt_severity = "none",
+                   present_agg_severity = "include")
   expect_identical(output_dt, new_expected_dt)
-
 })
 
 description <- "aggregation of age-specific data with aggregates already
-included works when `drop_present_aggs` argument is set to TRUE and throws an
-error otherwise"
+included errors out due to overlapping intervals"
 testthat::test_that(description, {
   new_input_dt <- unique(rbind(input_dt, expected_dt))
   setkeyv(new_input_dt, id_cols)
@@ -336,15 +313,7 @@ testthat::test_that(description, {
                    col_stem = "age",
                    col_type = "interval",
                    mapping = age_mapping),
-               regexp = "Some overlapping intervals are already in `dt`")
-  output_dt <- agg(dt = new_input_dt,
-                   id_cols = id_cols,
-                   value_cols = value_cols,
-                   col_stem = "age",
-                   col_type = "interval",
-                   mapping = age_mapping,
-                   drop_present_aggs = TRUE)
-  expect_identical(output_dt, expected_dt)
+               regexp = "overlapping intervals were identified in `dt`")
 })
 
 # Scale over age intervals ------------------------------------------------
@@ -364,7 +333,8 @@ input_dt_agg1 <- agg(dt = input_dt_detailed,
                      value_cols = value_cols,
                      col_stem = "age",
                      col_type = "interval",
-                     mapping = age_mapping)
+                     mapping = age_mapping,
+                     present_agg_severity = "include")
 
 age_mapping <- data.table(age_start = 0, age_end = Inf)
 input_dt_agg2 <- agg(dt = input_dt_detailed,
@@ -372,14 +342,16 @@ input_dt_agg2 <- agg(dt = input_dt_detailed,
                      value_cols = value_cols,
                      col_stem = "age",
                      col_type = "interval",
-                     mapping = age_mapping)
+                     mapping = age_mapping,
+                     present_agg_severity = "include")
 year_mapping <- data.table(year_start = 2005, year_end = 2010)
 input_dt_agg2 <- agg(dt = input_dt_agg2,
                      id_cols = id_cols,
                      value_cols = value_cols,
                      col_stem = "year",
                      col_type = "interval",
-                     mapping = year_mapping)
+                     mapping = year_mapping,
+                     present_agg_severity = "include")
 
 # combine together different inputs
 input_dt <- rbind(input_dt_detailed, input_dt_agg1, input_dt_agg2,
@@ -487,16 +459,18 @@ input_dt <- data.table(year = 2010,
                        age_start = c(0, 5, 4),
                        age_end = c(5, 10, 6),
                        value = 1)
+
 description <- "aggregating age intervals errors out when given
 weird overlapping intervals"
 testthat::test_that(description, {
-  testthat::expect_error(agg(dt = input_dt,
-                             id_cols = id_cols,
-                             value_cols = value_cols,
-                             col_stem = "age",
-                             col_type = "interval",
-                             mapping = data.table(age_start = 0, age_end = 10)),
-                         regexp = "Some overlapping intervals are already in `dt`")
+  testthat::expect_error(agg(
+    dt = input_dt,
+    id_cols = id_cols,
+    value_cols = value_cols,
+    col_stem = "age",
+    col_type = "interval",
+    mapping = data.table(age_start = 0, age_end = 10)
+  ), msg = "overlapping intervals were identified in `dt`")
 })
 
 # set up test input data.table
@@ -592,24 +566,6 @@ test_that(description, {
   expect_identical(output_dt, new_expected_dt)
 })
 
-description <- "aggregation of Iran data with Tehran 2006 instead of
-present day 'Tehran' and 'Alborz' (accidently including 'Tehran') errors out"
-test_that(description, {
-  new_input_dt <- rbind(input_dt[!location %in% c("Alborz")],
-                        expected_dt[location %in% c("Tehran 2006")],
-                        use.names = T)
-  setkeyv(new_input_dt, id_cols)
-
-  expect_error(agg(dt = new_input_dt,
-                   id_cols = id_cols,
-                   value_cols = value_cols,
-                   col_stem = "location",
-                   col_type = "categorical",
-                   mapping = iran_mapping,
-                   missing_dt_severity = "none"),
-               regexp = "Some aggregates are already in `dt`")
-})
-
 description <- "aggregation of Iran data with missing 'Tehran' and 'Alborz'
 throws error, warning, message, or is silent and aggregates to possible
 locations if requested to not error out"
@@ -643,17 +599,18 @@ test_that(description, {
 })
 
 description <- "aggregation of Iran data with aggregates already included works
-when `drop_present_aggs` argument is set to TRUE and throws an error otherwise"
+when `present_agg_severity` argument is set to 'none' and throws an error otherwise"
 test_that(description, {
   new_input_dt <- rbind(input_dt, expected_dt, use.names = T)
   setkeyv(new_input_dt, id_cols)
+
   expect_error(agg(dt = new_input_dt,
                    id_cols = id_cols,
                    value_cols = value_cols,
                    col_stem = "location",
                    col_type = "categorical",
                    mapping = iran_mapping),
-               regexp = "Some aggregates are already in `dt`")
+               regexp = "aggregate data is already present")
 
   output_dt <- agg(dt = new_input_dt,
                    id_cols = id_cols,
@@ -661,7 +618,7 @@ test_that(description, {
                    col_stem = "location",
                    col_type = "categorical",
                    mapping = iran_mapping,
-                   drop_present_aggs = TRUE)
+                   present_agg_severity = "none")
   expect_identical(output_dt, expected_dt)
 })
 
@@ -734,7 +691,6 @@ test_that(description, {
                      collapse_missing = TRUE),
                regexp = "expected input data is missing")
 })
-
 
 # Test numeric "categorical" variable scaling -----------------------------
 

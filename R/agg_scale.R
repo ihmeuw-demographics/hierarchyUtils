@@ -31,7 +31,12 @@
 #'   aggregation or scaling from occurring be? Can be either 'stop', 'warning',
 #'   'message', or 'none'. If not "stop", then only the possible aggregations or
 #'   scaling is done using the available data.
-#' @param drop_present_aggs \[`logical(1)`\]\cr
+#' @param present_agg_severity \[`logical(1)`\]\cr
+#'   How severe should the consequences of aggregate data (versus only the most
+#'   detailed level be)? Can be either 'include', 'stop', 'warning', 'message',
+#'   or 'none'. If 'include', then the data will be included in any aggregates.
+#'   If anything else other then 'stop', the data will be dropped rather than
+#'   included in possible aggregations.
 #'   Whether to drop aggregates (or overlapping intervals) that are already
 #'   present in `dt` before aggregating. Default is 'False' and the function
 #'   errors out.
@@ -161,15 +166,19 @@ agg <- function(dt,
                 mapping,
                 agg_function = sum,
                 missing_dt_severity = "stop",
-                drop_present_aggs = FALSE,
+                present_agg_severity = "stop",
                 collapse_interval_cols = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
                         col_type, mapping, agg_function,
-                        collapse_interval_cols, "agg")
-
+                        missing_dt_severity, collapse_interval_cols, "agg")
+  # check `missing_dt_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(present_agg_severity),
+    present_agg_severity %in% c("include", "stop", "warning", "message", "none")
+  )
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
@@ -190,6 +199,7 @@ agg <- function(dt,
       col_stem = col_stem,
       agg_function = agg_function,
       missing_dt_severity = missing_dt_severity,
+      overlapping_dt_severity = "stop",
       include_missing = TRUE
     )
 
@@ -244,6 +254,31 @@ agg <- function(dt,
       next()
     }
 
+    # check if aggregate is already present
+    if (present_agg_severity != "include") {
+      parent <- subtree$name
+      parent_dt <- dt[get(col_stem) %in% parent]
+      empty_dt <- function(dt) nrow(dt) == 0
+      error_msg <-
+        paste0("aggregate data is already present.\n",
+               "* See `present_agg_severity` argument if it is okay to aggregate
+             multiple rows with the available data.\n",
+               paste0(capture.output(parent_dt), collapse = "\n"))
+      assertive::assert_engine(empty_dt, parent_dt,
+                               msg = error_msg, severity = present_agg_severity)
+
+      # drop parent data already present
+      if (nrow(parent_dt) > 0) {
+        parent_dt[, drop := TRUE]
+        dt <- merge(
+          dt, parent_dt[, .SD, .SDcols = c(id_cols, "drop")],
+          all = TRUE, by = id_cols
+        )
+        dt <- dt[is.na(drop)]
+        dt[, drop := NULL]
+      }
+    }
+
     aggregated_same_groupings_dt <- agg_subtree(
       agg_data,
       id_cols,
@@ -288,14 +323,15 @@ scale <- function(dt,
                   mapping = NULL,
                   agg_function = sum,
                   missing_dt_severity = "stop",
-                  collapse_missing = FALSE,
-                  collapse_interval_cols = FALSE) {
+                  collapse_interval_cols = FALSE,
+                  collapse_missing = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
   assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
                         col_type, mapping, agg_function,
-                        collapse_interval_cols, "scale")
+                        missing_dt_severity, collapse_interval_cols, "scale")
+  assertthat::assert_that(assertthat::is.flag(collapse_interval_cols))
 
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
@@ -337,17 +373,30 @@ scale <- function(dt,
       missing_nodes <- subtree$Get("name", filterFun = function(x) {
         !x$exists
       })
-      missing_dt <- data.table(col_stem = missing_nodes)
-      data.table::setnames(missing_dt, "col_stem", col_stem)
-      empty_missing_dt <- function(dt) nrow(dt) == 0
-      error_msg <-
-        paste0("expected input data is missing.\n",
-               "* See `missing_dt_severity` argument if it is okay to only make ",
-               "aggregate/scale data that are possible given what is available.\n",
-               paste0(capture.output(missing_dt), collapse = "\n"))
-      assertive::assert_engine(empty_missing_dt, missing_dt,
-                               msg = error_msg, severity = missing_dt_severity)
-
+      if (!is.null(missing_nodes)) {
+        missing_dt <- data.table(col_stem = missing_nodes)
+        data.table::setnames(missing_dt, "col_stem", col_stem)
+        empty_missing_dt <- function(dt) nrow(dt) == 0
+        error_msg <-
+          paste0("expected input data is missing.\n",
+                 "* See `missing_dt_severity` argument if it is okay to only make ",
+                 "aggregate/scale data that are possible given what is available.\n",
+                 paste0(capture.output(missing_dt), collapse = "\n"))
+        assertive::assert_engine(empty_missing_dt, missing_dt,
+                                 msg = error_msg, severity = missing_dt_severity)
+      } else {
+        if (col_type == "interval") {
+          nodes <- names(subtree$children)
+          overlapping_dt <- data.table(col_stem = nodes)
+          data.table::setnames(overlapping_dt, "col_stem", col_stem)
+          empty_dt <- function(dt) nrow(dt) == 0
+          error_msg <-
+            paste0("Some overlapping intervals are in `dt`.\n",
+                   paste0(capture.output(overlapping_dt), collapse = "\n"))
+          assertive::assert_engine(empty_dt, overlapping_dt,
+                                   msg = error_msg, severity = "stop")
+        }
+      }
       # skip aggregation for this subtree
       next()
     }
@@ -405,8 +454,15 @@ assert_agg_scale_args <- function(dt,
                                   col_type,
                                   mapping,
                                   agg_function,
+                                  missing_dt_severity,
                                   collapse_interval_cols,
                                   functionality) {
+
+  # check `missing_dt_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(missing_dt_severity),
+    missing_dt_severity %in% c("stop", "warning", "message", "none")
+  )
 
   # check `col_type` argument
   assertthat::assert_that(assertthat::is.string(col_type),

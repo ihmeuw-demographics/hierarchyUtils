@@ -12,7 +12,7 @@ collapse_common_intervals(
   col_stem,
   agg_function = sum,
   missing_dt_severity = "stop",
-  drop_present_aggs = FALSE,
+  overlapping_dt_severity = "stop",
   include_missing = FALSE
 )
 }
@@ -40,10 +40,11 @@ collapsing to the most detailed common set of intervals be? Can be either
 'stop', 'warning', 'message', or 'none'. If not "stop", then only the
 intervals that can be correctly collapsed will be done.}
 
-\item{drop_present_aggs}{[\code{logical(1)}]\cr
-Whether to drop aggregates (or overlapping intervals) that are already
-present in \code{dt} before aggregating. Default is 'False' and the function
-errors out.}
+\item{overlapping_dt_severity}{[\code{character(1)}]\cr
+How severe should the consequences of overlapping intervals that change or
+prevent collapsing to the most detailed common set of intervals be? Can be
+either 'stop', 'warning', 'message', or 'none'. If not "stop", then
+overlapping intervals will be dropped and the function continues.}
 
 \item{include_missing}{[\code{logical(1)}]\cr
 Whether to include missing intervals in the identified most detailed common

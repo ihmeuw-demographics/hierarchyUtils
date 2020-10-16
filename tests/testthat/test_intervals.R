@@ -277,19 +277,13 @@ test_that("intervals are collapsed correctly to common set", {
     value_cols = value_cols,
     col_stem = "year"
   )
-  expect_error(collapse_common_intervals(
-    dt = collapsed_dt,
-    id_cols = id_cols,
-    value_cols = value_cols,
-    col_stem = "age"
-  ), regexp = "Some overlapping intervals are already in `dt`.")
 
   collapsed_dt <- collapse_common_intervals(
     dt = collapsed_dt,
     id_cols = id_cols,
     value_cols = value_cols,
     col_stem = "age",
-    drop_present_aggs = T
+    overlapping_dt_severity = "none"
   )
   expect_identical(collapsed_dt, expected_dt)
 })

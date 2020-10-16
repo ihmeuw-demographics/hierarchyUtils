@@ -12,6 +12,7 @@ assert_agg_scale_args(
   col_type,
   mapping,
   agg_function,
+  missing_dt_severity,
   collapse_interval_cols,
   functionality
 )
@@ -43,6 +44,12 @@ scaling the mapping is inferred from the available intervals in \code{dt}.}
 \item{agg_function}{[\verb{function()}]\cr
 Function to use when aggregating, can be either \code{sum} (for counts) or
 \code{prod} (for probabilities).}
+
+\item{missing_dt_severity}{[\code{character(1)}]\cr
+How severe should the consequences of missing data that prevents
+aggregation or scaling from occurring be? Can be either 'stop', 'warning',
+'message', or 'none'. If not "stop", then only the possible aggregations or
+scaling is done using the available data.}
 
 \item{collapse_interval_cols}{[\code{logical(1)}]\cr
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is

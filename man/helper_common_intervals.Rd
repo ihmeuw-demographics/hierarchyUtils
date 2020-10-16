@@ -69,6 +69,8 @@ common_intervals <- hierarchyUtils:::identify_common_intervals(
   id_cols = id_cols,
   col_stem = "year"
 )
+data.table::setnames(common_intervals, c("year_start", "year_end"),
+                     c("common_start", "common_end"))
 
 result_dt <- hierarchyUtils:::merge_common_intervals(
   dt = input_dt,

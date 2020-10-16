@@ -15,7 +15,7 @@ agg(
   mapping,
   agg_function = sum,
   missing_dt_severity = "stop",
-  drop_present_aggs = FALSE,
+  present_agg_severity = "stop",
   collapse_interval_cols = FALSE
 )
 
@@ -28,8 +28,8 @@ scale(
   mapping = NULL,
   agg_function = sum,
   missing_dt_severity = "stop",
-  collapse_missing = FALSE,
-  collapse_interval_cols = FALSE
+  collapse_interval_cols = FALSE,
+  collapse_missing = FALSE
 )
 }
 \arguments{
@@ -66,7 +66,12 @@ aggregation or scaling from occurring be? Can be either 'stop', 'warning',
 'message', or 'none'. If not "stop", then only the possible aggregations or
 scaling is done using the available data.}
 
-\item{drop_present_aggs}{[\code{logical(1)}]\cr
+\item{present_agg_severity}{[\code{logical(1)}]\cr
+How severe should the consequences of aggregate data (versus only the most
+detailed level be)? Can be either 'include', 'stop', 'warning', 'message',
+or 'none'. If 'include', then the data will be included in any aggregates.
+If anything else other then 'stop', the data will be dropped rather than
+included in possible aggregations.
 Whether to drop aggregates (or overlapping intervals) that are already
 present in \code{dt} before aggregating. Default is 'False' and the function
 errors out.}
