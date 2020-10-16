@@ -244,20 +244,20 @@ vis_tree <- function(tree) {
 
   # determine whether this is an aggregate or scale tree
   type <- "agg"
-  if ("scale_possible" %in% tree$attributesAll) type <- "scale"
+  if ("scale_possible" %in% tree$fields) type <- "scale"
 
   # create node attribute for three types of nodes
   group_node <- function(x) {
     if (type == "agg") {
-      if (data.tree::GetAttribute(x, "exists")) {
+      if (x$exists) {
         return("Value Provided")
-      } else if (data.tree::GetAttribute(x, "agg_possible")) {
+      } else if (x$agg_possible) {
         return("Possible")
       }
 
     } else if (type == "scale") {
-      if (data.tree::GetAttribute(x, "exists")) {
-        if (data.tree::GetAttribute(x, "scale_children_possible")) {
+      if (x$exists) {
+        if (x$scale_children_possible) {
           return("Possible")
         } else {
           return("Value Provided")
