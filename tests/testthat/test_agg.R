@@ -1,5 +1,3 @@
-library(data.table)
-library(testthat)
 
 # Aggregate categorical variable with varying interval id cols ------------
 
@@ -9,7 +7,7 @@ library(testthat)
 # Output:
 # - all sexes combined: 5 calendar-year interval and 5-year age groups
 
-sex_mapping <- data.table(parent = "both", child = c("female", "male"))
+sex_mapping <- data.table(parent = "all", child = c("female", "male"))
 id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
 value_cols <- c("value")
 
@@ -42,7 +40,7 @@ setkeyv(input_dt, id_cols)
 # set up expected output data.table
 expected_dt <- CJ(
   year_start = 2005, year_end = 2010,
-  sex = "both",
+  sex = "all",
   age_start = seq(0, 95, 5),
   value = 50
 )
@@ -104,7 +102,8 @@ test_that(description, {
   expect_identical(output_dt, expected_dt)
 })
 
-description <- "error is thrown when categorical variable levels are missing"
+description <- "error is thrown when aggregating a categorical variable and
+levels are missing"
 test_that(description, {
 
   new_input_dt <- input_dt[sex != "female" & year_start == 2008]
@@ -136,7 +135,7 @@ test_that(description, {
         mapping = sex_mapping,
         collapse_interval_cols = TRUE
     ),
-    regexp = "missing making it impossible to collapse"
+    regexp = "intervals in `dt` are missing making it impossible to collapse"
   )
 
   output_dt <- agg(
@@ -225,7 +224,7 @@ testthat::test_that(description, {
         missing_dt_severity = "stop",
         present_agg_severity = "skip"
     ),
-    regexp = "missing making it impossible to collapse"
+    regexp = "intervals in `dt` are missing making it impossible to collapse"
   )
 
   output_dt <- agg(
@@ -272,9 +271,11 @@ id_cols <- c("location", "year")
 value_cols <- c("value")
 
 # set up test input data.table with only the present day provinces
-input_dt <- CJ(location = iran_mapping[!grepl("[0-9]+", child), child],
-               year = 2011,
-               value = 1)
+input_dt <- CJ(
+  location = iran_mapping[!grepl("[0-9]+", child), child],
+  year = 2011,
+  value = 1
+)
 setkeyv(input_dt, id_cols)
 
 # set up expected output table with all unique locations
@@ -343,4 +344,92 @@ test_that(description, {
     missing_dt_severity = "none"
   )
   expect_identical(output_dt, new_expected_dt)
+})
+
+# Test aggregating categorical variable with different interval id --------
+
+# Inputs:
+# - present day provinces (only the most detailed nodes) in Iran as defined in
+#   `iran_mapping`. 'Alborz' only has all-ages, all other provinces have 10-year
+#   age groups.
+#   see https://ihmeuw-demographics.github.io/hierarchyUtils/articles/hierarchyUtils.html#aggregate-locations-1
+#   for visualization of mapping
+# Output:
+# - all aggregate locations containing 'Alborz' should have all-ages row, all
+#   other aggregate locations should have 10-year age groups
+
+id_cols <- c("location", "year", "age_start", "age_end")
+value_cols <- c("value")
+
+input_dt_iran2 <- rbind(
+  input_dt[
+    location == "Alborz"
+    , list(age_start = 0, age_end = Inf, value = 11),
+    by = c("location", "year")
+  ],
+  input_dt[
+    location != "Alborz"
+    , list(age_start = seq(0, 100, 10), age_end = c(seq(10, 100, 10), Inf), value = 1),
+    by = c("location", "year")
+  ]
+)
+setkeyv(input_dt_iran2, id_cols)
+
+parent_alborz_locations <- c(
+  "Iran (Islamic Republic of)", "Markazi 1956", "Markazi 1966-1976", "Semnan",
+  "Markazi", "Tehran 1986-1995", "Tehran 2006", "Qom"
+)
+expected_dt_iran2 <- rbind(
+  expected_dt[
+    location %in% parent_alborz_locations
+    , list(age_start = 0, age_end = Inf, value = value * 11),
+    by = c("location", "year")
+  ],
+  expected_dt[
+    !location %in% parent_alborz_locations
+    , list(age_start = seq(0, 100, 10), age_end = c(seq(10, 100, 10), Inf), value = value),
+    by = c("location", "year")
+  ]
+)
+setkeyv(expected_dt_iran2, id_cols)
+
+description <- "aggregating a categorical variable with varying interval id cols
+works"
+description <- "aggregation of categorical variable with multiple levels works
+(only most-detailed levels of mapping included in input `dt`)"
+test_that(description, {
+  output_dt <- agg(
+    dt = input_dt_iran2,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "location", col_type = "categorical",
+    mapping = iran_mapping,
+    collapse_interval_cols = TRUE
+  )
+  expect_identical(output_dt, expected_dt_iran2)
+})
+
+# Small special case tests ------------------------------------------------
+
+# set up test input data.table
+# 0-5, 5-10, 4-6 age groups
+input_dt <- data.table(
+  year = 2010,
+  age_start = c(0, 5, 4), age_end = c(5, 10, 6),
+  value = 1
+)
+
+description <- "aggregating interval variables with weird overlapping intervals
+errors out"
+testthat::test_that(description, {
+  testthat::expect_error(
+    agg(
+      dt = input_dt,
+      id_cols = c("year", "age_start", "age_end"),
+      value_cols = "value",
+      col_stem = "age",
+      col_type = "interval",
+      mapping = data.table(age_start = 0, age_end = 10)
+    ),
+    msg = "overlapping intervals were identified in `dt`"
+  )
 })
