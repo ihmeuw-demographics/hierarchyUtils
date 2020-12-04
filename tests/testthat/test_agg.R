@@ -282,22 +282,27 @@ setkeyv(input_dt, id_cols)
 # the expected value is the number of leaf nodes under each aggregate
 expected_dt <- CJ(location = unique(iran_mapping$parent),
                   year = 2011)
-expected_dt[location %in% c("Tehran 2006", "Zanjan 1976-1996",
-                            "Mazandaran 1956-1996",
-                            "East Azarbayejan 1956-1986",
-                            "Khuzestan and Lorestan 1956",
-                            "Isfahan and Yazd 1966"),
-            value := 2]
-expected_dt[location %in% c("Tehran 1986-1995", "Gilan 1956-1966",
-                            "Kermanshahan 1956", "Khorasan 1956-1996",
-                            "Isfahan and Yazd 1956"),
-            value := 3]
-expected_dt[location %in% c("Markazi 1966-1976", "Fars and Ports 1956"),
-            value := 4]
-expected_dt[location %in% "Markazi 1956",
-            value := 5]
-expected_dt[location %in% "Iran (Islamic Republic of)",
-            value := 31]
+expected_dt[
+  location %in% c(
+    "Tehran 2006", "Zanjan 1976-1996", "Mazandaran 1956-1996",
+    "East Azarbayejan 1956-1986", "Khuzestan and Lorestan 1956",
+    "Isfahan and Yazd 1966"
+  ),
+  value := 2
+]
+expected_dt[
+  location %in% c(
+    "Tehran 1986-1995", "Gilan 1956-1966", "Kermanshahan 1956",
+    "Khorasan 1956-1996", "Isfahan and Yazd 1956"
+  ),
+  value := 3
+]
+expected_dt[
+  location %in% c("Markazi 1966-1976", "Fars and Ports 1956"),
+  value := 4
+]
+expected_dt[location %in% "Markazi 1956", value := 5]
+expected_dt[location %in% "Iran (Islamic Republic of)", value := 31]
 setkeyv(expected_dt, id_cols)
 
 description <- "aggregation of categorical variable with multiple levels works
@@ -318,10 +323,12 @@ test_that(description, {
 
   new_input_dt <- input_dt[!location %in% c("Tehran", "Alborz")]
   setkeyv(new_input_dt, id_cols)
-  new_expected_dt <- expected_dt[!location %in%
-                                   c("Tehran 2006", "Tehran 1986-1995",
-                                     "Markazi 1966-1976", "Markazi 1956",
-                                     "Iran (Islamic Republic of)")]
+  new_expected_dt <- expected_dt[
+    !location %in% c(
+      "Tehran 2006", "Tehran 1986-1995", "Markazi 1966-1976", "Markazi 1956",
+      "Iran (Islamic Republic of)"
+    )
+  ]
   setkeyv(new_expected_dt, id_cols)
 
   # check severity
