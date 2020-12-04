@@ -27,26 +27,24 @@
 #'   Function to use when aggregating, can be either `sum` (for counts) or
 #'   `prod` (for probabilities).
 #' @param missing_dt_severity \[`character(1)`\]\cr
-#'   How severe should the consequences of missing data that prevents
-#'   aggregation or scaling from occurring be? Can be either 'skip', 'stop',
-#'   'warning', 'message', or 'none'. If 'skip', the checks for missing data are
-#'   skipped. If not 'stop', then only the possible aggregations or scaling is
-#'   done using the available data.
+#'   What should happen when `dt` is missing levels of `col_stem` that
+#'   prevent aggregation or scaling from occurring? Can be either 'skip',
+#'   'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+#'   'Severity Arguments' for more information.
 #' @param present_agg_severity \[`logical(1)`\]\cr
-#'   How severe should the consequences of aggregate data (versus only the most
-#'   detailed level be)? Can be either 'skip', 'stop', 'warning', 'message',
-#'   or 'none'. If 'skip', then the data will be included in any aggregates
-#'   because the checks will be skipped. If anything else other then 'stop', the
-#'   data will be dropped rather than included in possible aggregations.
-#'   Whether to drop aggregates (or overlapping intervals) that are already
-#'   present in `dt` before aggregating. Default is 'False' and the function
-#'   errors out.
+#'   What should happen when `dt` already has requested aggregates (from
+#'   `mapping`)? Can be either 'skip', 'stop', 'warning', 'message',
+#'   or 'none'. Default is 'stop'. See section on 'Severity Arguments' for more
+#'   information.
 #' @param overlapping_dt_severity \[`character(1)`\]\cr
-#'   When `collapse_interval_cols = TRUE`, how severe should the consequences of
-#'   overlapping intervals that change or prevent collapsing to the most
-#'   detailed common set of intervals be? Can be either 'skip', 'stop',
-#'   'warning', 'message', or 'none'. If not "stop", then overlapping intervals
-#'   will be dropped and the function continues.
+#'   When aggregating/scaling an interval variable or `collapse_interval_cols=TRUE`
+#'   what should happen when overlapping intervals are identified? Can be either
+#'   'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+#'   section on 'Severity Arguments' for more information.
+#' @param na_value_severity \[`character(1)`\]\cr
+#'   What should happen when 'NA' values are present in `value_cols`? Can be
+#'   either 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'.
+#'   See section on 'Severity Arguments' for more information.
 #' @param collapse_interval_cols \[`logical(1)`\]\cr
 #'   Whether to collapse interval `id_cols` (not including `col_stem` if it is
 #'   an interval variable). Default is 'False'. If set to 'True' the interval
@@ -56,6 +54,53 @@
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns for
 #'   requested aggregates or with scaled values.
+#'
+#' @section Severity Arguments:
+#' **`missing_dt_severity`**:
+#'
+#' Check for missing levels of `col_stem`, the variable being aggregated or
+#' scaled over.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message and continue with
+#' aggregation/scaling where possible.
+#' 3. `none`: don't throw error or warning, continue with aggregation/scaling
+#' where possible.
+#' 4. `skip`: skip this check and continue with aggregation/scaling.
+#'
+#' **`present_agg_severity`** (`agg` only):
+#'
+#' Check for requested aggregates in `mapping` that are already present
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop aggregates and continue
+#' with aggregation.
+#' 3. `none`: don't throw error or warning, drop aggregates and continue with
+#' aggregation.
+#' 4. `skip`: skip this check and add to the values already present for the
+#' aggregates.
+#'
+#' **`na_value_severity`**:
+#'
+#' Check for 'NA' values in the `value_cols`.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop missing values and
+#' continue with aggregation/scaling where possible (this likely will cause
+#' another error because of `missing_dt_severity`.
+#' 3. `none`: don't throw error or warning, drop missing values and continue
+#' with aggregation/scaling where possible (this likely will cause another error
+#' because of `missing_dt_severity`.
+#' 4. `skip`: skip this check and propagate `NA` values through
+#' aggregation/scaling.
+#'
+#' **`overlapping_dt_severity`**:
+#' Check for overlapping intervals that prevent collapsing to the most detailed
+#' common set of intervals. Or check for overlapping intervals in `col_stem`
+#' when aggregating/scaling.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop overlapping intervals
+#' and continue with aggregation/scaling.
+#' 3 `none`: don't throw error or warning, drop overlapping intervals and
+#' continue with aggregation/scaling.
+#' 4. `skip`: skip this check and continue with aggregation/scaling.
 #'
 #' @details
 #' The `agg` function can be used to aggregate to different levels of a pre

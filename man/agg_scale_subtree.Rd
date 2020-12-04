@@ -57,18 +57,16 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 \code{\link[=create_scale_subtrees]{create_scale_subtrees()}}.}
 
 \item{missing_dt_severity}{[\code{character(1)}]\cr
-How severe should the consequences of missing data that prevents
-aggregation or scaling from occurring be? Can be either 'skip', 'stop',
-'warning', 'message', or 'none'. If 'skip', the checks for missing data are
-skipped. If not 'stop', then only the possible aggregations or scaling is
-done using the available data.}
+What should happen when \code{dt} is missing levels of \code{col_stem} that
+prevent aggregation or scaling from occurring? Can be either 'skip',
+'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+'Severity Arguments' for more information.}
 
 \item{overlapping_dt_severity}{[\code{character(1)}]\cr
-When \code{collapse_interval_cols = TRUE}, how severe should the consequences of
-overlapping intervals that change or prevent collapsing to the most
-detailed common set of intervals be? Can be either 'skip', 'stop',
-'warning', 'message', or 'none'. If not "stop", then overlapping intervals
-will be dropped and the function continues.}
+When aggregating/scaling an interval variable or \code{collapse_interval_cols=TRUE}
+what should happen when overlapping intervals are identified? Can be either
+'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+section on 'Severity Arguments' for more information.}
 
 \item{collapse_interval_cols}{[\code{logical(1)}]\cr
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is

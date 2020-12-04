@@ -41,11 +41,10 @@ collapsing to the most detailed common set of intervals be? Can be either
 intervals that can be correctly collapsed will be done.}
 
 \item{overlapping_dt_severity}{[\code{character(1)}]\cr
-When \code{collapse_interval_cols = TRUE}, how severe should the consequences of
-overlapping intervals that change or prevent collapsing to the most
-detailed common set of intervals be? Can be either 'skip', 'stop',
-'warning', 'message', or 'none'. If not "stop", then overlapping intervals
-will be dropped and the function continues.}
+When aggregating/scaling an interval variable or \code{collapse_interval_cols=TRUE}
+what should happen when overlapping intervals are identified? Can be either
+'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+section on 'Severity Arguments' for more information.}
 
 \item{include_missing}{[\code{logical(1)}]\cr
 Whether to include missing intervals in the identified most detailed common
