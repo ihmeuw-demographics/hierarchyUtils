@@ -415,6 +415,70 @@ test_that(description, {
   expect_identical(output_dt, expected_dt_iran2)
 })
 
+# Test `na_value_severity` argument ---------------------------------------
+
+id_cols <- c("group", "age_start", "age_end")
+value_cols <- "value"
+
+input_dt <- data.table(
+  group = c(1, 1, 2, 2),
+  age_start = c(0, 1, 0, 1),
+  age_end = c(1, 2, 1, 2),
+  value = c(NA, 1, 2, 3)
+)
+
+expected_dt <- data.table(
+  group = c(1, 2),
+  age_start = c(0, 0),
+  age_end = c(2, 2),
+  value = c(NA, 5)
+)
+
+description <- "aggregation correctly accounts for NA values with the
+'na_value_severity' argument"
+test_that(description, {
+  expect_error(
+    agg(
+      dt = input_dt,
+      id_cols = id_cols, value_cols = value_cols,
+      col_stem = "age", col_type = "interval",
+      mapping = data.table(age_start = 0, age_end = 2)
+    ),
+    regexp = "input `value_cols` have 'NA' values"
+  )
+
+  expect_error(
+    agg(
+      dt = input_dt,
+      id_cols = id_cols, value_cols = value_cols,
+      col_stem = "age", col_type = "interval",
+      mapping = data.table(age_start = 0, age_end = 2),
+      na_value_severity = "none"
+    ),
+    regexp = "expected input data is missing"
+  )
+  output_dt <- agg(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "age", col_type = "interval",
+    mapping = data.table(age_start = 0, age_end = 2),
+    na_value_severity = "none",
+    missing_dt_severity = "skip"
+  )
+  new_expected_dt <- copy(expected_dt)
+  new_expected_dt[group == 1 & is.na(value), value := 1]
+  expect_equal(output_dt, new_expected_dt)
+
+  output_dt <- agg(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "age", col_type = "interval",
+    mapping = data.table(age_start = 0, age_end = 2),
+    na_value_severity = "skip"
+  )
+  expect_equal(output_dt, expected_dt)
+})
+
 # Small special case tests ------------------------------------------------
 
 # set up test input data.table

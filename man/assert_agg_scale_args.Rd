@@ -14,6 +14,7 @@ assert_agg_scale_args(
   agg_function,
   missing_dt_severity,
   overlapping_dt_severity,
+  na_value_severity,
   collapse_interval_cols,
   functionality
 )

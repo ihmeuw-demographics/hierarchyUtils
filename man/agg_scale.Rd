@@ -17,6 +17,7 @@ agg(
   missing_dt_severity = "stop",
   present_agg_severity = "stop",
   overlapping_dt_severity = "stop",
+  na_value_severity = "stop",
   collapse_interval_cols = FALSE
 )
 
@@ -30,6 +31,7 @@ scale(
   agg_function = sum,
   missing_dt_severity = "stop",
   overlapping_dt_severity = "stop",
+  na_value_severity = "stop",
   collapse_interval_cols = FALSE,
   collapse_missing = FALSE
 )

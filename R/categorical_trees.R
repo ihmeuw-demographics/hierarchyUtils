@@ -591,6 +591,7 @@ scale_subtree <- function(dt,
     missing_dt_severity,
     expected_col_stem = parent
   )
+  parent_dt[, data_exists := NULL]
 
   # aggregate children to parent level
   sum_children_dt <- agg_subtree(
@@ -652,8 +653,8 @@ scale_subtree <- function(dt,
     children_dt <- subtree_dt[get(col_stem) %in% children] # uncollapsed data
   }
 
-  # calculate scaled child node values
   scaled_dt <- merge(children_dt, sf_dt, by = scalar_by_id_cols, all = T)
+  # calculate scaled child node values
   for (col in 1:length(value_cols)) {
     scaled_dt[, scaled_value_cols[col] := get(value_cols[col]) * get(scaling_factor_value_cols[col])]
   }

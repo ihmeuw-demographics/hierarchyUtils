@@ -124,10 +124,6 @@ test_that(description, {
 
   new_input_dt <- input_dt[!(age_start == 24 & year_start == 2008) &
                              !(age_start == 46 & year_start == 2006)]
-  new_expected_dt <- copy(expected_dt)
-  new_expected_dt <- new_expected_dt[!(age_start == 24 & year_start == 2008) &
-                                       !(age_start == 46 & year_start == 2006)]
-  new_expected_dt[between(age_start, 15, 59) & sex != "all", value := value / 2]
 
   expect_error(
     scale(
@@ -142,6 +138,10 @@ test_that(description, {
     regexp = "intervals in `dt` are missing making it impossible to collapse"
   )
 
+  new_expected_dt <- copy(expected_dt)
+  new_expected_dt <- new_expected_dt[!(age_start == 24 & year_start == 2008) &
+                                       !(age_start == 46 & year_start == 2006)]
+  new_expected_dt[between(age_start, 15, 59) & sex != "all", value := value / 2]
   output_dt <- scale(
     dt = new_input_dt,
     id_cols = id_cols,
@@ -488,6 +488,66 @@ test_that(description, {
     ),
     regexp = "expected input data is missing"
   )
+})
+
+# Test `na_value_severity` argument ---------------------------------------
+
+id_cols <- c("group", "age_start", "age_end")
+value_cols <- "value"
+
+input_dt <- data.table(
+  group = c(1, 1, 1, 2, 2, 2),
+  age_start = c(0, 1, 0, 0, 1, 0),
+  age_end = c(1, 2, 2, 1, 2, 2),
+  value = c(NA, 1, 2, 2, 3, 10)
+)
+setkeyv(input_dt, id_cols)
+
+expected_dt <- copy(input_dt)
+expected_dt[!(age_start == 0 & age_end == 2), value := value * 2]
+setkeyv(expected_dt, id_cols)
+
+description <- "aggregation correctly accounts for NA values with the
+'na_value_severity' argument"
+test_that(description, {
+  expect_error(
+    scale(
+      dt = input_dt,
+      id_cols = id_cols, value_cols = value_cols,
+      col_stem = "age", col_type = "interval"
+    ),
+    regexp = "input `value_cols` have 'NA' values"
+  )
+
+  expect_error(
+    scale(
+      dt = input_dt,
+      id_cols = id_cols, value_cols = value_cols,
+      col_stem = "age", col_type = "interval",
+      na_value_severity = "none"
+    ),
+    regexp = "expected input data is missing"
+  )
+  output_dt <- scale(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "age", col_type = "interval",
+    na_value_severity = "none",
+    missing_dt_severity = "skip"
+  )
+  new_expected_dt <- copy(expected_dt)
+  new_expected_dt <- new_expected_dt[!is.na(value)]
+  expect_equal(output_dt, new_expected_dt)
+
+  output_dt <- scale(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "age", col_type = "interval",
+    na_value_severity = "skip"
+  )
+  new_expected_dt <- copy(expected_dt)
+  new_expected_dt[group == 1 & !(age_start == 0 & age_end == 2), value := NA]
+  expect_equal(output_dt, new_expected_dt)
 })
 
 # Small special case tests ------------------------------------------------

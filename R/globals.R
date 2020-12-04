@@ -8,4 +8,4 @@ utils::globalVariables(c("start", "end", "available_vars",
                          "data_exists", "data_expected",
                          "common_start", "common_end",
                          "vis_group", "colour", "full",
-                         "N"))
+                         "N", "na.omit"))
