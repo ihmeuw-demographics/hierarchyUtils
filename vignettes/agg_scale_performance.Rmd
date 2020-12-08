@@ -1,0 +1,175 @@
+---
+title: "Aggregation/Scaling performance"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Aggregation/Scaling performance}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+Aggregations and scaling with `hierarchyUtils` should perform as fast as basic data.table code.
+For basic use cases there should only be slightly more overhead due to the assertions and added flexibility included in `hierarchyUtils`.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo = FALSE,
+  message = FALSE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(hierarchyUtils)
+library(data.table)
+
+profile_n_draws <- c(1, 10)
+```
+
+```{r time_aggregation_function}
+time_aggregation <- function(n_draws,
+                             id_vars,
+                             col_stem,
+                             col_type,
+                             mapping) {
+  
+  # create input dataset
+  id_vars <- copy(id_vars)
+  id_vars[["draw"]] <- 1:n_draws
+  input_dt <- do.call(CJ, id_vars)
+  
+  # add interval end columns
+  input_dt[, year_end := year_start + 1]
+  input_dt[, age_end := age_start + 1]
+  input_dt[age_start == 95, age_end := Inf]
+  
+  # identify value and id cols
+  value_cols <- grep("value", names(input_dt), value = TRUE)
+  id_cols <- names(input_dt)[!names(input_dt) %in% value_cols]
+  
+  # time hierarchyUtils aggregation function
+  start_time <- proc.time()
+  hierarchyUtils_output_dt <- agg(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = col_stem, col_type = col_type,
+    mapping = mapping
+  )
+  end_time <- proc.time()
+  hierarchyUtils_time <- end_time - start_time
+  
+  # time basic data.table aggregation
+  start_time <- proc.time()
+  
+  cols <- col_stem
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
+  }
+  by_id_cols <- id_cols[!id_cols %in% cols]
+
+  if (col_type == "interval") {
+    
+    data.table_output_dt <- lapply(1:nrow(mapping), function(i) {
+      start_bound <- mapping[i, get(cols[1])]
+      end_bound <- mapping[i, get(cols[2])]
+    
+      agg_dt <- input_dt[
+        get(cols[1]) >= start_bound & get(cols[2]) <= end_bound,
+        lapply(.SD, sum), .SDcols = value_cols,
+        by = by_id_cols
+      ]
+      agg_dt[, c(cols) := list(start_bound, end_bound)]
+      return(agg_dt)
+    })
+    data.table_output_dt <- rbindlist(data.table_output_dt)
+    
+  } else {
+    
+    data.table_output_dt <- input_dt[
+      get(col_stem) %in% mapping[, child],
+      lapply(.SD, sum), .SDcols = value_cols,
+      by = by_id_cols
+    ]
+    data.table_output_dt[, c(col_stem) := list(mapping[, unique(parent)])]
+  }
+  end_time <- proc.time()
+  data.table_time <- end_time - start_time
+  
+  # check that outputs are the same
+  setcolorder(hierarchyUtils_output_dt, c(id_cols, value_cols))
+  setkeyv(hierarchyUtils_output_dt, id_cols)
+  setcolorder(data.table_output_dt, c(id_cols, value_cols))
+  setkeyv(data.table_output_dt, id_cols)
+  testthat::expect_identical(hierarchyUtils_output_dt, data.table_output_dt)
+
+  # compile together timings in formatted table
+  timings <- lapply(c("hierarchyUtils", "data.table"), function(method) {
+    elapsed_time <- get(paste0(method, "_time"))
+    elapsed_time <- as.list(elapsed_time)
+    setDT(elapsed_time)
+    elapsed_time[, method := method]
+    elapsed_time[, c("col_stem", "col_type") := list(col_stem, col_type)]
+    elapsed_time[, n_draws := format(n_draws, big.mark = ",", scientific = FALSE)]
+    elapsed_time[, n_input_rows := format(nrow(input_dt), big.mark = ",", scientific = FALSE)]
+  })
+  timings <- rbindlist(timings)
+  return(timings)
+}
+```
+
+```{r time_aggregations}
+# default variables for aggregation timings
+age_mapping <- data.table(age_start = c(0, seq(0, 90, 5)), age_end = c(Inf, seq(5, 95, 5)))
+sex_mapping <- data.table(parent = "all", child = c("male", "female"))
+agg_id_vars <- list(
+  location = 1,
+  year_start = seq(1950, 2020, 1),
+  sex = c("male", "female"),
+  age_start = seq(0, 95, 1),
+  value1 = 1, value2 = 1
+)
+
+agg_timings <- lapply(profile_n_draws, function(n_draws) {
+  draw_timings <- list(
+    age_timing <- time_aggregation(
+      n_draws = n_draws,
+      id_vars = agg_id_vars,
+      col_stem = "age", col_type = "interval",
+      mapping = age_mapping
+    ),
+    sex_timing <- time_aggregation(
+      n_draws = n_draws,
+      id_vars = agg_id_vars,
+      col_stem = "sex", col_type = "categorical",
+      mapping = sex_mapping
+    )
+  )
+  draw_timings <- rbindlist(draw_timings)
+  return(draw_timings)
+})
+agg_timings <- rbindlist(agg_timings)
+```
+
+## Aggregation timing comparison
+
+This vignette makes aggregation timing comparisons between `hierarchyUtils` and `data.table` for example input data when aggregating across an interval variable like 'age' or a categorical variable like 'sex'.
+The example input data increases in size as more draws are added.
+
+### Example input data
+
+```{r example_input_data}
+# create input dataset
+agg_id_vars <- copy(agg_id_vars)
+agg_id_vars[["draw"]] <- 1:1
+input_dt <- do.call(CJ, agg_id_vars)
+input_dt
+```
+
+### Timing comparison
+
+```{r display_agg_timings, results="asis"}
+setcolorder(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows"))
+setkeyv(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows"))
+agg_timings[, c("user.child", "sys.child") := NULL]
+knitr::kable(agg_timings, )
+```
