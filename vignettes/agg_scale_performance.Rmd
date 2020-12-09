@@ -23,10 +23,22 @@ knitr::opts_chunk$set(
 library(hierarchyUtils)
 library(data.table)
 
-profile_n_draws <- c(1, 10)
+profile_n_draws <- c(1, 10, 100, 1000)
 ```
 
 ```{r time_aggregation_function}
+#' @title Helper function to time `hierarchyUtils::agg` and basic data.table
+#'   aggregation.
+#'
+#' @param n_draws \[`integer(1)`\]\cr
+#'   Number of draws to expand `id_vars` by.
+#' @param id_vars \[`list(1)`\]\cr
+#'   List of variables to expand to use as test input dataset. `id_vars` is
+#'   passed to `data.table::CJ`. Assumed to not include 'draw'. Assumed to include
+#'   'age_start' & 'year_start' but not the end variables.
+#' @inheritParams hierarchyUtils::agg
+#'
+#' @return \[`data.table(1)`\] containing summary information about the timing results.
 time_aggregation <- function(n_draws,
                              id_vars,
                              col_stem,
@@ -109,7 +121,7 @@ time_aggregation <- function(n_draws,
     setDT(elapsed_time)
     elapsed_time[, method := method]
     elapsed_time[, c("col_stem", "col_type") := list(col_stem, col_type)]
-    elapsed_time[, n_draws := format(n_draws, big.mark = ",", scientific = FALSE)]
+    elapsed_time[, n_draws := n_draws]
     elapsed_time[, n_input_rows := format(nrow(input_dt), big.mark = ",", scientific = FALSE)]
   })
   timings <- rbindlist(timings)
@@ -168,8 +180,8 @@ input_dt
 ### Timing comparison
 
 ```{r display_agg_timings, results="asis"}
-setcolorder(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows"))
+setcolorder(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows", "elapsed"))
 setkeyv(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows"))
 agg_timings[, c("user.child", "sys.child") := NULL]
-knitr::kable(agg_timings, )
+knitr::kable(agg_timings)
 ```
