@@ -701,11 +701,7 @@ check_agg_scale_subtree_dt <- function(dt,
   # combine actual and expected datasets
   dt[, data_exists := TRUE]
   diagnostic_id_cols <- c(by_id_cols, col_stem)
-  diagnostic_dt <- merge(
-    dt, expected_dt,
-    all = T,
-    by = diagnostic_id_cols
-  )
+  diagnostic_dt <- dt[expected_dt, on = diagnostic_id_cols]
   diagnostic_dt[is.na(data_exists), data_exists := FALSE]
   diagnostic_dt[is.na(data_expected), data_expected := FALSE]
 
