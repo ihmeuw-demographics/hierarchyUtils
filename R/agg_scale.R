@@ -243,16 +243,22 @@ agg <- function(dt,
     col_type = col_type
   )
 
-  # aggregate children to parents for sub-trees where aggregation possible
+  # create object to collect aggregated results
   result_dt <- dt[0]
+  if (col_type == "interval") result_dt <- vector("list", length(subtrees))
+
+  # aggregate children to parents for sub-trees where aggregation possible
   for (i in 1:length(subtrees)) {
 
     subtree <- subtrees[[i]]
     message("Aggregate ", i, " of ", length(subtrees), ": ", subtree$name)
 
-    # append already aggregated data to grouping dt so that next subtree has
-    # access
-    agg_data <- rbind(dt, result_dt, use.names= T)
+    # categorical aggregation may depend on a previous subtree aggregation results
+    # append already aggregated data to grouping dt so that next subtree has access
+    agg_data <- dt
+    if (col_type == "categorical") {
+      agg_data <- rbind(dt, result_dt, use.names= T)
+    }
 
     # check if aggregation is possible given available data
     if (!subtree$agg_possible) {
@@ -322,9 +328,16 @@ agg <- function(dt,
     }
 
     # append to final aggregated data to return
-    result_dt <- rbind(result_dt, aggregated_same_groupings_dt, use.names = T)
+    if (col_type == "categorical") {
+      result_dt <- rbind(result_dt, aggregated_same_groupings_dt, use.names = T)
+    } else if (col_type == "interval") {
+      result_dt[[i]] <- aggregated_same_groupings_dt
+    }
   }
-  if (col_type == "interval") result_dt[, c(col_stem) := NULL]
+  if (col_type == "interval") {
+    result_dt <- rbindlist(result_dt)
+    result_dt[, c(col_stem) := NULL]
+  }
 
   data.table::setcolorder(result_dt, original_col_order)
   data.table::setkeyv(result_dt, original_keys)
