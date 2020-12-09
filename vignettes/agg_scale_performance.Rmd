@@ -180,7 +180,7 @@ input_dt
 ### Timing comparison
 
 ```{r display_agg_timings, results="asis"}
-setcolorder(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows", "elapsed"))
+setcolorder(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows"))
 setkeyv(agg_timings, c("col_stem", "col_type", "n_draws", "method", "n_input_rows"))
 agg_timings[, c("user.child", "sys.child") := NULL]
 knitr::kable(agg_timings)
