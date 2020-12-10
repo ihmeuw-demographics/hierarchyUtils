@@ -694,6 +694,8 @@ check_agg_scale_subtree_dt <- function(dt,
   expected_col_stem <- utils::type.convert(x = expected_col_stem, col_value_type)
 
   # determine the expected dataset
+  # TODO: switch to official data.table CJ with data.table inputs once available
+  # https://github.com/Rdatatable/data.table/issues/1717
   expected_dt <- dt[, list(col_stem = expected_col_stem), by = by_id_cols]
   data.table::setnames(expected_dt, "col_stem", col_stem)
   expected_dt[, data_expected := TRUE]
@@ -701,11 +703,7 @@ check_agg_scale_subtree_dt <- function(dt,
   # combine actual and expected datasets
   dt[, data_exists := TRUE]
   diagnostic_id_cols <- c(by_id_cols, col_stem)
-  diagnostic_dt <- merge(
-    dt, expected_dt,
-    all = T,
-    by = diagnostic_id_cols
-  )
+  diagnostic_dt <- dt[expected_dt, on = diagnostic_id_cols]
   diagnostic_dt[is.na(data_exists), data_exists := FALSE]
   diagnostic_dt[is.na(data_expected), data_expected := FALSE]
 
