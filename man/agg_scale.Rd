@@ -176,9 +176,11 @@ scaled over.
 \enumerate{
 \item \code{stop}: throw error (this is the default).
 \item \code{warning} or \code{message}: throw warning/message and continue with
-aggregation/scaling where possible.
+aggregation/scaling for requested aggregations/scalings where expected input
+data in \code{dt} is available.
 \item \code{none}: don't throw error or warning, continue with aggregation/scaling
-where possible.
+for requested aggregations/scalings where expected input data in \code{dt} is
+available.
 \item \code{skip}: skip this check and continue with aggregation/scaling.
 }
 
@@ -202,10 +204,12 @@ Check for 'NA' values in the \code{value_cols}.
 \item \code{stop}: throw error (this is the default).
 \item \code{warning} or \code{message}: throw warning/message, drop missing values and
 continue with aggregation/scaling where possible (this likely will cause
-another error because of \code{missing_dt_severity}.
+another error because of \code{missing_dt_severity}, consider setting
+\code{missing_dt_severity = "skip"} for functionality similiar to \code{na.rm = TRUE}).
 \item \code{none}: don't throw error or warning, drop missing values and continue
 with aggregation/scaling where possible (this likely will cause another error
-because of \code{missing_dt_severity}.
+because of \code{missing_dt_severity}, consider setting
+\code{missing_dt_severity = "skip"} for functionality similiar to \code{na.rm = TRUE}).
 \item \code{skip}: skip this check and propagate \code{NA} values through
 aggregation/scaling.
 }
@@ -217,9 +221,11 @@ when aggregating/scaling.
 \enumerate{
 \item \code{stop}: throw error (this is the default).
 \item \code{warning} or \code{message}: throw warning/message, drop overlapping intervals
-and continue with aggregation/scaling.
+and continue with aggregation/scaling where possible (this may cause another
+error because of \code{missing_dt_severity}).
 3 \code{none}: don't throw error or warning, drop overlapping intervals and
-continue with aggregation/scaling.
+continue with aggregation/scaling where possible (this may cause another
+error because of \code{missing_dt_severity}).
 \item \code{skip}: skip this check and continue with aggregation/scaling.
 }
 }

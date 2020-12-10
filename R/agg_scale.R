@@ -62,9 +62,11 @@
 #' scaled over.
 #' 1. `stop`: throw error (this is the default).
 #' 2. `warning` or `message`: throw warning/message and continue with
-#' aggregation/scaling where possible.
+#' aggregation/scaling for requested aggregations/scalings where expected input
+#' data in `dt` is available.
 #' 3. `none`: don't throw error or warning, continue with aggregation/scaling
-#' where possible.
+#' for requested aggregations/scalings where expected input data in `dt` is
+#' available.
 #' 4. `skip`: skip this check and continue with aggregation/scaling.
 #'
 #' **`present_agg_severity`** (`agg` only):
@@ -84,10 +86,12 @@
 #' 1. `stop`: throw error (this is the default).
 #' 2. `warning` or `message`: throw warning/message, drop missing values and
 #' continue with aggregation/scaling where possible (this likely will cause
-#' another error because of `missing_dt_severity`.
+#' another error because of `missing_dt_severity`, consider setting
+#' `missing_dt_severity = "skip"` for functionality similiar to `na.rm = TRUE`).
 #' 3. `none`: don't throw error or warning, drop missing values and continue
 #' with aggregation/scaling where possible (this likely will cause another error
-#' because of `missing_dt_severity`.
+#' because of `missing_dt_severity`, consider setting
+#' `missing_dt_severity = "skip"` for functionality similiar to `na.rm = TRUE`).
 #' 4. `skip`: skip this check and propagate `NA` values through
 #' aggregation/scaling.
 #'
@@ -97,9 +101,11 @@
 #' when aggregating/scaling.
 #' 1. `stop`: throw error (this is the default).
 #' 2. `warning` or `message`: throw warning/message, drop overlapping intervals
-#' and continue with aggregation/scaling.
+#' and continue with aggregation/scaling where possible (this may cause another
+#' error because of `missing_dt_severity`).
 #' 3 `none`: don't throw error or warning, drop overlapping intervals and
-#' continue with aggregation/scaling.
+#' continue with aggregation/scaling where possible (this may cause another
+#' error because of `missing_dt_severity`).
 #' 4. `skip`: skip this check and continue with aggregation/scaling.
 #'
 #' @details
