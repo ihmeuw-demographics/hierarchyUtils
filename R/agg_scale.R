@@ -193,6 +193,7 @@ agg <- function(dt,
 
   dt <- copy(dt)
   mapping <- copy(mapping)
+  data.table::setkeyv(dt, cols = id_cols)
 
   message("Aggregating ", col_stem)
 
@@ -218,16 +219,20 @@ agg <- function(dt,
         overlapping_dt_severity = overlapping_dt_severity,
         include_missing = TRUE
       )
+      dt_intervals <- unique(dt[, .SD, .SDcols = cols])
     }
 
     # create one column to describe each interval
     gen_name(mapping, col_stem = col_stem, format = "interval")
     data.table::setnames(mapping, paste0(col_stem, "_name"), col_stem)
-    gen_name(dt, col_stem = col_stem, format = "interval")
-    data.table::setnames(dt, paste0(col_stem, "_name"), col_stem)
+
+    # create one column to describe each interval
+    gen_name(dt_intervals, col_stem = col_stem, format = "interval")
+    data.table::setnames(dt_intervals, paste0(col_stem, "_name"), col_stem)
+    data.table::setkeyv(dt_intervals, cols)
+    dt <- dt[dt_intervals, on = cols, nomatch = 0]
 
     # create mapping from available interval variables and requested intervals
-    dt_intervals <- unique(dt[, .SD, .SDcols = c(cols, col_stem)])
     interval_tree <- create_agg_interval_tree(
       data_intervals_dt = dt_intervals,
       agg_intervals_dt = mapping,
@@ -243,16 +248,22 @@ agg <- function(dt,
     col_type = col_type
   )
 
-  # aggregate children to parents for sub-trees where aggregation possible
+  # create object to collect aggregated results
   result_dt <- dt[0]
+  if (col_type == "interval") result_dt <- vector("list", length(subtrees))
+
+  # aggregate children to parents for sub-trees where aggregation possible
   for (i in 1:length(subtrees)) {
 
     subtree <- subtrees[[i]]
     message("Aggregate ", i, " of ", length(subtrees), ": ", subtree$name)
 
-    # append already aggregated data to grouping dt so that next subtree has
-    # access
-    agg_data <- rbind(dt, result_dt, use.names= T)
+    # categorical aggregation may depend on a previous subtree aggregation results
+    # append already aggregated data to grouping dt so that next subtree has access
+    agg_data <- dt
+    if (col_type == "categorical") {
+      agg_data <- rbind(dt, result_dt, use.names= T)
+    }
 
     # check if aggregation is possible given available data
     if (!subtree$agg_possible) {
@@ -322,9 +333,16 @@ agg <- function(dt,
     }
 
     # append to final aggregated data to return
-    result_dt <- rbind(result_dt, aggregated_same_groupings_dt, use.names = T)
+    if (col_type == "categorical") {
+      result_dt <- rbind(result_dt, aggregated_same_groupings_dt, use.names = T)
+    } else if (col_type == "interval") {
+      result_dt[[i]] <- aggregated_same_groupings_dt
+    }
   }
-  if (col_type == "interval") result_dt[, c(col_stem) := NULL]
+  if (col_type == "interval") {
+    result_dt <- rbindlist(result_dt)
+    result_dt[, c(col_stem) := NULL]
+  }
 
   data.table::setcolorder(result_dt, original_col_order)
   data.table::setkeyv(result_dt, original_keys)
@@ -363,6 +381,7 @@ scale <- function(dt,
 
   dt <- copy(dt)
   mapping <- copy(mapping)
+  data.table::setkeyv(dt, id_cols)
 
   message("Scaling ", col_stem)
 
@@ -372,11 +391,13 @@ scale <- function(dt,
     cols <- paste0(col_stem, "_", c("start", "end"))
 
     # create one column to describe each interval
-    gen_name(dt, col_stem = col_stem, format = "interval")
-    data.table::setnames(dt, paste0(col_stem, "_name"), col_stem)
+    dt_intervals <- unique(dt[, .SD, .SDcols = cols])
+    gen_name(dt_intervals, col_stem = col_stem, format = "interval")
+    data.table::setnames(dt_intervals, paste0(col_stem, "_name"), col_stem)
+    data.table::setkeyv(dt_intervals, cols)
+    dt <- dt[dt_intervals, on = cols, nomatch = 0]
 
     # create mapping from available interval variables
-    dt_intervals <- unique(dt[, .SD, .SDcols = c(cols, col_stem)])
     interval_tree <- create_scale_interval_tree(
       data_intervals_dt = dt_intervals,
       col_stem = col_stem

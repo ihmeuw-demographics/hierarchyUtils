@@ -95,8 +95,10 @@ gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
   assertthat::assert_that(!end_col %in% names(dt),
                           msg = paste0("'", end_col,
                                        "' column already in `dt`"))
-  assertive::assert_is_numeric(dt[[start_col]])
-  assertive::assert_all_are_not_na(dt[[start_col]])
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[start_col]]),
+    all(!is.na(dt[[start_col]]))
+  )
   demUtils::assert_is_unique_dt(dt, id_cols)
 
   # Calculate left-closed endpoints -----------------------------------------
@@ -128,8 +130,10 @@ gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
   data.table::setnames(dt, "start_col", start_col)
 
   # check new column
-  assertive::assert_is_numeric(dt[[end_col]])
-  assertive::assert_all_are_not_na(dt[[end_col]])
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[end_col]]),
+    all(!is.na(dt[[end_col]]))
+  )
 
   # put end_col to the right of start_col
   new_col_order <- append(original_col_order, end_col,
@@ -162,10 +166,14 @@ gen_length <- function(dt, col_stem) {
   assertthat::assert_that(!length_col %in% names(dt),
                           msg = paste0("'", length_col,
                                        "' column already in `dt`"))
-  assertive::assert_is_numeric(dt[[start_col]])
-  assertive::assert_all_are_not_na(dt[[start_col]])
-  assertive::assert_is_numeric(dt[[end_col]])
-  assertive::assert_all_are_not_na(dt[[end_col]])
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[start_col]]),
+    all(!is.na(dt[[start_col]]))
+  )
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[end_col]]),
+    all(!is.na(dt[[end_col]]))
+  )
 
   # Calculate interval length column ----------------------------------------
 
@@ -179,8 +187,10 @@ gen_length <- function(dt, col_stem) {
   data.table::setnames(dt, "length_col", length_col)
 
   # check new column
-  assertive::assert_is_numeric(dt[[length_col]])
-  assertive::assert_all_are_not_na(dt[[length_col]])
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[length_col]]),
+    all(!is.na(dt[[length_col]]))
+  )
 
   # put length_col to the right of end_col
   new_col_order <- append(original_col_order, length_col,
@@ -236,10 +246,14 @@ gen_name <- function(dt,
   assertthat::assert_that(!name_col %in% names(dt),
                           msg = paste0("'", name_col,
                                        "' column already in `dt`"))
-  assertive::assert_is_numeric(dt[[start_col]])
-  assertive::assert_all_are_not_na(dt[[start_col]])
-  assertive::assert_is_numeric(dt[[end_col]])
-  assertive::assert_all_are_not_na(dt[[end_col]])
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[start_col]]),
+    all(!is.na(dt[[start_col]]))
+  )
+  assertthat::assert_that(
+    assertive::is_numeric(dt[[end_col]]),
+    all(!is.na(dt[[end_col]]))
+  )
 
   # Calculate age name column -----------------------------------------------
 
@@ -269,7 +283,9 @@ gen_name <- function(dt,
 
   # check new column
   assertive::assert_is_character(dt[[name_col]])
-  assertive::assert_all_are_not_na(dt[[name_col]])
+  assertthat::assert_that(
+    all(!is.na(dt[[name_col]]))
+  )
 
   # put name_col to the right of end_col
   new_col_order <- append(original_col_order, name_col,
