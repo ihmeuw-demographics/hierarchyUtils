@@ -545,10 +545,13 @@ scale <- function(dt,
                 by = id_cols_with_stem, all = T)
     children <- names(subtree$children)
     for (value_col in value_cols) {
-      dt[get(col_stem) %in% children,
-         paste0(value_col) := get(paste0(value_col, "_scaled"))]
+      dt[
+        get(col_stem) %in% children & aggregate_exists,
+        paste0(value_col) := get(paste0(value_col, "_scaled"))
+      ]
       dt[, paste0(value_col, "_scaled") := NULL]
     }
+    dt[, aggregate_exists := NULL]
   }
   if (col_type == "interval") dt[, c(col_stem) := NULL]
 
