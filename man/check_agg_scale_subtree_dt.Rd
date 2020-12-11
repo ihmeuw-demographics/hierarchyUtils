@@ -29,11 +29,10 @@ The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.}
 
 \item{missing_dt_severity}{[\code{character(1)}]\cr
-How severe should the consequences of missing data that prevents
-aggregation or scaling from occurring be? Can be either 'skip', 'stop',
-'warning', 'message', or 'none'. If 'skip', the checks for missing data are
-skipped. If not 'stop', then only the possible aggregations or scaling is
-done using the available data.}
+What should happen when \code{dt} is missing levels of \code{col_stem} that
+prevent aggregation or scaling from occurring? Can be either 'skip',
+'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+'Severity Arguments' for more information.}
 
 \item{expected_col_stem}{[\code{character()}]\cr
 expected values for the \code{col_stem} variable in \code{dt}.}

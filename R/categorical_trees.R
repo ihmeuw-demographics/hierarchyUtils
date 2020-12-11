@@ -606,10 +606,12 @@ scale_subtree <- function(dt,
     collapse_interval_cols
   )
   setnames(sum_children_dt, value_cols, agg_value_cols)
+  sum_children_dt[, aggregate_exists := TRUE]
 
   # combine aggregate child node values and original parent node values
   sf_dt <- merge(parent_dt, sum_children_dt,
                  by = c(by_id_cols, cols), all = T)
+  sf_dt[is.na(aggregate_exists), aggregate_exists := FALSE]
 
   # calculate scaling factor
   if (identical(agg_function, prod)) {
@@ -652,12 +654,12 @@ scale_subtree <- function(dt,
     children_dt <- subtree_dt[get(col_stem) %in% children] # uncollapsed data
   }
 
-  # calculate scaled child node values
   scaled_dt <- merge(children_dt, sf_dt, by = scalar_by_id_cols, all = T)
+  # calculate scaled child node values
   for (col in 1:length(value_cols)) {
     scaled_dt[, scaled_value_cols[col] := get(value_cols[col]) * get(scaling_factor_value_cols[col])]
   }
-  scaled_dt <- scaled_dt[, c(id_cols, scaled_value_cols), with = F]
+  scaled_dt <- scaled_dt[, c(id_cols, scaled_value_cols, "aggregate_exists"), with = F]
   return(scaled_dt)
 }
 

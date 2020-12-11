@@ -17,6 +17,7 @@ agg(
   missing_dt_severity = "stop",
   present_agg_severity = "stop",
   overlapping_dt_severity = "stop",
+  na_value_severity = "stop",
   collapse_interval_cols = FALSE
 )
 
@@ -30,6 +31,7 @@ scale(
   agg_function = sum,
   missing_dt_severity = "stop",
   overlapping_dt_severity = "stop",
+  na_value_severity = "stop",
   collapse_interval_cols = FALSE,
   collapse_missing = FALSE
 )
@@ -63,28 +65,27 @@ Function to use when aggregating, can be either \code{sum} (for counts) or
 \code{prod} (for probabilities).}
 
 \item{missing_dt_severity}{[\code{character(1)}]\cr
-How severe should the consequences of missing data that prevents
-aggregation or scaling from occurring be? Can be either 'skip', 'stop',
-'warning', 'message', or 'none'. If 'skip', the checks for missing data are
-skipped. If not 'stop', then only the possible aggregations or scaling is
-done using the available data.}
+What should happen when \code{dt} is missing levels of \code{col_stem} that
+prevent aggregation or scaling from occurring? Can be either 'skip',
+'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+'Severity Arguments' for more information.}
 
 \item{present_agg_severity}{[\code{logical(1)}]\cr
-How severe should the consequences of aggregate data (versus only the most
-detailed level be)? Can be either 'skip', 'stop', 'warning', 'message',
-or 'none'. If 'skip', then the data will be included in any aggregates
-because the checks will be skipped. If anything else other then 'stop', the
-data will be dropped rather than included in possible aggregations.
-Whether to drop aggregates (or overlapping intervals) that are already
-present in \code{dt} before aggregating. Default is 'False' and the function
-errors out.}
+What should happen when \code{dt} already has requested aggregates (from
+\code{mapping})? Can be either 'skip', 'stop', 'warning', 'message',
+or 'none'. Default is 'stop'. See section on 'Severity Arguments' for more
+information.}
 
 \item{overlapping_dt_severity}{[\code{character(1)}]\cr
-When \code{collapse_interval_cols = TRUE}, how severe should the consequences of
-overlapping intervals that change or prevent collapsing to the most
-detailed common set of intervals be? Can be either 'skip', 'stop',
-'warning', 'message', or 'none'. If not "stop", then overlapping intervals
-will be dropped and the function continues.}
+When aggregating/scaling an interval variable or \code{collapse_interval_cols=TRUE}
+what should happen when overlapping intervals are identified? Can be either
+'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+section on 'Severity Arguments' for more information.}
+
+\item{na_value_severity}{[\code{character(1)}]\cr
+What should happen when 'NA' values are present in \code{value_cols}? Can be
+either 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'.
+See section on 'Severity Arguments' for more information.}
 
 \item{collapse_interval_cols}{[\code{logical(1)}]\cr
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
@@ -166,6 +167,69 @@ The \code{agg} and \code{scale} functions currently only work when combining cou
 probabilities. If the data is in rate-space then you need to convert to count
 space first, aggregate/scale, and then convert back.
 }
+\section{Severity Arguments}{
+
+\strong{\code{missing_dt_severity}}:
+
+Check for missing levels of \code{col_stem}, the variable being aggregated or
+scaled over.
+\enumerate{
+\item \code{stop}: throw error (this is the default).
+\item \code{warning} or \code{message}: throw warning/message and continue with
+aggregation/scaling for requested aggregations/scalings where expected input
+data in \code{dt} is available.
+\item \code{none}: don't throw error or warning, continue with aggregation/scaling
+for requested aggregations/scalings where expected input data in \code{dt} is
+available.
+\item \code{skip}: skip this check and continue with aggregation/scaling.
+}
+
+\strong{\code{present_agg_severity}} (\code{agg} only):
+
+Check for requested aggregates in \code{mapping} that are already present
+\enumerate{
+\item \code{stop}: throw error (this is the default).
+\item \code{warning} or \code{message}: throw warning/message, drop aggregates and continue
+with aggregation.
+\item \code{none}: don't throw error or warning, drop aggregates and continue with
+aggregation.
+\item \code{skip}: skip this check and add to the values already present for the
+aggregates.
+}
+
+\strong{\code{na_value_severity}}:
+
+Check for 'NA' values in the \code{value_cols}.
+\enumerate{
+\item \code{stop}: throw error (this is the default).
+\item \code{warning} or \code{message}: throw warning/message, drop missing values and
+continue with aggregation/scaling where possible (this likely will cause
+another error because of \code{missing_dt_severity}, consider setting
+\code{missing_dt_severity = "skip"} for functionality similiar to \code{na.rm = TRUE}).
+\item \code{none}: don't throw error or warning, drop missing values and continue
+with aggregation/scaling where possible (this likely will cause another error
+because of \code{missing_dt_severity}, consider setting
+\code{missing_dt_severity = "skip"} for functionality similiar to \code{na.rm = TRUE}).
+\item \code{skip}: skip this check and propagate \code{NA} values through
+aggregation/scaling.
+}
+
+\strong{\code{overlapping_dt_severity}}:
+Check for overlapping intervals that prevent collapsing to the most detailed
+common set of intervals. Or check for overlapping intervals in \code{col_stem}
+when aggregating/scaling.
+\enumerate{
+\item \code{stop}: throw error (this is the default).
+\item \code{warning} or \code{message}: throw warning/message, drop overlapping intervals
+and continue with aggregation/scaling where possible (this may cause another
+error because of \code{missing_dt_severity}).
+3 \code{none}: don't throw error or warning, drop overlapping intervals and
+continue with aggregation/scaling where possible (this may cause another
+error because of \code{missing_dt_severity}).
+\item \code{skip}: skip this check and continue with aggregation/scaling.
+}
+}
+
 \examples{
 # aggregate count data from present day Iran provinces to historical
 # provinces and Iran as a whole
