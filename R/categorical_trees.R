@@ -591,7 +591,6 @@ scale_subtree <- function(dt,
     missing_dt_severity,
     expected_col_stem = parent
   )
-  parent_dt[, data_exists := NULL]
 
   # aggregate children to parent level
   sum_children_dt <- agg_subtree(

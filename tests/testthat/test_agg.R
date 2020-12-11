@@ -426,6 +426,7 @@ input_dt <- data.table(
   age_end = c(1, 2, 1, 2),
   value = c(NA, 1, 2, 3)
 )
+setkeyv(input_dt, id_cols)
 
 expected_dt <- data.table(
   group = c(1, 2),
@@ -433,6 +434,7 @@ expected_dt <- data.table(
   age_end = c(2, 2),
   value = c(NA, 5)
 )
+setkeyv(expected_dt, id_cols)
 
 description <- "aggregation correctly accounts for NA values with the
 'na_value_severity' argument"
