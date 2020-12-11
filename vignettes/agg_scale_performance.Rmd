@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 library(hierarchyUtils)
 library(data.table)
 
-profile_n_draws <- c(1, 10, 100, 1000)
+profile_n_draws <- c(1, 10, 100)
 ```
 
 ```{r time_aggregation_function}

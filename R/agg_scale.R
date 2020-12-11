@@ -27,26 +27,24 @@
 #'   Function to use when aggregating, can be either `sum` (for counts) or
 #'   `prod` (for probabilities).
 #' @param missing_dt_severity \[`character(1)`\]\cr
-#'   How severe should the consequences of missing data that prevents
-#'   aggregation or scaling from occurring be? Can be either 'skip', 'stop',
-#'   'warning', 'message', or 'none'. If 'skip', the checks for missing data are
-#'   skipped. If not 'stop', then only the possible aggregations or scaling is
-#'   done using the available data.
+#'   What should happen when `dt` is missing levels of `col_stem` that
+#'   prevent aggregation or scaling from occurring? Can be either 'skip',
+#'   'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+#'   'Severity Arguments' for more information.
 #' @param present_agg_severity \[`logical(1)`\]\cr
-#'   How severe should the consequences of aggregate data (versus only the most
-#'   detailed level be)? Can be either 'skip', 'stop', 'warning', 'message',
-#'   or 'none'. If 'skip', then the data will be included in any aggregates
-#'   because the checks will be skipped. If anything else other then 'stop', the
-#'   data will be dropped rather than included in possible aggregations.
-#'   Whether to drop aggregates (or overlapping intervals) that are already
-#'   present in `dt` before aggregating. Default is 'False' and the function
-#'   errors out.
+#'   What should happen when `dt` already has requested aggregates (from
+#'   `mapping`)? Can be either 'skip', 'stop', 'warning', 'message',
+#'   or 'none'. Default is 'stop'. See section on 'Severity Arguments' for more
+#'   information.
 #' @param overlapping_dt_severity \[`character(1)`\]\cr
-#'   When `collapse_interval_cols = TRUE`, how severe should the consequences of
-#'   overlapping intervals that change or prevent collapsing to the most
-#'   detailed common set of intervals be? Can be either 'skip', 'stop',
-#'   'warning', 'message', or 'none'. If not "stop", then overlapping intervals
-#'   will be dropped and the function continues.
+#'   When aggregating/scaling an interval variable or `collapse_interval_cols=TRUE`
+#'   what should happen when overlapping intervals are identified? Can be either
+#'   'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+#'   section on 'Severity Arguments' for more information.
+#' @param na_value_severity \[`character(1)`\]\cr
+#'   What should happen when 'NA' values are present in `value_cols`? Can be
+#'   either 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'.
+#'   See section on 'Severity Arguments' for more information.
 #' @param collapse_interval_cols \[`logical(1)`\]\cr
 #'   Whether to collapse interval `id_cols` (not including `col_stem` if it is
 #'   an interval variable). Default is 'False'. If set to 'True' the interval
@@ -56,6 +54,59 @@
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns for
 #'   requested aggregates or with scaled values.
+#'
+#' @section Severity Arguments:
+#' **`missing_dt_severity`**:
+#'
+#' Check for missing levels of `col_stem`, the variable being aggregated or
+#' scaled over.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message and continue with
+#' aggregation/scaling for requested aggregations/scalings where expected input
+#' data in `dt` is available.
+#' 3. `none`: don't throw error or warning, continue with aggregation/scaling
+#' for requested aggregations/scalings where expected input data in `dt` is
+#' available.
+#' 4. `skip`: skip this check and continue with aggregation/scaling.
+#'
+#' **`present_agg_severity`** (`agg` only):
+#'
+#' Check for requested aggregates in `mapping` that are already present
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop aggregates and continue
+#' with aggregation.
+#' 3. `none`: don't throw error or warning, drop aggregates and continue with
+#' aggregation.
+#' 4. `skip`: skip this check and add to the values already present for the
+#' aggregates.
+#'
+#' **`na_value_severity`**:
+#'
+#' Check for 'NA' values in the `value_cols`.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop missing values and
+#' continue with aggregation/scaling where possible (this likely will cause
+#' another error because of `missing_dt_severity`, consider setting
+#' `missing_dt_severity = "skip"` for functionality similiar to `na.rm = TRUE`).
+#' 3. `none`: don't throw error or warning, drop missing values and continue
+#' with aggregation/scaling where possible (this likely will cause another error
+#' because of `missing_dt_severity`, consider setting
+#' `missing_dt_severity = "skip"` for functionality similiar to `na.rm = TRUE`).
+#' 4. `skip`: skip this check and propagate `NA` values through
+#' aggregation/scaling.
+#'
+#' **`overlapping_dt_severity`**:
+#' Check for overlapping intervals that prevent collapsing to the most detailed
+#' common set of intervals. Or check for overlapping intervals in `col_stem`
+#' when aggregating/scaling.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop overlapping intervals
+#' and continue with aggregation/scaling where possible (this may cause another
+#' error because of `missing_dt_severity`).
+#' 3 `none`: don't throw error or warning, drop overlapping intervals and
+#' continue with aggregation/scaling where possible (this may cause another
+#' error because of `missing_dt_severity`).
+#' 4. `skip`: skip this check and continue with aggregation/scaling.
 #'
 #' @details
 #' The `agg` function can be used to aggregate to different levels of a pre
@@ -175,25 +226,31 @@ agg <- function(dt,
                 missing_dt_severity = "stop",
                 present_agg_severity = "stop",
                 overlapping_dt_severity = "stop",
+                na_value_severity = "stop",
                 collapse_interval_cols = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
-  assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function,
-                        missing_dt_severity, overlapping_dt_severity,
-                        collapse_interval_cols, "agg")
-  # check `present_agg_severity` argument
-  assertthat::assert_that(
-    assertthat::is.string(present_agg_severity),
-    present_agg_severity %in% c("skip", "stop", "warning", "message", "none")
-  )
+  assertive::assert_is_data.table(dt)
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
   dt <- copy(dt)
   mapping <- copy(mapping)
   data.table::setkeyv(dt, cols = id_cols)
+
+  dt <- assert_agg_scale_args(
+    dt, id_cols, value_cols,
+    col_stem, col_type,
+    mapping, agg_function,
+    missing_dt_severity, overlapping_dt_severity, na_value_severity,
+    collapse_interval_cols, functionality = "agg"
+  )
+  # check `present_agg_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(present_agg_severity),
+    present_agg_severity %in% c("skip", "stop", "warning", "message", "none")
+  )
 
   message("Aggregating ", col_stem)
 
@@ -365,23 +422,28 @@ scale <- function(dt,
                   agg_function = sum,
                   missing_dt_severity = "stop",
                   overlapping_dt_severity = "stop",
+                  na_value_severity = "stop",
                   collapse_interval_cols = FALSE,
                   collapse_missing = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
-  assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function,
-                        missing_dt_severity, overlapping_dt_severity,
-                        collapse_interval_cols, "scale")
-  assertthat::assert_that(assertthat::is.flag(collapse_interval_cols))
-
+  assertive::assert_is_data.table(dt)
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
   dt <- copy(dt)
   mapping <- copy(mapping)
   data.table::setkeyv(dt, id_cols)
+
+  dt <- assert_agg_scale_args(
+    dt, id_cols, value_cols,
+    col_stem, col_type,
+    mapping, agg_function,
+    missing_dt_severity, overlapping_dt_severity, na_value_severity,
+    collapse_interval_cols, functionality = "scale"
+  )
+  assertthat::assert_that(assertthat::is.flag(collapse_interval_cols))
 
   message("Scaling ", col_stem)
 
@@ -437,7 +499,7 @@ scale <- function(dt,
           assertive::assert_engine(empty_missing_dt, missing_dt,
                                    msg = error_msg, severity = missing_dt_severity)
         }
-      } else {
+      } else { # additional check for overlapping intervals in the children nodes
         if (col_type == "interval") {
           if (overlapping_dt_severity != "skip") {
             nodes <- names(subtree$children)
@@ -483,10 +545,13 @@ scale <- function(dt,
                 by = id_cols_with_stem, all = T)
     children <- names(subtree$children)
     for (value_col in value_cols) {
-      dt[get(col_stem) %in% children & !is.na(get(paste0(value_col, "_scaled"))),
-         paste0(value_col) := get(paste0(value_col, "_scaled"))]
+      dt[
+        get(col_stem) %in% children & aggregate_exists,
+        paste0(value_col) := get(paste0(value_col, "_scaled"))
+      ]
       dt[, paste0(value_col, "_scaled") := NULL]
     }
+    dt[, aggregate_exists := NULL]
   }
   if (col_type == "interval") dt[, c(col_stem) := NULL]
 
@@ -512,18 +577,25 @@ assert_agg_scale_args <- function(dt,
                                   agg_function,
                                   missing_dt_severity,
                                   overlapping_dt_severity,
+                                  na_value_severity,
                                   collapse_interval_cols,
                                   functionality) {
 
+  severity_options <- c("skip", "stop", "warning", "message", "none")
   # check `missing_dt_severity` argument
   assertthat::assert_that(
     assertthat::is.string(missing_dt_severity),
-    missing_dt_severity %in% c("skip", "stop", "warning", "message", "none")
+    missing_dt_severity %in% severity_options
   )
   # check `overlapping_dt_severity` argument
   assertthat::assert_that(
     assertthat::is.string(overlapping_dt_severity),
-    overlapping_dt_severity %in% c("skip", "stop", "warning", "message", "none")
+    overlapping_dt_severity %in% severity_options
+  )
+  # check `na_value_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(na_value_severity),
+    na_value_severity %in% severity_options
   )
 
   # check `col_type` argument
@@ -572,14 +644,36 @@ assert_agg_scale_args <- function(dt,
   # check `value_cols` argument
   assertive::assert_is_character(value_cols)
 
-  # check `dt` argument
+  # basic checks for `dt` argument
   assertive::assert_is_data.table(dt)
-  assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T,
-                              quiet = T)
+  assertable::assert_colnames(
+    data = dt, colnames = c(id_cols, value_cols),
+    only_colnames = T, quiet = T
+  )
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }
   demUtils::assert_is_unique_dt(dt, id_cols)
+
+  # check for na values in `dt`
+  if (na_value_severity != "skip") {
+    # identify any rows with missing values
+    na_value_dt <- na.omit(dt, cols = value_cols, invert = TRUE)
+
+    empty_na_value_dt <- function(dt) nrow(dt) == 0
+    error_msg <-
+      paste0("input `value_cols` have 'NA' values.\n",
+             "* See `na_value_severity` argument if it is okay to propagate ",
+             "NA values or to drop NA values and continue.\n",
+             paste0(capture.output(na_value_dt), collapse = "\n"))
+    assertive::assert_engine(empty_na_value_dt, na_value_dt,
+                             msg = error_msg, severity = na_value_severity)
+
+    # drop na value rows and continue
+    if (!empty_na_value_dt(na_value_dt)) dt <- na.omit(dt, cols = value_cols)
+  }
+
+  # check column to be aggregated in `dt`
   if (col_type == "interval") {
     for (col in cols) {
       assertive::assert_is_numeric(dt[[col]])
