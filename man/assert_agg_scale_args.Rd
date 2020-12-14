@@ -16,7 +16,8 @@ assert_agg_scale_args(
   overlapping_dt_severity,
   na_value_severity,
   collapse_interval_cols,
-  functionality
+  functionality,
+  quiet
 )
 }
 \arguments{
@@ -73,6 +74,10 @@ information.}
 
 \item{functionality}{whether \code{agg} or \code{scale} function inputs are being
 checked.}
+
+\item{quiet}{[\code{logical(1)}]\cr
+Should progress messages be suppressed as the function is run? Default is
+False.}
 }
 \value{
 Invisibly returns \code{dt} but throws error if inputs are not formatted

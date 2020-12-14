@@ -51,6 +51,9 @@
 #'   columns are collapsed to the most detailed common intervals and will error
 #'   out if there are overlapping intervals. See details or vignettes for more
 #'   information.
+#' @param quiet \[`logical(1)`\]\cr
+#'   Should progress messages be suppressed as the function is run? Default is
+#'   False.
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns for
 #'   requested aggregates or with scaled values.
@@ -227,7 +230,8 @@ agg <- function(dt,
                 present_agg_severity = "stop",
                 overlapping_dt_severity = "stop",
                 na_value_severity = "stop",
-                collapse_interval_cols = FALSE) {
+                collapse_interval_cols = FALSE,
+                quiet = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
@@ -244,7 +248,7 @@ agg <- function(dt,
     col_stem, col_type,
     mapping, agg_function,
     missing_dt_severity, overlapping_dt_severity, na_value_severity,
-    collapse_interval_cols, functionality = "agg"
+    collapse_interval_cols, functionality = "agg", quiet
   )
   # check `present_agg_severity` argument
   assertthat::assert_that(
@@ -252,7 +256,7 @@ agg <- function(dt,
     present_agg_severity %in% c("skip", "stop", "warning", "message", "none")
   )
 
-  message("Aggregating ", col_stem)
+  if (!quiet) message("Aggregating ", col_stem)
 
   # Do aggregation ----------------------------------------------------------
 
@@ -263,7 +267,7 @@ agg <- function(dt,
     overlapping_dt <- identify_overlapping_intervals(dt_intervals)
 
     if (nrow(overlapping_dt) > 0) {
-      message("Collapsing ", col_stem, " to the most detailed common set of intervals")
+      if (!quiet) message("Collapsing ", col_stem, " to the most detailed common set of intervals")
       # collapse entire dataset to most detailed common set of intervals for the
       # {col_stem} variable being aggregated over
       dt <- collapse_common_intervals(
@@ -313,7 +317,7 @@ agg <- function(dt,
   for (i in 1:length(subtrees)) {
 
     subtree <- subtrees[[i]]
-    message("Aggregate ", i, " of ", length(subtrees), ": ", subtree$name)
+    if (!quiet) message("Aggregate ", i, " of ", length(subtrees), ": ", subtree$name)
 
     # categorical aggregation may depend on a previous subtree aggregation results
     # append already aggregated data to grouping dt so that next subtree has access
@@ -424,7 +428,8 @@ scale <- function(dt,
                   overlapping_dt_severity = "stop",
                   na_value_severity = "stop",
                   collapse_interval_cols = FALSE,
-                  collapse_missing = FALSE) {
+                  collapse_missing = FALSE,
+                  quiet = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
@@ -441,11 +446,11 @@ scale <- function(dt,
     col_stem, col_type,
     mapping, agg_function,
     missing_dt_severity, overlapping_dt_severity, na_value_severity,
-    collapse_interval_cols, functionality = "scale"
+    collapse_interval_cols, functionality = "scale", quiet
   )
   assertthat::assert_that(assertthat::is.flag(collapse_interval_cols))
 
-  message("Scaling ", col_stem)
+  if (!quiet) message("Scaling ", col_stem)
 
   # Do scaling --------------------------------------------------------------
 
@@ -479,7 +484,7 @@ scale <- function(dt,
   for (i in 1:length(subtrees)) {
 
     subtree <- subtrees[[i]]
-    message("Scaling ", i, " of ", length(subtrees), ": ", subtree$name)
+    if (!quiet) message("Scaling ", i, " of ", length(subtrees), ": ", subtree$name)
 
     # check if aggregation is possible given available data
     if (!subtree$scale_children_possible) {
@@ -579,7 +584,8 @@ assert_agg_scale_args <- function(dt,
                                   overlapping_dt_severity,
                                   na_value_severity,
                                   collapse_interval_cols,
-                                  functionality) {
+                                  functionality,
+                                  quiet) {
 
   severity_options <- c("skip", "stop", "warning", "message", "none")
   # check `missing_dt_severity` argument
@@ -695,6 +701,8 @@ assert_agg_scale_args <- function(dt,
   # check `collapse_interval_cols` argument
   assertthat::assert_that(assertthat::is.flag(collapse_interval_cols),
                           msg = "`collapse_interval_cols` must be a logical")
+
+  checkmate::assert_logical(quiet, len = 1)
 
   return(invisible(dt))
 }

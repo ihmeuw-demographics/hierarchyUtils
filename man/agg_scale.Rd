@@ -18,7 +18,8 @@ agg(
   present_agg_severity = "stop",
   overlapping_dt_severity = "stop",
   na_value_severity = "stop",
-  collapse_interval_cols = FALSE
+  collapse_interval_cols = FALSE,
+  quiet = FALSE
 )
 
 scale(
@@ -33,7 +34,8 @@ scale(
   overlapping_dt_severity = "stop",
   na_value_severity = "stop",
   collapse_interval_cols = FALSE,
-  collapse_missing = FALSE
+  collapse_missing = FALSE,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -93,6 +95,10 @@ an interval variable). Default is 'False'. If set to 'True' the interval
 columns are collapsed to the most detailed common intervals and will error
 out if there are overlapping intervals. See details or vignettes for more
 information.}
+
+\item{quiet}{[\code{logical(1)}]\cr
+Should progress messages be suppressed as the function is run? Default is
+False.}
 
 \item{collapse_missing}{[\code{logical(1)}]\cr
 When scaling a \code{categorical} variable, whether to collapse missing
