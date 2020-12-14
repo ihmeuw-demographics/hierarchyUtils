@@ -12,8 +12,12 @@ assert_agg_scale_args(
   col_type,
   mapping,
   agg_function,
+  missing_dt_severity,
+  overlapping_dt_severity,
+  na_value_severity,
   collapse_interval_cols,
-  functionality
+  functionality,
+  quiet
 )
 }
 \arguments{
@@ -44,6 +48,23 @@ scaling the mapping is inferred from the available intervals in \code{dt}.}
 Function to use when aggregating, can be either \code{sum} (for counts) or
 \code{prod} (for probabilities).}
 
+\item{missing_dt_severity}{[\code{character(1)}]\cr
+What should happen when \code{dt} is missing levels of \code{col_stem} that
+prevent aggregation or scaling from occurring? Can be either 'skip',
+'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+'Severity Arguments' for more information.}
+
+\item{overlapping_dt_severity}{[\code{character(1)}]\cr
+When aggregating/scaling an interval variable or \code{collapse_interval_cols=TRUE}
+what should happen when overlapping intervals are identified? Can be either
+'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+section on 'Severity Arguments' for more information.}
+
+\item{na_value_severity}{[\code{character(1)}]\cr
+What should happen when 'NA' values are present in \code{value_cols}? Can be
+either 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'.
+See section on 'Severity Arguments' for more information.}
+
 \item{collapse_interval_cols}{[\code{logical(1)}]\cr
 Whether to collapse interval \code{id_cols} (not including \code{col_stem} if it is
 an interval variable). Default is 'False'. If set to 'True' the interval
@@ -53,6 +74,10 @@ information.}
 
 \item{functionality}{whether \code{agg} or \code{scale} function inputs are being
 checked.}
+
+\item{quiet}{[\code{logical(1)}]\cr
+Should progress messages be suppressed as the function is run? Default is
+False.}
 }
 \value{
 Invisibly returns \code{dt} but throws error if inputs are not formatted

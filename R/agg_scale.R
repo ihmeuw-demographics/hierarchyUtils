@@ -27,23 +27,89 @@
 #'   Function to use when aggregating, can be either `sum` (for counts) or
 #'   `prod` (for probabilities).
 #' @param missing_dt_severity \[`character(1)`\]\cr
-#'   How severe should the consequences of missing data that prevents
-#'   aggregation or scaling from occurring be? Can be either 'stop', 'warning',
-#'   'message', or 'none'. If not "stop", then only the possible aggregations or
-#'   scaling is done using the available data.
-#' @param drop_present_aggs \[`logical(1)`\]\cr
-#'   Whether to drop aggregates (or overlapping intervals) that are already
-#'   present in `dt` before aggregating. Default is 'False' and the function
-#'   errors out.
+#'   What should happen when `dt` is missing levels of `col_stem` that
+#'   prevent aggregation or scaling from occurring? Can be either 'skip',
+#'   'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+#'   'Severity Arguments' for more information.
+#' @param present_agg_severity \[`logical(1)`\]\cr
+#'   What should happen when `dt` already has requested aggregates (from
+#'   `mapping`)? Can be either 'skip', 'stop', 'warning', 'message',
+#'   or 'none'. Default is 'stop'. See section on 'Severity Arguments' for more
+#'   information.
+#' @param overlapping_dt_severity \[`character(1)`\]\cr
+#'   When aggregating/scaling an interval variable or `collapse_interval_cols=TRUE`
+#'   what should happen when overlapping intervals are identified? Can be either
+#'   'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+#'   section on 'Severity Arguments' for more information.
+#' @param na_value_severity \[`character(1)`\]\cr
+#'   What should happen when 'NA' values are present in `value_cols`? Can be
+#'   either 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'.
+#'   See section on 'Severity Arguments' for more information.
 #' @param collapse_interval_cols \[`logical(1)`\]\cr
 #'   Whether to collapse interval `id_cols` (not including `col_stem` if it is
 #'   an interval variable). Default is 'False'. If set to 'True' the interval
 #'   columns are collapsed to the most detailed common intervals and will error
 #'   out if there are overlapping intervals. See details or vignettes for more
 #'   information.
+#' @param quiet \[`logical(1)`\]\cr
+#'   Should progress messages be suppressed as the function is run? Default is
+#'   False.
 #'
 #' @return \[`data.table()`\] with `id_cols` and `value_cols` columns for
 #'   requested aggregates or with scaled values.
+#'
+#' @section Severity Arguments:
+#' **`missing_dt_severity`**:
+#'
+#' Check for missing levels of `col_stem`, the variable being aggregated or
+#' scaled over.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message and continue with
+#' aggregation/scaling for requested aggregations/scalings where expected input
+#' data in `dt` is available.
+#' 3. `none`: don't throw error or warning, continue with aggregation/scaling
+#' for requested aggregations/scalings where expected input data in `dt` is
+#' available.
+#' 4. `skip`: skip this check and continue with aggregation/scaling.
+#'
+#' **`present_agg_severity`** (`agg` only):
+#'
+#' Check for requested aggregates in `mapping` that are already present
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop aggregates and continue
+#' with aggregation.
+#' 3. `none`: don't throw error or warning, drop aggregates and continue with
+#' aggregation.
+#' 4. `skip`: skip this check and add to the values already present for the
+#' aggregates.
+#'
+#' **`na_value_severity`**:
+#'
+#' Check for 'NA' values in the `value_cols`.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop missing values and
+#' continue with aggregation/scaling where possible (this likely will cause
+#' another error because of `missing_dt_severity`, consider setting
+#' `missing_dt_severity = "skip"` for functionality similiar to `na.rm = TRUE`).
+#' 3. `none`: don't throw error or warning, drop missing values and continue
+#' with aggregation/scaling where possible (this likely will cause another error
+#' because of `missing_dt_severity`, consider setting
+#' `missing_dt_severity = "skip"` for functionality similiar to `na.rm = TRUE`).
+#' 4. `skip`: skip this check and propagate `NA` values through
+#' aggregation/scaling.
+#'
+#' **`overlapping_dt_severity`**:
+#' Check for overlapping intervals that prevent collapsing to the most detailed
+#' common set of intervals. Or check for overlapping intervals in `col_stem`
+#' when aggregating/scaling.
+#' 1. `stop`: throw error (this is the default).
+#' 2. `warning` or `message`: throw warning/message, drop overlapping intervals
+#' and continue with aggregation/scaling where possible (this may cause another
+#' error because of `missing_dt_severity`).
+#' 3 `none`: don't throw error or warning, drop overlapping intervals and
+#' continue with aggregation/scaling where possible (this may cause another
+#' error because of `missing_dt_severity`).
+#' 4. `skip`: skip this check and continue with aggregation/scaling.
 #'
 #' @details
 #' The `agg` function can be used to aggregate to different levels of a pre
@@ -161,190 +227,183 @@ agg <- function(dt,
                 mapping,
                 agg_function = sum,
                 missing_dt_severity = "stop",
-                drop_present_aggs = FALSE,
-                collapse_interval_cols = FALSE) {
+                present_agg_severity = "stop",
+                overlapping_dt_severity = "stop",
+                na_value_severity = "stop",
+                collapse_interval_cols = FALSE,
+                quiet = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
-  assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function,
-                        collapse_interval_cols, "agg")
-
+  assertive::assert_is_data.table(dt)
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
-  cols <- col_stem
-  if (col_type == "interval") {
-    cols <- paste0(col_stem, "_", c("start", "end"))
-  }
-  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
-  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
-  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
-  by_id_cols <- id_cols[!id_cols %in% cols]
+  dt <- copy(dt)
+  mapping <- copy(mapping)
+  data.table::setkeyv(dt, cols = id_cols)
 
-  # check `missing_dt_severity` argument
-  assertthat::assert_that(assertthat::is.string(missing_dt_severity),
-                          checkmate::checkChoice(missing_dt_severity,
-                                                 c("stop", "warning",
-                                                   "message", "none")),
-                          msg = "`missing_dt_severity` must be one of
-                          'stop', 'warning', 'message', or 'none'")
+  dt <- assert_agg_scale_args(
+    dt, id_cols, value_cols,
+    col_stem, col_type,
+    mapping, agg_function,
+    missing_dt_severity, overlapping_dt_severity, na_value_severity,
+    collapse_interval_cols, functionality = "agg", quiet
+  )
+  # check `present_agg_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(present_agg_severity),
+    present_agg_severity %in% c("skip", "stop", "warning", "message", "none")
+  )
 
-  # check `drop_present_aggs` argument
-  assertthat::assert_that(assertthat::is.flag(drop_present_aggs),
-                          msg = "`drop_present_aggs` must be a logical")
-
-  # identify any issues in input dataset
-  dt_issues <- identify_agg_dt_issues(dt, id_cols, value_cols, col_stem,
-                                      col_type, mapping, agg_function,
-                                      drop_present_aggs, collapse_interval_cols)
-
-  # check for aggregates or overlapping intervals in dataset
-  present_agg_dt <- dt_issues[grepl("aggregate|overlapping", issue)]
-  if (nrow(present_agg_dt) > 0) {
-    if (drop_present_aggs) {
-      dt <- merge(dt, present_agg_dt, by = id_cols, all = T)
-      dt <- dt[is.na(issue)]
-      dt[, issue := NULL]
-    } else {
-      type <- ifelse(col_type == "interval", "overlapping intervals",
-                     "aggregates")
-      error_msg <-
-        paste0("Some ", type, " are already in `dt`.\n",
-               "* See `drop_present_aggs` argument if it is okay to drop ",
-               "these before re-aggregating.\n",
-               "* See `?identify_agg_dt_issues()` to return the ", type,
-               " present and printed below.\n",
-               paste0(capture.output(present_agg_dt), collapse = "\n"))
-      stop(error_msg)
-    }
-  }
-
-  # check for missing data needed to make aggregates
-  missing_dt <- dt_issues[grepl("missing", issue)]
-  empty_missing_dt <- function(dt) nrow(dt) == 0
-  error_msg <-
-    paste0("Some aggregates in `mapping` cannot be made because input data is ",
-           "missing in `dt`.\n",
-           if (drop_present_aggs) "* This was checked after dropping aggregates
-           or overlapping intervals in the data.\n",
-           "* See `missing_dt_severity` argument if it is okay to only make ",
-           "aggregates that are possible given available data.\n",
-           "* See `?identify_agg_dt_issues()` to return missing data printed ",
-           "below.\n",
-           paste0(capture.output(missing_dt), collapse = "\n"))
-  assertive::assert_engine(empty_missing_dt, missing_dt,
-                           msg = error_msg, severity = missing_dt_severity)
-
-  # drop data that is missing id_col intervals that will be needed to make
-  # aggregation. Missingness in the `col_stem` variable is handled within the
-  # mapping/tree creation
-  if (nrow(missing_dt) > 0) {
-    # determine which common intervals the original data and missing data maps to
-    common_id_cols <- copy(id_cols)
-    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      common_intervals <- identify_common_intervals(
-        dt,
-        id_cols,
-        stem,
-        include_missing = TRUE
-      )
-      dt <- merge_common_intervals(dt, common_intervals, stem)
-      data.table::setnames(dt, c("common_start", "common_end"),
-                           paste0("common_", stem, "_", c("start", "end")))
-
-      missing_dt <- merge_common_intervals(missing_dt, common_intervals, stem)
-      data.table::setnames(missing_dt, c("common_start", "common_end"),
-                           paste0("common_", stem, "_", c("start", "end")))
-      missing_dt[, paste0(stem, "_", c("start", "end")) := NULL]
-
-      common_id_cols[common_id_cols %in% paste0(stem, "_", c("start", "end"))] <-
-        paste0("common_", stem, "_", c("start", "end"))
-    }
-    missing_dt <- unique(missing_dt)
-
-    # drop missing data ranges
-    dt <- merge(dt, missing_dt, by = common_id_cols, all = T)
-    dt <- dt[is.na(issue)]
-
-    dt[, issue := NULL]
-    for (stem in interval_id_cols_stems[interval_id_cols_stems != col_stem]) {
-      dt[, paste0("common_", stem, "_", c("start", "end")) := NULL]
-    }
-  }
-
-  if (nrow(dt) == 0) {
-    stop("`dt` is empty after dropping overlapping intervals and missing data")
-  }
+  if (!quiet) message("Aggregating ", col_stem)
 
   # Do aggregation ----------------------------------------------------------
 
-  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type,
-                                      collapse_interval_cols)
-
-  # create one column to describe each interval in mapping
   if (col_type == "interval") {
-    mapping <- copy(mapping)
+    cols <- paste0(col_stem, "_", c("start", "end"))
+
+    dt_intervals <- unique(dt[, .SD, .SDcols = cols])
+    overlapping_dt <- identify_overlapping_intervals(dt_intervals)
+
+    if (nrow(overlapping_dt) > 0) {
+      if (!quiet) message("Collapsing ", col_stem, " to the most detailed common set of intervals")
+      # collapse entire dataset to most detailed common set of intervals for the
+      # {col_stem} variable being aggregated over
+      dt <- collapse_common_intervals(
+        dt = dt[, .SD, .SDcols = c(id_cols, value_cols)],
+        id_cols = id_cols,
+        value_cols = value_cols,
+        col_stem = col_stem,
+        agg_function = agg_function,
+        missing_dt_severity = missing_dt_severity,
+        overlapping_dt_severity = overlapping_dt_severity,
+        include_missing = TRUE
+      )
+      dt_intervals <- unique(dt[, .SD, .SDcols = cols])
+    }
+
+    # create one column to describe each interval
     gen_name(mapping, col_stem = col_stem, format = "interval")
     data.table::setnames(mapping, paste0(col_stem, "_name"), col_stem)
-  }
 
-  # aggregate each unique set of grouping separately
-  result_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
-
-    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type,
-                                       collapse_interval_cols, groups,
-                                       group_num)
+    # create one column to describe each interval
+    gen_name(dt_intervals, col_stem = col_stem, format = "interval")
+    data.table::setnames(dt_intervals, paste0(col_stem, "_name"), col_stem)
+    data.table::setkeyv(dt_intervals, cols)
+    dt <- dt[dt_intervals, on = cols, nomatch = 0]
 
     # create mapping from available interval variables and requested intervals
-    if (col_type == "interval") {
-      interval_tree <- create_agg_interval_tree(grouping$unique_cols,
-                                                mapping,
-                                                col_stem)
-      group_mapping <- data.tree::ToDataFrameNetwork(interval_tree)
-    } else {
-      group_mapping <- copy(mapping)
+    interval_tree <- create_agg_interval_tree(
+      data_intervals_dt = dt_intervals,
+      agg_intervals_dt = mapping,
+      col_stem = col_stem
+    )
+    mapping <- data.tree::ToDataFrameNetwork(interval_tree)
+  }
+
+  # identify each nonleaf node and its subtree
+  subtrees <- create_agg_subtrees(
+    mapping = mapping,
+    exists = unique(dt[[col_stem]]),
+    col_type = col_type
+  )
+
+  # create object to collect aggregated results
+  result_dt <- dt[0]
+  if (col_type == "interval") result_dt <- vector("list", length(subtrees))
+
+  # aggregate children to parents for sub-trees where aggregation possible
+  for (i in 1:length(subtrees)) {
+
+    subtree <- subtrees[[i]]
+    if (!quiet) message("Aggregate ", i, " of ", length(subtrees), ": ", subtree$name)
+
+    # categorical aggregation may depend on a previous subtree aggregation results
+    # append already aggregated data to grouping dt so that next subtree has access
+    agg_data <- dt
+    if (col_type == "categorical") {
+      agg_data <- rbind(dt, result_dt, use.names= T)
     }
 
-    # identify each nonleaf node where aggregation is possible and its subtree
-    subtrees <- create_agg_subtrees(group_mapping,
-                                    grouping$unique_cols[[col_stem]], col_type)
-
-    # aggregate children to parents for sub-trees where aggregation possible
-    target_dt <- NULL
-    for (subtree in subtrees) {
-
-      # append already aggregated data to grouping dt so that next subtree has
-      # access
-      agg_data <- unique(rbind(grouping$dt, target_dt, use.names= T))
-
-      aggregated_same_groupings_dt <- agg_subtree(
-        agg_data,
-        id_cols,
-        value_cols,
-        col_stem,
-        col_type,
-        agg_function,
-        subtree,
-        missing_dt_severity,
-        collapse_interval_cols
-      )
-
-      if (col_type == "interval") {
-        gen_name(aggregated_same_groupings_dt, col_stem = col_stem,
-                 format = "interval")
-        setnames(aggregated_same_groupings_dt, paste0(col_stem, "_name"),
-                 col_stem)
+    # check if aggregation is possible given available data
+    if (!subtree$agg_possible) {
+      if (missing_dt_severity != "skip") {
+        missing_nodes <- subtree$Get("name", filterFun = function(x) {
+          !x$exists & identical(x$parent, subtree)
+        })
+        missing_dt <- data.table(col_stem = missing_nodes)
+        data.table::setnames(missing_dt, "col_stem", col_stem)
+        empty_missing_dt <- function(dt) nrow(dt) == 0
+        error_msg <-
+          paste0("expected input data is missing.\n",
+                 "* See `missing_dt_severity` argument if it is okay to only make ",
+                 "aggregate/scale data that are possible given what is available.\n",
+                 paste0(capture.output(missing_dt), collapse = "\n"))
+        assertive::assert_engine(empty_missing_dt, missing_dt,
+                                 msg = error_msg, severity = missing_dt_severity)
       }
 
-      # append to final aggregated data to return
-      target_dt <- rbind(target_dt, aggregated_same_groupings_dt,
-                         use.names = T)
+      # skip aggregation for this subtree
+      next()
     }
-    if (col_type == "interval") target_dt[, c(col_stem) := NULL]
-    return(target_dt)
-  })
-  result_dt <- data.table::rbindlist(result_dt)
+
+    # check if aggregate is already present
+    if (present_agg_severity != "skip") {
+      parent <- subtree$name
+      parent_dt <- dt[get(col_stem) %in% parent]
+      empty_dt <- function(dt) nrow(dt) == 0
+      error_msg <-
+        paste0("aggregate data is already present.\n",
+               "* See `present_agg_severity` argument if it is okay to aggregate
+             multiple rows with the available data.\n",
+               paste0(capture.output(parent_dt), collapse = "\n"))
+      assertive::assert_engine(empty_dt, parent_dt,
+                               msg = error_msg, severity = present_agg_severity)
+
+      # drop parent data already present
+      if (nrow(parent_dt) > 0) {
+        parent_dt[, drop := TRUE]
+        dt <- merge(
+          dt, parent_dt[, .SD, .SDcols = c(id_cols, "drop")],
+          all = TRUE, by = id_cols
+        )
+        dt <- dt[is.na(drop)]
+        dt[, drop := NULL]
+      }
+    }
+
+    aggregated_same_groupings_dt <- agg_subtree(
+      agg_data,
+      id_cols,
+      value_cols,
+      col_stem,
+      col_type,
+      agg_function,
+      subtree,
+      missing_dt_severity,
+      overlapping_dt_severity,
+      collapse_interval_cols
+    )
+
+    if (col_type == "interval") {
+      gen_name(aggregated_same_groupings_dt, col_stem = col_stem,
+               format = "interval")
+      setnames(aggregated_same_groupings_dt, paste0(col_stem, "_name"),
+               col_stem)
+    }
+
+    # append to final aggregated data to return
+    if (col_type == "categorical") {
+      result_dt <- rbind(result_dt, aggregated_same_groupings_dt, use.names = T)
+    } else if (col_type == "interval") {
+      result_dt[[i]] <- aggregated_same_groupings_dt
+    }
+  }
+  if (col_type == "interval") {
+    result_dt <- rbindlist(result_dt)
+    result_dt[, c(col_stem) := NULL]
+  }
 
   data.table::setcolorder(result_dt, original_col_order)
   data.table::setkeyv(result_dt, original_keys)
@@ -366,148 +425,144 @@ scale <- function(dt,
                   mapping = NULL,
                   agg_function = sum,
                   missing_dt_severity = "stop",
+                  overlapping_dt_severity = "stop",
+                  na_value_severity = "stop",
+                  collapse_interval_cols = FALSE,
                   collapse_missing = FALSE,
-                  collapse_interval_cols = FALSE) {
+                  quiet = FALSE) {
 
   # Validate arguments ------------------------------------------------------
 
-  assert_agg_scale_args(dt, id_cols, value_cols, col_stem,
-                        col_type, mapping, agg_function,
-                        collapse_interval_cols, "scale")
-
+  assertive::assert_is_data.table(dt)
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
-  cols <- col_stem
-  if (col_type == "interval") {
-    cols <- paste0(col_stem, "_", c("start", "end"))
-  }
-  interval_id_cols <- id_cols[grepl("_start$|_end$", id_cols)]
-  interval_id_cols_stems <- unique(gsub("_start$|_end$", "", interval_id_cols))
-  categorical_id_cols <- id_cols[!id_cols %in% interval_id_cols]
-  by_id_cols <- id_cols[!id_cols %in% cols]
+  dt <- copy(dt)
+  mapping <- copy(mapping)
+  data.table::setkeyv(dt, id_cols)
 
-  # check `missing_dt_severity` argument
-  assertthat::assert_that(assertthat::is.string(missing_dt_severity),
-                          checkmate::checkChoice(missing_dt_severity,
-                                                 c("stop", "warning",
-                                                   "message", "none")),
-                          msg = "`missing_dt_severity` must be one of
-                          'stop', 'warning', 'message', or 'none'")
+  dt <- assert_agg_scale_args(
+    dt, id_cols, value_cols,
+    col_stem, col_type,
+    mapping, agg_function,
+    missing_dt_severity, overlapping_dt_severity, na_value_severity,
+    collapse_interval_cols, functionality = "scale", quiet
+  )
+  assertthat::assert_that(assertthat::is.flag(collapse_interval_cols))
 
-  # check `collapse_missing` argument
-  assertthat::assert_that(assertthat::is.flag(collapse_missing),
-                          msg = "`collapse_missing` must be a logical")
-
-  # identify any issues in input dataset
-  dt_issues <- identify_scale_dt_issues(dt, id_cols, value_cols, col_stem,
-                                        col_type, mapping, agg_function,
-                                        collapse_missing, collapse_interval_cols)
-
-  # check for overlapping intervals in dataset
-  present_agg_dt <- dt_issues[grepl("aggregate|overlapping", issue)]
-  if (nrow(present_agg_dt) > 0) {
-    type <- "overlapping intervals"
-    error_msg <-
-      paste0("Some overlapping intervals are in `dt`.\n",
-             "* See `?identify_scale_dt_issues()` to return the overlapping",
-             " intervals printed below.\n",
-             paste0(capture.output(present_agg_dt), collapse = "\n"))
-    stop(error_msg)
-  }
-
-  # check for missing data needed for scaling
-  missing_dt <- dt_issues[grepl("missing", issue)]
-  empty_missing_dt <- function(dt) nrow(dt) == 0
-  error_msg <-
-    paste0("Some nodes in `mapping` cannot be scaled because input data is ",
-           "missing in `dt`.\n",
-           "* See `missing_dt_severity` argument if it is okay to only scale ",
-           "nodes that are possible given available data.\n",
-           "* See `?identify_scale_dt_issues()` to return missing data ",
-           "printed below.\n",
-           paste0(capture.output(missing_dt), collapse = "\n"))
-  assertive::assert_engine(empty_missing_dt, missing_dt,
-                           msg = error_msg, severity = missing_dt_severity)
-
-  non_hierarchical_data <- dt_issues[issue == "only one interval"]
-  if (nrow(non_hierarchical_data) > 0) {
-    error_msg <-
-      paste0("Some combinations of `dt` do not have a hierarchical structure ",
-             "in the `col_stem` columns.\n",
-             "* See `collapse_interval_cols` argument if some of the ",
-             "interval id variables need to be collapsed.\n")
-    stop(error_msg)
-  }
+  if (!quiet) message("Scaling ", col_stem)
 
   # Do scaling --------------------------------------------------------------
 
-  groups <- identify_unique_groupings(dt, id_cols, col_stem, col_type,
-                                      collapse_interval_cols)
+  if (col_type == "interval") {
+    cols <- paste0(col_stem, "_", c("start", "end"))
 
-  # scale each unique set of grouping separately
-  result_dt <- lapply(1:nrow(groups$unique_groupings), function(group_num) {
-
-    grouping <- subset_unique_grouping(dt, id_cols, col_stem, col_type,
-                                       collapse_interval_cols, groups,
-                                       group_num)
+    # create one column to describe each interval
+    dt_intervals <- unique(dt[, .SD, .SDcols = cols])
+    gen_name(dt_intervals, col_stem = col_stem, format = "interval")
+    data.table::setnames(dt_intervals, paste0(col_stem, "_name"), col_stem)
+    data.table::setkeyv(dt_intervals, cols)
+    dt <- dt[dt_intervals, on = cols, nomatch = 0]
 
     # create mapping from available interval variables
+    interval_tree <- create_scale_interval_tree(
+      data_intervals_dt = dt_intervals,
+      col_stem = col_stem
+    )
+    mapping <- data.tree::ToDataFrameNetwork(interval_tree)
+  }
+
+  # identify each nonleaf node (and its subtree)
+  subtrees <- create_scale_subtrees(
+    mapping = mapping,
+    exists = unique(dt[[col_stem]]),
+    col_type = col_type,
+    collapse_missing = collapse_missing
+  )
+
+  # scale children to parents for subtrees where scaling is possible
+  for (i in 1:length(subtrees)) {
+
+    subtree <- subtrees[[i]]
+    if (!quiet) message("Scaling ", i, " of ", length(subtrees), ": ", subtree$name)
+
+    # check if aggregation is possible given available data
+    if (!subtree$scale_children_possible) {
+      missing_nodes <- subtree$Get("name", filterFun = function(x) {
+        !x$exists
+      })
+      if (!is.null(missing_nodes)) {
+        if (missing_dt_severity != "skip") {
+          missing_dt <- data.table(col_stem = missing_nodes)
+          data.table::setnames(missing_dt, "col_stem", col_stem)
+          empty_missing_dt <- function(dt) nrow(dt) == 0
+          error_msg <-
+            paste0("expected input data is missing.\n",
+                   "* See `missing_dt_severity` argument if it is okay to only make ",
+                   "aggregate/scale data that are possible given what is available.\n",
+                   paste0(capture.output(missing_dt), collapse = "\n"))
+          assertive::assert_engine(empty_missing_dt, missing_dt,
+                                   msg = error_msg, severity = missing_dt_severity)
+        }
+      } else { # additional check for overlapping intervals in the children nodes
+        if (col_type == "interval") {
+          if (overlapping_dt_severity != "skip") {
+            nodes <- names(subtree$children)
+            overlapping_dt <- data.table(col_stem = nodes)
+            data.table::setnames(overlapping_dt, "col_stem", col_stem)
+            empty_dt <- function(dt) nrow(dt) == 0
+            error_msg <-
+              paste0("Some overlapping intervals are in `dt`.\n",
+                     paste0(capture.output(overlapping_dt), collapse = "\n"))
+            assertive::assert_engine(empty_dt, overlapping_dt,
+                                     msg = error_msg, severity = overlapping_dt_severity)
+          }
+        }
+      }
+      # skip aggregation for this subtree
+      next()
+    }
+
+    scaled_same_groupings_dt <- scale_subtree(
+      dt,
+      id_cols,
+      value_cols,
+      col_stem,
+      col_type,
+      agg_function,
+      subtree,
+      missing_dt_severity,
+      overlapping_dt_severity,
+      collapse_interval_cols
+    )
+
     if (col_type == "interval") {
-      interval_tree <- create_scale_interval_tree(grouping$unique_cols,
-                                                  col_stem)
-      mapping <- data.tree::ToDataFrameNetwork(interval_tree)
+      gen_name(scaled_same_groupings_dt, col_stem = col_stem,
+               format = "interval")
+      setnames(scaled_same_groupings_dt, paste0(col_stem, "_name"),
+               col_stem)
     }
 
-    # identify each nonleaf node (and its subtree) where scaling of children
-    # nodes is possible
-    subtrees <- create_scale_subtrees(mapping,
-                                      grouping$unique_cols[[col_stem]],
-                                      col_type, collapse_missing)
-
-    # scale children to parents for subtrees where scaling is possible
-    for (subtree in subtrees) {
-
-      scaled_same_groupings_dt <- scale_subtree(
-        grouping$dt,
-        id_cols,
-        value_cols,
-        col_stem,
-        col_type,
-        agg_function,
-        subtree,
-        missing_dt_severity,
-        collapse_interval_cols
-      )
-
-      if (col_type == "interval") {
-        gen_name(scaled_same_groupings_dt, col_stem = col_stem,
-                 format = "interval")
-        setnames(scaled_same_groupings_dt, paste0(col_stem, "_name"),
-                 col_stem)
-      }
-
-      # replace the unscaled children node values with the scaled values where
-      # scaling is possible
-      id_cols_with_stem <- c(id_cols, if (col_type == "interval") col_stem)
-      grouping$dt <- merge(grouping$dt, scaled_same_groupings_dt,
-                           by = id_cols_with_stem, all = T)
-      children <- names(subtree$children)
-      for (value_col in value_cols) {
-        grouping$dt[get(col_stem) %in% children &
-                      !is.na(get(paste0(value_col, "_scaled"))),
-                    paste0(value_col) := get(paste0(value_col, "_scaled"))]
-        grouping$dt[, paste0(value_col, "_scaled") := NULL]
-      }
+    # replace the unscaled children node values with the scaled values where
+    # scaling is possible
+    id_cols_with_stem <- c(id_cols, if (col_type == "interval") col_stem)
+    dt <- merge(dt, scaled_same_groupings_dt,
+                by = id_cols_with_stem, all = T)
+    children <- names(subtree$children)
+    for (value_col in value_cols) {
+      dt[
+        get(col_stem) %in% children & aggregate_exists,
+        paste0(value_col) := get(paste0(value_col, "_scaled"))
+      ]
+      dt[, paste0(value_col, "_scaled") := NULL]
     }
-    if (col_type == "interval") grouping$dt[, c(col_stem) := NULL]
-    return(grouping$dt)
-  })
-  result_dt <- data.table::rbindlist(result_dt)
+    dt[, aggregate_exists := NULL]
+  }
+  if (col_type == "interval") dt[, c(col_stem) := NULL]
 
-  data.table::setcolorder(result_dt, original_col_order)
-  data.table::setkeyv(result_dt, original_keys)
-  return(result_dt)
+  data.table::setcolorder(dt, original_col_order)
+  data.table::setkeyv(dt, original_keys)
+  return(dt)
 }
 
 #' Check inputs to agg and scale functions
@@ -525,8 +580,29 @@ assert_agg_scale_args <- function(dt,
                                   col_type,
                                   mapping,
                                   agg_function,
+                                  missing_dt_severity,
+                                  overlapping_dt_severity,
+                                  na_value_severity,
                                   collapse_interval_cols,
-                                  functionality) {
+                                  functionality,
+                                  quiet) {
+
+  severity_options <- c("skip", "stop", "warning", "message", "none")
+  # check `missing_dt_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(missing_dt_severity),
+    missing_dt_severity %in% severity_options
+  )
+  # check `overlapping_dt_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(overlapping_dt_severity),
+    overlapping_dt_severity %in% severity_options
+  )
+  # check `na_value_severity` argument
+  assertthat::assert_that(
+    assertthat::is.string(na_value_severity),
+    na_value_severity %in% severity_options
+  )
 
   # check `col_type` argument
   assertthat::assert_that(assertthat::is.string(col_type),
@@ -574,14 +650,36 @@ assert_agg_scale_args <- function(dt,
   # check `value_cols` argument
   assertive::assert_is_character(value_cols)
 
-  # check `dt` argument
+  # basic checks for `dt` argument
   assertive::assert_is_data.table(dt)
-  assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T,
-                              quiet = T)
+  assertable::assert_colnames(
+    data = dt, colnames = c(id_cols, value_cols),
+    only_colnames = T, quiet = T
+  )
   for (value_col in value_cols) {
     assertive::assert_is_numeric(dt[[value_col]])
   }
   demUtils::assert_is_unique_dt(dt, id_cols)
+
+  # check for na values in `dt`
+  if (na_value_severity != "skip") {
+    # identify any rows with missing values
+    na_value_dt <- na.omit(dt, cols = value_cols, invert = TRUE)
+
+    empty_na_value_dt <- function(dt) nrow(dt) == 0
+    error_msg <-
+      paste0("input `value_cols` have 'NA' values.\n",
+             "* See `na_value_severity` argument if it is okay to propagate ",
+             "NA values or to drop NA values and continue.\n",
+             paste0(capture.output(na_value_dt), collapse = "\n"))
+    assertive::assert_engine(empty_na_value_dt, na_value_dt,
+                             msg = error_msg, severity = na_value_severity)
+
+    # drop na value rows and continue
+    if (!empty_na_value_dt(na_value_dt)) dt <- na.omit(dt, cols = value_cols)
+  }
+
+  # check column to be aggregated in `dt`
   if (col_type == "interval") {
     for (col in cols) {
       assertive::assert_is_numeric(dt[[col]])
@@ -603,6 +701,8 @@ assert_agg_scale_args <- function(dt,
   # check `collapse_interval_cols` argument
   assertthat::assert_that(assertthat::is.flag(collapse_interval_cols),
                           msg = "`collapse_interval_cols` must be a logical")
+
+  checkmate::assert_logical(quiet, len = 1)
 
   return(invisible(dt))
 }
