@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -49,11 +49,23 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="../articles/agg_scale_performance.html">Aggregation/Scaling performance</a>
+    </li>
+  </ul>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -67,7 +79,7 @@
 
       
 
-      </header><script src="hierarchyUtils_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="hierarchyUtils_files/htmlwidgets-1.5.1/htmlwidgets.js"></script><script src="hierarchyUtils_files/d3-4.5.0/d3.min.js"></script><script src="hierarchyUtils_files/diagonalNetwork-binding-0.4/diagonalNetwork.js"></script><div class="row">
+      </header><script src="hierarchyUtils_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="hierarchyUtils_files/htmlwidgets-1.5.3/htmlwidgets.js"></script><script src="hierarchyUtils_files/d3-4.5.0/d3.min.js"></script><script src="hierarchyUtils_files/diagonalNetwork-binding-0.4/diagonalNetwork.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to hierarchyUtils</h1>
@@ -86,13 +98,13 @@
 <li><p>numeric intervals: age, income, education years etc.</p></li>
 </ul>
 <p>Iran census population counts included in the package are shown below and documented at <code><a href="../reference/iran_pop.html">?hierarchyUtils::iran_pop</a></code>. Examples of categorical variables included in this dataset are <code>location</code>, <code>year</code>, <code>sex</code>, <code>source_name</code>, <code>nid</code> and <code>underlying_nid</code> while <code>age_start</code> and <code>age_end</code> are one numeric interval variable.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="co"># TODO remove this once handling unknown age groups correctly</span>
-<span class="kw">iran_pop</span> <span class="op">&lt;-</span> <span class="kw">iran_pop</span>[<span class="kw">age_start</span> != <span class="fl">999</span>]
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># TODO remove this once handling unknown age groups correctly</span>
+<span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">age_start</span> <span class="op">!=</span> <span class="fl">999</span><span class="op">]</span>
 <span class="co"># TODO: fix underlying data</span>
-<span class="kw">iran_pop</span> <span class="op">&lt;-</span> <span class="kw">iran_pop</span>[<span class="kw">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="kw">location</span> <span class="op">==</span> <span class="st">"Tehran 1986-1995"</span>, 
-                     <span class="kw">location</span> <span class="op">:=</span> <span class="st">"Tehran 2006"</span>]
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw">iran_pop</span>)
+<span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="va">location</span> <span class="op">==</span> <span class="st">"Tehran 1986-1995"</span>, 
+                     <span class="va">location</span> <span class="op">:=</span> <span class="st">"Tehran 2006"</span><span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span>
 <span class="co">#&gt;        location year    sex age_start age_end                source_name    nid</span>
 <span class="co">#&gt;     1:   Alborz 1986 female         0       1 Statistical Centre of Iran   6993</span>
 <span class="co">#&gt;     2:   Alborz 1986 female         1       2 Statistical Centre of Iran   6993</span>
@@ -116,8 +128,7 @@
 <span class="co">#&gt; 10761:             NA       2391</span>
 <span class="co">#&gt; 10762:             NA        940</span>
 <span class="co">#&gt; 10763:             NA         90</span>
-<span class="co">#&gt; 10764:             NA         11</span>
-</pre></div>
+<span class="co">#&gt; 10764:             NA         11</span></code></pre></div>
 <p>The <code>hierarchyUtils</code> package provides a variety of utility functions that can be used to work with this kind of data. There are functions included to:</p>
 <ul>
 <li><p>aggregate data to different levels of a defined hierarchy for the categorical or numeric intervals variables.</p></li>
@@ -129,60 +140,72 @@
 <p><code><a href="../reference/iran_pop.html">hierarchyUtils::iran_pop</a></code> provides sex and age specific population counts for censuses between 1956 and 2016 in Iran. Each of these censuses includes a different set of most detailed age groups which can make comparisons across censuses more difficult without aggregation to common age groups first.</p>
 <p><img src="hierarchyUtils_files/figure-html/ages_available-1.png" width="768"></p>
 <p>By aggregating to a common set of aggregate age groups using <code><a href="../reference/agg.html">hierarchyUtils::agg</a></code> we can more easily compare population counts over time. One of the benefits of this function is that the input data does not need to be square, meaning the age groups in each census year for example can be different.</p>
-<p>Here we can first aggregate the interval variable <code>age</code> which depends on <code>age_start</code> and <code>age_end</code> columns in the input dataset.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="kw">value_cols</span> <span class="op">=</span> <span class="st">"population"</span>
-<span class="kw">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="kw">iran_pop</span>)[<span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="kw">iran_pop</span>) <span class="op">%in%</span> <span class="kw">value_cols</span>]
+<p>Here we can first aggregate the interval variable <code>age</code> which depends on <code>age_start</code> and <code>age_end</code> columns in the input dataset. <code>present_agg_severity = "skip"</code> because some location-years most detailed age groups are equal to the aggregates specified in `agg_age_mapping so we need to include those in the resulting aggregates.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">value_cols</span> <span class="op">=</span> <span class="st">"population"</span>
+<span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span> <span class="op">%in%</span> <span class="va">value_cols</span><span class="op">]</span>
 
 <span class="co"># aggregate to aggregate age groups</span>
-<span class="kw">agg_age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span>(age_start = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">60</span>), age_end = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">Inf</span>, <span class="fl">5</span>, <span class="fl">60</span>, <span class="fl">Inf</span>))
-<span class="kw">agg_age_mapping</span>
+<span class="va">agg_age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">60</span><span class="op">)</span>, age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span>
+<span class="va">agg_age_mapping</span>
 <span class="co">#&gt;    age_start age_end</span>
 <span class="co">#&gt; 1:         0     Inf</span>
 <span class="co">#&gt; 2:         0       5</span>
 <span class="co">#&gt; 3:        15      60</span>
 <span class="co">#&gt; 4:        60     Inf</span>
-<span class="kw">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="kw">hierarchyUtils</span>::<span class="fu"><a href="../reference/agg.html">agg</a></span>(dt = <span class="kw">iran_pop</span>,
-                                     id_cols = <span class="kw">id_cols</span>,
-                                     value_cols = <span class="kw">value_cols</span>,
-                                     col_stem = <span class="st">"age"</span>,
-                                     col_type = <span class="st">"interval"</span>,
-                                     mapping = <span class="kw">agg_age_mapping</span>)
-</pre></div>
+<span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg.html">agg</a></span><span class="op">(</span>
+  dt <span class="op">=</span> <span class="va">iran_pop</span>,
+  id_cols <span class="op">=</span> <span class="va">id_cols</span>,
+  value_cols <span class="op">=</span> <span class="va">value_cols</span>,
+  col_stem <span class="op">=</span> <span class="st">"age"</span>,
+  col_type <span class="op">=</span> <span class="st">"interval"</span>,
+  mapping <span class="op">=</span> <span class="va">agg_age_mapping</span>,
+  <span class="co"># this is specified since some location-years most detailed age groups are</span>
+  <span class="co"># equal to the aggregates specified in `agg_age_mapping`</span>
+  present_agg_severity <span class="op">=</span> <span class="st">"skip"</span>
+<span class="op">)</span>
+<span class="co">#&gt; Aggregating age</span>
+<span class="co">#&gt; Collapsing age to the most detailed common set of intervals</span>
+<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
+<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
+<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
+<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></code></pre></div>
 <p>Then we can aggregate the categorical variable <code>sex</code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="co"># aggregate to both sexes combined</span>
-<span class="kw">sex_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span>(parent = <span class="st">"both"</span>, child = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"female"</span>, <span class="st">"male"</span>))
-<span class="kw">sex_mapping</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># aggregate to both sexes combined</span>
+<span class="va">sex_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>parent <span class="op">=</span> <span class="st">"both"</span>, child <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">sex_mapping</span>
 <span class="co">#&gt;    parent  child</span>
 <span class="co">#&gt; 1:   both female</span>
 <span class="co">#&gt; 2:   both   male</span>
-<span class="kw">iran_pop_aggs_both_sexes</span> <span class="op">&lt;-</span> <span class="kw">hierarchyUtils</span>::<span class="fu"><a href="../reference/agg.html">agg</a></span>(dt = <span class="kw">iran_pop_aggs</span>,
-                                                id_cols = <span class="kw">id_cols</span>,
-                                                value_cols = <span class="kw">value_cols</span>,
-                                                col_stem = <span class="st">"sex"</span>,
-                                                col_type = <span class="st">"categorical"</span>,
-                                                mapping = <span class="kw">sex_mapping</span>)
-<span class="kw">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw">iran_pop_aggs</span>, <span class="kw">iran_pop_aggs_both_sexes</span>, use.names = <span class="kw">T</span>)
-</pre></div>
+<span class="va">iran_pop_aggs_both_sexes</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg.html">agg</a></span><span class="op">(</span>
+  dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,
+  id_cols <span class="op">=</span> <span class="va">id_cols</span>,
+  value_cols <span class="op">=</span> <span class="va">value_cols</span>,
+  col_stem <span class="op">=</span> <span class="st">"sex"</span>,
+  col_type <span class="op">=</span> <span class="st">"categorical"</span>,
+  mapping <span class="op">=</span> <span class="va">sex_mapping</span>
+<span class="op">)</span>
+<span class="co">#&gt; Aggregating sex</span>
+<span class="co">#&gt; Aggregate 1 of 1: both</span>
+<span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_both_sexes</span>, use.names <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p>The output dataset returns all the new aggregate rows made as can be seen below with the same columns as what was included originally in the dataset.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="kw">iran_pop_aggs</span>[<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span>(<span class="st">"Iran"</span>, <span class="kw">location</span>) <span class="op">&amp;</span> <span class="kw">year</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="kw">year</span>) <span class="op">&amp;</span> <span class="kw">age_start</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="kw">age_end</span> <span class="op">==</span> <span class="fl">Inf</span>]
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">iran_pop_aggs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span><span class="op">(</span><span class="st">"Iran"</span>, <span class="va">location</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">year</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">age_start</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">age_end</span> <span class="op">==</span> <span class="cn">Inf</span><span class="op">]</span>
 <span class="co">#&gt;                      location year    sex age_start age_end</span>
 <span class="co">#&gt; 1: Iran (Islamic Republic of) 2016 female         0     Inf</span>
-<span class="co">#&gt; 2: Iran (Islamic Republic of) 2016   male         0     Inf</span>
-<span class="co">#&gt; 3: Iran (Islamic Republic of) 2016 female         0     Inf</span>
+<span class="co">#&gt; 2: Iran (Islamic Republic of) 2016 female         0     Inf</span>
+<span class="co">#&gt; 3: Iran (Islamic Republic of) 2016   male         0     Inf</span>
 <span class="co">#&gt; 4: Iran (Islamic Republic of) 2016   male         0     Inf</span>
 <span class="co">#&gt; 5: Iran (Islamic Republic of) 2016   both         0     Inf</span>
 <span class="co">#&gt; 6: Iran (Islamic Republic of) 2016   both         0     Inf</span>
 <span class="co">#&gt;                   source_name    nid underlying_nid population</span>
 <span class="co">#&gt; 1:                        DYB 140966         299134   39427828</span>
-<span class="co">#&gt; 2:                        DYB 140966         299134   40498442</span>
-<span class="co">#&gt; 3: Statistical Centre of Iran 299134             NA   39427828</span>
+<span class="co">#&gt; 2: Statistical Centre of Iran 299134             NA   39427828</span>
+<span class="co">#&gt; 3:                        DYB 140966         299134   40498442</span>
 <span class="co">#&gt; 4: Statistical Centre of Iran 299134             NA   40498442</span>
 <span class="co">#&gt; 5:                        DYB 140966         299134   79926270</span>
-<span class="co">#&gt; 6: Statistical Centre of Iran 299134             NA   79926270</span>
-</pre></div>
+<span class="co">#&gt; 6: Statistical Centre of Iran 299134             NA   79926270</span></code></pre></div>
 </div>
 <div id="aggregate-locations" class="section level2">
 <h2 class="hasAnchor">
@@ -192,28 +215,45 @@
 <p>A mapping of how province boundaries have changed from the 1956 census to present day is included in the package and documented at <code><a href="../reference/iran_mapping.html">?hierarchyUtils::iran_mapping</a></code>.</p>
 <p><a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">Tree data structures</a> are really useful for representing hierarchical data which is exactly the type of data that is being manipulated when aggregating or scaling data to different levels of a hierarchy. The mappings used to define the hierarchical structure of categorical data in <code>hierarchyUtils</code> must have a <code>parent</code> and <code>child</code> column defining relationships between nodes in the tree (like in <code><a href="../reference/iran_mapping.html">hierarchyUtils::iran_mapping</a></code>).</p>
 <p>The root node of the tree shown below is “Iran” at the national level. The leaf nodes of the tree are the present day provinces and all other nodes are the historical provinces. Colored in green is everywhere data is directly available for each location, blue are locations where aggregations are possible and red is where data is missing (or aggregation is not possible). Here we can see in 2006 that a historical province called “Tehran” included two present day provinces, “Tehran” and “Alborz”.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="co"># this function is used internally by `hierarchyUtils::agg` but is available to help</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># this function is used internally by `hierarchyUtils::agg` but is available to help</span>
 <span class="co"># visualize why some aggregates can't be made, what data is missing, etc.</span>
-<span class="kw">agg_tree</span> <span class="op">&lt;-</span> <span class="kw">hierarchyUtils</span>::<span class="fu"><a href="../reference/create_agg_tree.html">create_agg_tree</a></span>(
-  mapping = <span class="kw">iran_mapping</span>, 
-  exists = <span class="kw">iran_pop_aggs</span>[<span class="kw">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="kw">source_name</span> != <span class="st">"DYB"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(<span class="kw">location</span>)],
-  col_type = <span class="st">"categorical"</span>)
-<span class="kw">hierarchyUtils</span>::<span class="fu"><a href="../reference/create_agg_tree.html">vis_tree</a></span>(<span class="kw">agg_tree</span>)
-</pre></div>
-<div id="htmlwidget-1ddc6211e11b2787221d" style="width:768px;height:480px;" class="diagonalNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1ddc6211e11b2787221d">{"x":{"root":{"name":"Iran (Islamic Republic of)","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1966-1976","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Tehran 1986-1995","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Tehran 2006","agg_possible":false,"exists":true,"vis_group_node":"Value Provided","children":[{"name":"Tehran","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"},{"name":"Alborz","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"}]},{"name":"Qom","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Semnan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Gilan 1956-1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Gilan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Zanjan 1976-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Zanjan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Qazvin","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Mazandaran 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Mazandaran","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Golestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"East Azarbayejan 1956-1986","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"East Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Ardebil","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"West Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshahan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Ilam","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshah","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hamadan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kurdistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khuzestan and Lorestan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khuzestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Lorestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Fars and Ports 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Fars","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hormozgan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Bushehr","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kohgiluyeh and Boyer-Ahmad","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kerman","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khorasan 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khorasan-e-Razavi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"North Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"South Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Isfahan and Yazd 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan and Yazd 1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Yazd","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Chahar Mahaal and Bakhtiari","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Sistan and Baluchistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},"options":{"height":null,"width":null,"fontSize":10,"fontFamily":"serif","linkColour":"#ccc","nodeColour":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","nodeStroke":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","textColour":"#111","margin":{"top":null,"right":null,"bottom":null,"left":null},"opacity":0.9}},"evals":["options.nodeColour","options.nodeStroke"],"jsHooks":[]}</script><p>Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. <code>drop_present_aggs = T</code> because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. <code>missing_dt_severity = "none"</code> because in some source-years we don’t have the present day provinces and its okay to just make the aggregates that are possible given the data that is available.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="kw">iran_pop_aggs_location</span> <span class="op">&lt;-</span> <span class="kw">hierarchyUtils</span>::<span class="fu"><a href="../reference/agg.html">agg</a></span>(dt = <span class="kw">iran_pop_aggs</span>,
-                                              id_cols = <span class="kw">id_cols</span>,
-                                              value_cols = <span class="kw">value_cols</span>,
-                                              col_stem = <span class="st">"location"</span>,
-                                              col_type = <span class="st">"categorical"</span>,
-                                              mapping = <span class="kw">iran_mapping</span>,
-                                              drop_present_aggs = <span class="kw">T</span>,
-                                              missing_dt_severity = <span class="st">"none"</span>)
-<span class="kw">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="kw">iran_pop_aggs</span>, <span class="kw">iran_pop_aggs_location</span>)
-</pre></div>
+<span class="va">agg_tree</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_agg_tree.html">create_agg_tree</a></span><span class="op">(</span>
+  mapping <span class="op">=</span> <span class="va">iran_mapping</span>,
+  exists <span class="op">=</span> <span class="va">iran_pop_aggs</span><span class="op">[</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="va">source_name</span> <span class="op">!=</span> <span class="st">"DYB"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">location</span><span class="op">)</span><span class="op">]</span>,
+  col_type <span class="op">=</span> <span class="st">"categorical"</span><span class="op">)</span>
+<span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_agg_tree.html">vis_tree</a></span><span class="op">(</span><span class="va">agg_tree</span><span class="op">)</span>
+<span class="co">#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</span></code></pre></div>
+<div id="htmlwidget-00e67f4df9b83e5b51aa" style="width:768px;height:480px;" class="diagonalNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-00e67f4df9b83e5b51aa">{"x":{"root":{"name":"Iran (Islamic Republic of)","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1966-1976","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Tehran 1986-1995","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Tehran 2006","agg_possible":false,"exists":true,"vis_group_node":"Value Provided","children":[{"name":"Tehran","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"},{"name":"Alborz","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"}]},{"name":"Qom","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Semnan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Gilan 1956-1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Gilan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Zanjan 1976-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Zanjan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Qazvin","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Mazandaran 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Mazandaran","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Golestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"East Azarbayejan 1956-1986","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"East Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Ardebil","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"West Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshahan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Ilam","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshah","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hamadan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kurdistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khuzestan and Lorestan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khuzestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Lorestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Fars and Ports 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Fars","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hormozgan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Bushehr","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kohgiluyeh and Boyer-Ahmad","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kerman","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khorasan 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khorasan-e-Razavi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"North Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"South Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Isfahan and Yazd 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan and Yazd 1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Yazd","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Chahar Mahaal and Bakhtiari","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Sistan and Baluchistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},"options":{"height":null,"width":null,"fontSize":10,"fontFamily":"serif","linkColour":"#ccc","nodeColour":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","nodeStroke":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","textColour":"#111","margin":{"top":null,"right":null,"bottom":null,"left":null},"opacity":0.9}},"evals":["options.nodeColour","options.nodeStroke"],"jsHooks":[]}</script><p>Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. <code>present_agg_severity = 'none'</code> because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. <code>missing_dt_severity = "none"</code> because in some source-years we don’t have the present day provinces and its okay to just make the aggregates that are possible given the data that is available.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">iran_pop_aggs_location</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg.html">agg</a></span><span class="op">(</span>
+  dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,
+  id_cols <span class="op">=</span> <span class="va">id_cols</span>,
+  value_cols <span class="op">=</span> <span class="va">value_cols</span>,
+  col_stem <span class="op">=</span> <span class="st">"location"</span>,
+  col_type <span class="op">=</span> <span class="st">"categorical"</span>,
+  mapping <span class="op">=</span> <span class="va">iran_mapping</span>,
+  present_agg_severity <span class="op">=</span> <span class="st">"none"</span>,
+  missing_dt_severity <span class="op">=</span> <span class="st">"none"</span>
+<span class="op">)</span>
+<span class="co">#&gt; Aggregating location</span>
+<span class="co">#&gt; Aggregate 1 of 15: Tehran 2006</span>
+<span class="co">#&gt; Aggregate 2 of 15: Tehran 1986-1995</span>
+<span class="co">#&gt; Aggregate 3 of 15: Markazi 1966-1976</span>
+<span class="co">#&gt; Aggregate 4 of 15: Markazi 1956</span>
+<span class="co">#&gt; Aggregate 5 of 15: Zanjan 1976-1996</span>
+<span class="co">#&gt; Aggregate 6 of 15: Gilan 1956-1966</span>
+<span class="co">#&gt; Aggregate 7 of 15: Mazandaran 1956-1996</span>
+<span class="co">#&gt; Aggregate 8 of 15: East Azarbayejan 1956-1986</span>
+<span class="co">#&gt; Aggregate 9 of 15: Kermanshahan 1956</span>
+<span class="co">#&gt; Aggregate 10 of 15: Khuzestan and Lorestan 1956</span>
+<span class="co">#&gt; Aggregate 11 of 15: Fars and Ports 1956</span>
+<span class="co">#&gt; Aggregate 12 of 15: Khorasan 1956-1996</span>
+<span class="co">#&gt; Aggregate 13 of 15: Isfahan and Yazd 1966</span>
+<span class="co">#&gt; Aggregate 14 of 15: Isfahan and Yazd 1956</span>
+<span class="co">#&gt; Aggregate 15 of 15: Iran (Islamic Republic of)</span>
+<span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_location</span><span class="op">)</span></code></pre></div>
 <p>The population for these aggregates age groups at the national level can now be plotted over time.</p>
 <p><img src="hierarchyUtils_files/figure-html/plot_total_pop-1.png" width="768"></p>
 </div>

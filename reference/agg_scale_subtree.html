@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -90,11 +90,23 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/agg_scale_performance.html">Aggregation/Scaling performance</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -120,29 +132,31 @@
     <p>Aggregate or scale one subtree's children values to the parent level</p>
     </div>
 
-    <pre class="usage"><span class='fu'>agg_subtree</span>(
-  <span class='kw'>dt</span>,
-  <span class='kw'>id_cols</span>,
-  <span class='kw'>value_cols</span>,
-  <span class='kw'>col_stem</span>,
-  <span class='kw'>col_type</span>,
-  <span class='kw'>agg_function</span>,
-  <span class='kw'>subtree</span>,
-  <span class='kw'>missing_dt_severity</span>,
-  <span class='kw'>collapse_interval_cols</span>
-)
+    <pre class="usage"><span class='fu'>agg_subtree</span><span class='op'>(</span>
+  <span class='va'>dt</span>,
+  <span class='va'>id_cols</span>,
+  <span class='va'>value_cols</span>,
+  <span class='va'>col_stem</span>,
+  <span class='va'>col_type</span>,
+  <span class='va'>agg_function</span>,
+  <span class='va'>subtree</span>,
+  <span class='va'>missing_dt_severity</span>,
+  <span class='va'>overlapping_dt_severity</span>,
+  <span class='va'>collapse_interval_cols</span>
+<span class='op'>)</span>
 
-<span class='fu'>scale_subtree</span>(
-  <span class='kw'>dt</span>,
-  <span class='kw'>id_cols</span>,
-  <span class='kw'>value_cols</span>,
-  <span class='kw'>col_stem</span>,
-  <span class='kw'>col_type</span>,
-  <span class='kw'>agg_function</span>,
-  <span class='kw'>subtree</span>,
-  <span class='kw'>missing_dt_severity</span>,
-  <span class='kw'>collapse_interval_cols</span>
-)</pre>
+<span class='fu'>scale_subtree</span><span class='op'>(</span>
+  <span class='va'>dt</span>,
+  <span class='va'>id_cols</span>,
+  <span class='va'>value_cols</span>,
+  <span class='va'>col_stem</span>,
+  <span class='va'>col_type</span>,
+  <span class='va'>agg_function</span>,
+  <span class='va'>subtree</span>,
+  <span class='va'>missing_dt_severity</span>,
+  <span class='va'>overlapping_dt_severity</span>,
+  <span class='va'>collapse_interval_cols</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -188,10 +202,18 @@ Function to use when aggregating, can be either <code>sum</code> (for counts) or
     <tr>
       <th>missing_dt_severity</th>
       <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
-How severe should the consequences of missing data that prevents
-aggregation or scaling from occurring be? Can be either 'stop', 'warning',
-'message', or 'none'. If not "stop", then only the possible aggregations or
-scaling is done using the available data.</p></td>
+What should happen when <code>dt</code> is missing levels of <code>col_stem</code> that
+prevent aggregation or scaling from occurring? Can be either 'skip',
+'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+'Severity Arguments' for more information.</p></td>
+    </tr>
+    <tr>
+      <th>overlapping_dt_severity</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+When aggregating/scaling an interval variable or <code>collapse_interval_cols=TRUE</code>
+what should happen when overlapping intervals are identified? Can be either
+'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
+section on 'Severity Arguments' for more information.</p></td>
     </tr>
     <tr>
       <th>collapse_interval_cols</th>

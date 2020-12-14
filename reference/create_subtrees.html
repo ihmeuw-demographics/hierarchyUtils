@@ -46,8 +46,7 @@ scaling — create_agg_subtrees" />
 during aggregation or scaling.
 For aggregation, traverses in post-order so that aggregation starts from
 the bottom of the tree and goes up. For scaling, traverses in pre-order so
-that scaling starts from the top of the tree and goes down.
-Only includes nodes that can be aggregated to or scaled." />
+that scaling starts from the top of the tree and goes down." />
 
 
 
@@ -87,7 +86,7 @@ Only includes nodes that can be aggregated to or scaled." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -97,11 +96,23 @@ Only includes nodes that can be aggregated to or scaled." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/agg_scale_performance.html">Aggregation/Scaling performance</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -130,12 +141,11 @@ during aggregation or scaling.</p>
 <p>For aggregation, traverses in post-order so that aggregation starts from
 the bottom of the tree and goes up. For scaling, traverses in pre-order so
 that scaling starts from the top of the tree and goes down.</p>
-<p>Only includes nodes that can be aggregated to or scaled.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_agg_subtrees</span>(<span class='kw'>mapping</span>, <span class='kw'>exists</span>, <span class='kw'>col_type</span>)
+    <pre class="usage"><span class='fu'>create_agg_subtrees</span><span class='op'>(</span><span class='va'>mapping</span>, <span class='va'>exists</span>, <span class='va'>col_type</span><span class='op'>)</span>
 
-<span class='fu'>create_scale_subtrees</span>(<span class='kw'>mapping</span>, <span class='kw'>exists</span>, <span class='kw'>col_type</span>, <span class='kw'>collapse_missing</span>)</pre>
+<span class='fu'>create_scale_subtrees</span><span class='op'>(</span><span class='va'>mapping</span>, <span class='va'>exists</span>, <span class='va'>col_type</span>, <span class='va'>collapse_missing</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • hierarchyUtils</title>
+<title>Check subtree data.table before aggregation and scaling — check_agg_scale_subtree_dt • hierarchyUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,11 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Check subtree data.table before aggregation and scaling — check_agg_scale_subtree_dt" />
+<meta property="og:description" content="Check subtree data.table before aggregation and scaling after
+interval id columns have been collapsed if specified. At this point
+data.table should be square with all expected values for the col_stem
+variable." />
 
 
 
@@ -58,7 +62,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -122,20 +126,76 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1>Check subtree data.table before aggregation and scaling</h1>
+    <small class="dont-index">Source: <a href='https://github.com/ihmeuw-demographics/hierarchyUtils/blob/master/R/categorical_trees.R'><code>R/categorical_trees.R</code></a></small>
+    <div class="hidden name"><code>check_agg_scale_subtree_dt.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <dl>
-        <dt><a href="agg_scale_performance.html">Aggregation/Scaling performance</a></dt>
-        <dd></dt>
-        <dt><a href="hierarchyUtils.html">Introduction to hierarchyUtils</a></dt>
-        <dd></dt>
-      </dl>
+    <div class="ref-description">
+    <p>Check subtree data.table before aggregation and scaling after
+interval id columns have been collapsed if specified. At this point
+data.table should be square with all expected values for the <code>col_stem</code>
+variable.</p>
     </div>
+
+    <pre class="usage"><span class='fu'>check_agg_scale_subtree_dt</span><span class='op'>(</span>
+  <span class='va'>dt</span>,
+  <span class='va'>id_cols</span>,
+  <span class='va'>col_stem</span>,
+  <span class='va'>col_type</span>,
+  <span class='va'>missing_dt_severity</span>,
+  <span class='va'>expected_col_stem</span>
+<span class='op'>)</span></pre>
+
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>dt</th>
+      <td><p>[<code>data.table()</code>]<br />
+Data to be aggregated or scaled.</p></td>
+    </tr>
+    <tr>
+      <th>id_cols</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
+ID columns that uniquely identify each row of <code>dt</code>.</p></td>
+    </tr>
+    <tr>
+      <th>col_stem</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+The name of the variable to be aggregated or scaled over. If aggregating an
+'interval' variable should not include the '_start' or '_end' suffix.</p></td>
+    </tr>
+    <tr>
+      <th>col_type</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+The type of variable that is being aggregated or scaled over. Can be either
+'categorical' or 'interval'.</p></td>
+    </tr>
+    <tr>
+      <th>missing_dt_severity</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character(1)</a></code>]<br />
+What should happen when <code>dt</code> is missing levels of <code>col_stem</code> that
+prevent aggregation or scaling from occurring? Can be either 'skip',
+'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
+'Severity Arguments' for more information.</p></td>
+    </tr>
+    <tr>
+      <th>expected_col_stem</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/character.html'>character()</a></code>]<br />
+expected values for the <code>col_stem</code> variable in <code>dt</code>.</p></td>
+    </tr>
+    </table>
+
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p><code>dt</code> with any missing data dropped.</p>
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 

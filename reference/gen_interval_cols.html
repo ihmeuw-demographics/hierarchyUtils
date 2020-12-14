@@ -83,7 +83,7 @@ formatted interval names can be created." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -93,11 +93,23 @@ formatted interval names can be created." />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/agg_scale_performance.html">Aggregation/Scaling performance</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -126,17 +138,17 @@ be described by their endpoints from which interval lengths and nicer
 formatted interval names can be created.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gen_end</span>(<span class='kw'>dt</span>, <span class='kw'>id_cols</span>, <span class='kw'>col_stem</span>, right_most_endpoint = <span class='fl'>Inf</span>)
+    <pre class="usage"><span class='fu'>gen_end</span><span class='op'>(</span><span class='va'>dt</span>, <span class='va'>id_cols</span>, <span class='va'>col_stem</span>, right_most_endpoint <span class='op'>=</span> <span class='cn'>Inf</span><span class='op'>)</span>
 
-<span class='fu'>gen_length</span>(<span class='kw'>dt</span>, <span class='kw'>col_stem</span>)
+<span class='fu'>gen_length</span><span class='op'>(</span><span class='va'>dt</span>, <span class='va'>col_stem</span><span class='op'>)</span>
 
-<span class='fu'>gen_name</span>(
-  <span class='kw'>dt</span>,
-  <span class='kw'>col_stem</span>,
-  format = <span class='st'>"to"</span>,
-  format_infinite = <span class='st'>"plus"</span>,
-  right_most_endpoint = <span class='fl'>Inf</span>
-)</pre>
+<span class='fu'>gen_name</span><span class='op'>(</span>
+  <span class='va'>dt</span>,
+  <span class='va'>col_stem</span>,
+  format <span class='op'>=</span> <span class='st'>"to"</span>,
+  format_infinite <span class='op'>=</span> <span class='st'>"plus"</span>,
+  right_most_endpoint <span class='op'>=</span> <span class='cn'>Inf</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -214,14 +226,14 @@ each interval. Input data <code>dt</code> for <code>gen_length</code> must conta
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>input_dt</span> <span class='op'>&lt;-</span> <span class='kw'>data.table</span>::<span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span>(location = <span class='st'>"France"</span>, year = <span class='fl'>2010</span>,
-                                   sex = <span class='st'>"female"</span>,
-                                   age_start = <span class='fl'>0</span><span class='op'>:</span><span class='fl'>95</span>,
-                                   value1 = <span class='fl'>1</span>, value2 = <span class='fl'>2</span>)
-<span class='kw'>id_cols</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"location"</span>, <span class='st'>"year"</span>, <span class='st'>"sex"</span>, <span class='st'>"age_start"</span>)
-<span class='fu'>gen_end</span>(<span class='kw'>input_dt</span>, <span class='kw'>id_cols</span>, col_stem = <span class='st'>"age"</span>)
-<span class='fu'>gen_length</span>(<span class='kw'>input_dt</span>, col_stem = <span class='st'>"age"</span>)
-<span class='fu'>gen_name</span>(<span class='kw'>input_dt</span>, col_stem = <span class='st'>"age"</span>)
+    <pre class="examples"><div class='input'><span class='va'>input_dt</span> <span class='op'>&lt;-</span> <span class='fu'>data.table</span><span class='fu'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span><span class='op'>(</span>location <span class='op'>=</span> <span class='st'>"France"</span>, year <span class='op'>=</span> <span class='fl'>2010</span>,
+                                   sex <span class='op'>=</span> <span class='st'>"female"</span>,
+                                   age_start <span class='op'>=</span> <span class='fl'>0</span><span class='op'>:</span><span class='fl'>95</span>,
+                                   value1 <span class='op'>=</span> <span class='fl'>1</span>, value2 <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+<span class='va'>id_cols</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"location"</span>, <span class='st'>"year"</span>, <span class='st'>"sex"</span>, <span class='st'>"age_start"</span><span class='op'>)</span>
+<span class='fu'>gen_end</span><span class='op'>(</span><span class='va'>input_dt</span>, <span class='va'>id_cols</span>, col_stem <span class='op'>=</span> <span class='st'>"age"</span><span class='op'>)</span>
+<span class='fu'>gen_length</span><span class='op'>(</span><span class='va'>input_dt</span>, col_stem <span class='op'>=</span> <span class='st'>"age"</span><span class='op'>)</span>
+<span class='fu'>gen_name</span><span class='op'>(</span><span class='va'>input_dt</span>, col_stem <span class='op'>=</span> <span class='st'>"age"</span><span class='op'>)</span>
 
 </div></pre>
   </div>
