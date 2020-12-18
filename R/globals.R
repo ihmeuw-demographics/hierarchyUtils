@@ -7,4 +7,4 @@ utils::globalVariables(c("start", "end", "available_vars",
                          "check", "group", "overlap", "issue",
                          "common_start", "common_end",
                          "vis_group", "colour", "full",
-                         "N"))
+                         "N", "unknown", "weight"))

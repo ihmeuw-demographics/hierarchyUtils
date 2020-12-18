@@ -7,7 +7,8 @@
 #'   Data which includes both known and unknown groupings. Unknown groupings
 #'   should be indicated with NA entries for columns defined by `col_stem`.
 #' @param value_cols \[`character(1)`\]\cr
-#'   Value columns that should be split and distributed.
+#'   Value columns that should be split and distributed. Currently must be
+#'   length 1.
 #' @param col_stem \[`character(1)`\]\cr
 #'   The name of the variable that defines the groupings being split. If an
 #'   'interval' variable should not include the '_start' or '_end' suffix.
@@ -25,7 +26,7 @@
 #'
 #' @examples
 #' # interval
-#' dt <- data.table(
+#' dt <- data.table::data.table(
 #'   age_start = c(0, 1, 2, NA),
 #'   age_end = c(1, 2, 3, NA),
 #'   population = c(20, 30, 50, 10)
@@ -36,11 +37,11 @@
 #'   value_cols = "population",
 #'   col_stem = "age",
 #'   col_type = "interval",
-#'   mapping = data.table(age_start = c(0), age_end = c(3))
+#'   mapping = data.table::data.table(age_start = c(0), age_end = c(3))
 #' )
 #'
 #' # categorical
-#' dt <- data.table(
+#' dt <- data.table::data.table(
 #'   sex = c("male", "female", NA),
 #'   population = c(25, 75, 10)
 #' )
@@ -50,7 +51,10 @@
 #'   value_cols = "population",
 #'   col_stem = "sex",
 #'   col_type = "categorical",
-#'   mapping = data.table(parent = c("all", "all"), child = c("male", "female")
+#'   mapping = data.table::data.table(
+#'       parent = c("all", "all"),
+#'       child = c("male", "female")
+#'  )
 #' )
 #'
 #' @export

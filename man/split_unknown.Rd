@@ -15,7 +15,8 @@ should be indicated with NA entries for columns defined by \code{col_stem}.}
 ID columns that uniquely identify each row of \code{dt}.}
 
 \item{value_cols}{[\code{character(1)}]\cr
-Value columns that should be split and distributed.}
+Value columns that should be split and distributed. Currently must be
+length 1.}
 
 \item{col_stem}{[\code{character(1)}]\cr
 The name of the variable that defines the groupings being split. If an
@@ -40,7 +41,7 @@ and redistribute.
 }
 \examples{
 # interval
-dt <- data.table(
+dt <- data.table::data.table(
   age_start = c(0, 1, 2, NA),
   age_end = c(1, 2, 3, NA),
   population = c(20, 30, 50, 10)
@@ -51,11 +52,11 @@ dt <- split_unknown(
   value_cols = "population",
   col_stem = "age",
   col_type = "interval",
-  mapping = data.table(age_start = c(0), age_end = c(3))
+  mapping = data.table::data.table(age_start = c(0), age_end = c(3))
 )
 
 # categorical
-dt <- data.table(
+dt <- data.table::data.table(
   sex = c("male", "female", NA),
   population = c(25, 75, 10)
 )
@@ -65,7 +66,10 @@ dt <- split_unknown(
   value_cols = "population",
   col_stem = "sex",
   col_type = "categorical",
-  mapping = data.table(parent = c("all", "all"), child = c("male", "female")
+  mapping = data.table::data.table(
+      parent = c("all", "all"),
+      child = c("male", "female")
+ )
 )
 
 }
