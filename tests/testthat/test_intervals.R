@@ -158,9 +158,9 @@ input_dt_female <- data.table(sex = "female", age_start = seq(0, 95, 5),
                               age_end = c(seq(5, 95, 5), Inf))
 input_dt <- rbind(input_dt_male, input_dt_female)
 
-expected_dt <- data.table(common_start = seq(0, 95, 5),
-                          common_end = c(seq(5, 95, 5), Inf))
-setkeyv(expected_dt, c("common_start", "common_end"))
+expected_dt <- data.table(age_start = seq(0, 95, 5),
+                          age_end = c(seq(5, 95, 5), Inf))
+setkeyv(expected_dt, c("age_start", "age_end"))
 
 description <- "common intervals for five year and single year age groups are
 identified"
@@ -180,9 +180,9 @@ input_dt_female <- data.table(sex = "female", age_start = c(0, 5, 15, 20),
                               age_end = c(5, 15, 20, Inf))
 input_dt <- rbind(input_dt_male, input_dt_female)
 
-expected_dt <- data.table(common_start = c(0, 5, 20),
-                          common_end = c(5, 20, Inf))
-setkeyv(expected_dt, c("common_start", "common_end"))
+expected_dt <- data.table(age_start = c(0, 5, 20),
+                          age_end = c(5, 20, Inf))
+setkeyv(expected_dt, c("age_start", "age_end"))
 
 description <- "common intervals for overlapping age groups are identified"
 test_that(description, {
@@ -202,9 +202,9 @@ input_dt_female <- data.table(sex = "female", age_start = seq(0, 95, 5),
                               age_end = c(seq(5, 95, 5), Inf))
 input_dt <- rbind(input_dt_male, input_dt_female)
 
-expected_dt <- data.table(common_start = c(seq(0, 15, 5), seq(25, 95, 5)),
-                          common_end = c(seq(5, 20, 5), seq(30, 95, 5), Inf))
-setkeyv(expected_dt, c("common_start", "common_end"))
+expected_dt <- data.table(age_start = c(seq(0, 15, 5), seq(25, 95, 5)),
+                          age_end = c(seq(5, 20, 5), seq(30, 95, 5), Inf))
+setkeyv(expected_dt, c("age_start", "age_end"))
 
 description <- "common intervals for five year and single year age groups are
 identified when some are missing"
@@ -216,9 +216,9 @@ test_that(description, {
   )
   expect_identical(output_dt, expected_dt)
 
-  new_expected_dt <- data.table(common_start = seq(0, 95, 5),
-                                common_end = c(seq(5, 95, 5), Inf))
-  setkeyv(new_expected_dt, c("common_start", "common_end"))
+  new_expected_dt <- data.table(age_start = seq(0, 95, 5),
+                                age_end = c(seq(5, 95, 5), Inf))
+  setkeyv(new_expected_dt, c("age_start", "age_end"))
   output_dt <- identify_common_intervals(
     dt = input_dt,
     id_cols = id_cols,
@@ -227,6 +227,12 @@ test_that(description, {
   )
   expect_identical(output_dt, new_expected_dt)
 
+  output_dt <- identify_common_intervals(
+    dt = input_dt,
+    id_cols = NULL,
+    col_stem = "age"
+  )
+  expect_identical(output_dt, new_expected_dt)
 })
 
 # Test that intervals are collapsed correctly to common set ---------------
@@ -271,19 +277,13 @@ test_that("intervals are collapsed correctly to common set", {
     value_cols = value_cols,
     col_stem = "year"
   )
-  expect_error(collapse_common_intervals(
-    dt = collapsed_dt,
-    id_cols = id_cols,
-    value_cols = value_cols,
-    col_stem = "age"
-  ), regexp = "Some overlapping intervals are already in `dt`.")
 
   collapsed_dt <- collapse_common_intervals(
     dt = collapsed_dt,
     id_cols = id_cols,
     value_cols = value_cols,
     col_stem = "age",
-    drop_present_aggs = T
+    overlapping_dt_severity = "none"
   )
   expect_identical(collapsed_dt, expected_dt)
 })

@@ -36,6 +36,4 @@ during aggregation or scaling.
 For aggregation, traverses in post-order so that aggregation starts from
 the bottom of the tree and goes up. For scaling, traverses in pre-order so
 that scaling starts from the top of the tree and goes down.
-
-Only includes nodes that can be aggregated to or scaled.
 }
