@@ -32,6 +32,11 @@ reference:
   - create_scale_tree
   - vis_tree
 
+- title: "Splitting hierarchical data"
+  desc: "Functions for splitting hierarchical data into more detailed groupings"
+- contents:
+  - split_unknown
+
 - title: "Example data"
   desc: "Example hierarchical data and mappings to use with `hierarchyUtils` functions"
 - contents:
