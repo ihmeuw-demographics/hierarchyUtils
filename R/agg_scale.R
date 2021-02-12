@@ -106,7 +106,7 @@
 #' 2. `warning` or `message`: throw warning/message, drop overlapping intervals
 #' and continue with aggregation/scaling where possible (this may cause another
 #' error because of `missing_dt_severity`).
-#' 3 `none`: don't throw error or warning, drop overlapping intervals and
+#' 3. `none`: don't throw error or warning, drop overlapping intervals and
 #' continue with aggregation/scaling where possible (this may cause another
 #' error because of `missing_dt_severity`).
 #' 4. `skip`: skip this check and continue with aggregation/scaling.
