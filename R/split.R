@@ -58,7 +58,13 @@
 #' )
 #'
 #' @export
-split_unknown <- function(dt, id_cols, value_cols, col_stem, col_type, mapping) {
+split_unknown <- function(dt,
+                          id_cols,
+                          value_cols,
+                          col_stem,
+                          col_type,
+                          mapping,
+                          quiet = FALSE) {
 
   # validate ----------------------------------------------------------------
 
@@ -70,10 +76,13 @@ split_unknown <- function(dt, id_cols, value_cols, col_stem, col_type, mapping) 
     ifelse(col_type == "interval", paste0(col_stem, "_start"), col_stem)
 
   assert_agg_scale_args(
-    dt[!is.na(get(col_stem_var))],
-    id_cols, value_cols, col_stem,
-    col_type, mapping, agg_function,
-    collapse_interval_cols, "agg"
+    dt = dt[!is.na(get(col_stem_var))],
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = col_stem, col_type = col_type,
+    mapping = mapping, agg_function = agg_function,
+    missing_dt_severity = "stop", overlapping_dt_severity = "stop",
+    na_value_severity = "stop", collapse_interval_cols = collapse_interval_cols,
+    functionality = "agg", quiet = quiet
   )
 
   demUtils::assert_is_unique_dt(dt, id_cols)

@@ -4,7 +4,15 @@
 \alias{split_unknown}
 \title{Split unknown groupings}
 \usage{
-split_unknown(dt, id_cols, value_cols, col_stem, col_type, mapping)
+split_unknown(
+  dt,
+  id_cols,
+  value_cols,
+  col_stem,
+  col_type,
+  mapping,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{dt}{[\code{data.table()}]\cr
@@ -30,6 +38,10 @@ is 'interval'.}
 \item{mapping}{[\code{character(1)}]\cr
 For 'categorical' variables, defines how different levels of the
 hierarchical variable relate to each other.}
+
+\item{quiet}{[\code{logical(1)}]\cr
+Should progress messages be suppressed as the function is run? Default is
+False.}
 }
 \value{
 [\code{data.table()}]\cr
