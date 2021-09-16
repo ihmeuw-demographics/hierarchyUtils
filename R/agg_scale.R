@@ -634,6 +634,14 @@ assert_agg_scale_args <- function(dt,
                                    `dt`")
   }
 
+  if (functionality == "agg" & col_type == "interval") {
+    invalid_interval_mapping <- mapping[get(cols[1]) >= get(cols[2])]
+    assertthat::assert_that(
+      nrow(invalid_interval_mapping) == 0,
+      msg = "interval 'start' columns must always be less than the corresponding
+             'end' column, check `mapping` argument")
+  }
+
   # check `agg_function` argument
   assertthat::assert_that(assertive::is_function(agg_function),
                           identical(agg_function, sum) |
