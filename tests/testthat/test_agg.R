@@ -257,6 +257,31 @@ testthat::test_that(description, {
   )
 })
 
+# no possible aggregates to make ------------------------------------------
+
+input_dt <- data.table(year = 2010, age_start = seq(15, 50, 5), age_end = seq(20, 55, 5), value = 1)
+description <- "no error is thrown when there are no possible aggregates to make"
+testthat::test_that(description, {
+
+  expect_error(
+    agg(
+      dt = input_dt,
+      id_cols = c("year", "age_start", "age_end"), value_col = "value",
+      col_stem = "age", col_type = "interval",
+      mapping = data.table(age_start = 10, age_end = 55)
+    ),
+    regexp = "expected input data is missing"
+  )
+
+  output_dt <- agg(
+    dt = input_dt,
+    id_cols = c("year", "age_start", "age_end"), value_col = "value",
+    col_stem = "age", col_type = "interval",
+    mapping = data.table(age_start = 10, age_end = 55),
+    missing_dt_severity = "none"
+  )
+  expect_equal(nrow(output_dt), 0)
+})
 
 # Aggregate categorical variable with multiple levels in mapping ----------
 

@@ -311,7 +311,7 @@ agg <- function(dt,
 
   # create object to collect aggregated results
   result_dt <- dt[0]
-  if (col_type == "interval") result_dt <- vector("list", length(subtrees))
+  if (col_type == "interval") result_dt <- lapply(1:length(subtrees), function(i) dt[0])
 
   # aggregate children to parents for sub-trees where aggregation possible
   for (i in 1:length(subtrees)) {
