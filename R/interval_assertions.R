@@ -84,6 +84,10 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #'   overlapping intervals.
 #'
 #' @inheritParams identify_missing_intervals
+#' @param identify_all_possible \[`logical(1)`\]\cr
+#'   Whether to return all overlapping intervals ('TRUE') or try to identify just
+#'   the less granular interval ('FALSE'). Default is 'FALSE'. Useful when it may
+#'   not be clear what is the less granular interval.
 #'
 #' @return  `identify_overlapping_intervals` returns a \[`data.table()`\] with
 #'   columns for the 'start' and 'end' of the overlapping intervals. If no
@@ -93,10 +97,11 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #'
 #' @examples
 #' ints_dt <- data.table::data.table(
-#'   start = c(seq(0, 95, 5), 0),
-#'   end = c(seq(5, 95, 5), Inf, Inf)
+#'   start = c(seq(10, 50, 5), 0),
+#'   end = c(seq(15, 55, 5), 11)
 #' )
-#' overlapping_dt <- identify_overlapping_intervals(ints_dt)
+#' overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = FALSE)
+#' overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = TRUE)
 #'
 #'
 #' @export
@@ -115,7 +120,7 @@ assert_no_overlapping_intervals <- function(ints_dt) {
 
 #' @export
 #' @rdname overlapping_intervals
-identify_overlapping_intervals <- function(ints_dt) {
+identify_overlapping_intervals <- function(ints_dt, identify_all_possible = FALSE) {
 
   assertthat::assert_that(
     assertive::is_data.table(ints_dt),
@@ -133,20 +138,27 @@ identify_overlapping_intervals <- function(ints_dt) {
   overlaps <- intervals::interval_overlap(ints, ints)
   names(overlaps) <- 1:length(overlaps)
 
+  # remove self match only
+  overlaps <- overlaps[sapply(overlaps, function(i) length(i) > 1)]
+
   # sort by number of intervals that each interval overlaps with so that we can
   # identify the largest overlapping intervals first
   overlaps <- overlaps[order(sapply(overlaps, length), decreasing=T)]
 
-  overlapping_indices <- c()
-  for (i in names(overlaps)) {
-    # remove match to itself
-    overlaps[[i]] <- overlaps[[i]][overlaps[[i]] != i]
+  if (identify_all_possible) {
+    overlapping_indices <- names(overlaps)
+  } else {
+    overlapping_indices <- c()
+    for (i in names(overlaps)) {
+      # remove match to itself
+      overlaps[[i]] <- overlaps[[i]][overlaps[[i]] != i]
 
-    # remove indices of overlapping intervals that have already been identified
-    overlaps[[i]] <- overlaps[[i]][!overlaps[[i]] %in% overlapping_indices]
+      # remove indices of overlapping intervals that have already been identified
+      overlaps[[i]] <- overlaps[[i]][!overlaps[[i]] %in% overlapping_indices]
 
-    if (length(overlaps[[i]]) > 0) {
-      overlapping_indices <- c(overlapping_indices, i)
+       if (length(overlaps[[i]]) > 0) {
+        overlapping_indices <- c(overlapping_indices, i)
+      }
     }
   }
   overlapping_ints <- ints[as.integer(overlapping_indices)]

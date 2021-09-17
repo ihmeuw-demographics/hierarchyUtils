@@ -7,12 +7,17 @@
 \usage{
 assert_no_overlapping_intervals(ints_dt)
 
-identify_overlapping_intervals(ints_dt)
+identify_overlapping_intervals(ints_dt, identify_all_possible = FALSE)
 }
 \arguments{
 \item{ints_dt}{[\code{data.table()}]\cr
 Unique intervals. The first column represents the start of each interval
 and the second column represents the end of each interval.}
+
+\item{identify_all_possible}{[\code{logical(1)}]\cr
+Whether to return all overlapping intervals ('TRUE') or try to identify just
+the less granular interval ('FALSE'). Default is 'FALSE'. Useful when it may
+not be clear what is the less granular interval.}
 }
 \value{
 \code{identify_overlapping_intervals} returns a [\code{data.table()}] with
@@ -27,10 +32,11 @@ overlapping intervals.
 }
 \examples{
 ints_dt <- data.table::data.table(
-  start = c(seq(0, 95, 5), 0),
-  end = c(seq(5, 95, 5), Inf, Inf)
+  start = c(seq(10, 50, 5), 0),
+  end = c(seq(15, 55, 5), 11)
 )
-overlapping_dt <- identify_overlapping_intervals(ints_dt)
+overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = FALSE)
+overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = TRUE)
 
 
 }
