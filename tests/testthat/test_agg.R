@@ -281,6 +281,15 @@ testthat::test_that(description, {
     missing_dt_severity = "none"
   )
   expect_equal(nrow(output_dt), 0)
+
+  output_dt <- agg(
+    dt = input_dt,
+    id_cols = c("year", "age_start", "age_end"), value_col = "value",
+    col_stem = "age", col_type = "interval",
+    mapping = data.table(age_start = 10, age_end = 55),
+    missing_dt_severity = "skip"
+  )
+  expect_equal(output_dt, data.table(year = 2010, age_start = 10, age_end = 55, value = nrow(input_dt)))
 })
 
 # Aggregate categorical variable with multiple levels in mapping ----------
