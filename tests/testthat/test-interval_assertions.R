@@ -46,19 +46,19 @@ ints_dt <- data.table(
 
 testthat::test_that("missing intervals are identified correctly", {
 
-
   testthat::expect_silent(
     assert_no_overlapping_intervals(ints_dt)
   )
 
-  expected_overlapping_dt <- data.table(
-    start = c(15),
-    end = c(60)
-  )
-
+  expected_overlapping_dt <- data.table(start = c(15), end = c(60))
   ints_dt <- rbind(ints_dt, expected_overlapping_dt)
 
-  overlapping_dt <- identify_overlapping_intervals(ints_dt)
+  overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = FALSE)
+  setkeyv(expected_overlapping_dt, c("start", "end"))
+  testthat::expect_equal(overlapping_dt, expected_overlapping_dt)
+
+  overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = TRUE)
+  expected_overlapping_dt <- ints_dt[start >= 15 & end <= 60]
   setkeyv(expected_overlapping_dt, c("start", "end"))
   testthat::expect_equal(overlapping_dt, expected_overlapping_dt)
 

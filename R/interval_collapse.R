@@ -137,7 +137,7 @@ collapse_common_intervals <- function(dt,
   # check for overlapping intervals
   if (overlapping_dt_severity != "skip") {
     overlapping_dt <- dt[
-      , identify_overlapping_intervals(unique(.SD)),
+      , identify_overlapping_intervals(unique(.SD), identify_all_possible = overlapping_dt_severity != "none"),
       .SDcols = cols, by = by_id_cols
       ]
     data.table::setnames(overlapping_dt, c("start", "end"), cols)
