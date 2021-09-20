@@ -136,7 +136,7 @@ overlapping intervals.</p>
 
     <pre class="usage"><span class='fu'>assert_no_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span><span class='op'>)</span>
 
-<span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span><span class='op'>)</span></pre>
+<span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span>, identify_all_possible <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,6 +146,13 @@ overlapping intervals.</p>
       <td><p>[<code>data.table()</code>]<br />
 Unique intervals. The first column represents the start of each interval
 and the second column represents the end of each interval.</p></td>
+    </tr>
+    <tr>
+      <th>identify_all_possible</th>
+      <td><p>[<code><a href='https://rdrr.io/r/base/logical.html'>logical(1)</a></code>]<br />
+Whether to return all overlapping intervals ('TRUE') or try to identify just
+the less granular interval ('FALSE'). Default is 'FALSE'. Useful when it may
+not be clear what is the less granular interval.</p></td>
     </tr>
     </table>
 
@@ -159,10 +166,11 @@ intervals are overlapping then a zero-row [<code>data.table()</code>] is returne
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='va'>ints_dt</span> <span class='op'>&lt;-</span> <span class='fu'>data.table</span><span class='fu'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span><span class='op'>(</span>
-  start <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>95</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='fl'>0</span><span class='op'>)</span>,
-  end <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>95</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='cn'>Inf</span>, <span class='cn'>Inf</span><span class='op'>)</span>
+  start <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>50</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='fl'>0</span><span class='op'>)</span>,
+  end <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>15</span>, <span class='fl'>55</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='fl'>11</span><span class='op'>)</span>
 <span class='op'>)</span>
-<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span><span class='op'>)</span>
+<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span>, identify_all_possible <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span>, identify_all_possible <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 
 </div></pre>
