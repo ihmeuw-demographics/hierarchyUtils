@@ -311,7 +311,7 @@ agg <- function(dt,
 
   # create object to collect aggregated results
   result_dt <- dt[0]
-  if (col_type == "interval") result_dt <- vector("list", length(subtrees))
+  if (col_type == "interval") result_dt <- lapply(1:length(subtrees), function(i) dt[0])
 
   # aggregate children to parents for sub-trees where aggregation possible
   for (i in 1:length(subtrees)) {
@@ -342,10 +342,10 @@ agg <- function(dt,
                  paste0(capture.output(missing_dt), collapse = "\n"))
         assertive::assert_engine(empty_missing_dt, missing_dt,
                                  msg = error_msg, severity = missing_dt_severity)
-      }
 
-      # skip aggregation for this subtree
-      next()
+        # skip aggregation for this subtree
+        next()
+      }
     }
 
     # check if aggregate is already present
