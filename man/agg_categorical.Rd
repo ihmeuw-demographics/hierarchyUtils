@@ -2,7 +2,7 @@
 % Please edit documentation in R/agg_helpers.R
 \name{agg_categorical}
 \alias{agg_categorical}
-\title{Aggregate categorical variables}
+\title{Helper function to aggregate categorical variables}
 \usage{
 agg_categorical(
   dt,
@@ -87,5 +87,6 @@ Invisibly returns \code{dt} but throws error if inputs are not formatted
 correctly.
 }
 \description{
-Aggregate categorical variables
+Helper function to aggregate categorical variables or square
+interval variables datasets
 }

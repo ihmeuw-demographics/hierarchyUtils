@@ -224,7 +224,7 @@ testthat::test_that(description, {
         missing_dt_severity = "stop",
         present_agg_severity = "skip"
     ),
-    regexp = "intervals in `dt` are missing making it impossible to collapse"
+    regexp = "expected input data is missing"
   )
 
   output_dt <- agg(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/agg_helpers.R
 \name{agg_interval}
 \alias{agg_interval}
-\title{Aggregate interval variables}
+\title{Helper function to aggregate interval variables}
 \usage{
 agg_interval(
   dt,
@@ -87,5 +87,6 @@ Invisibly returns \code{dt} but throws error if inputs are not formatted
 correctly.
 }
 \description{
-Aggregate interval variables
+Helper function to aggregate interval variables by groups of data
+that have the same intervals. Calls \code{agg_categorical()} for each group.
 }
