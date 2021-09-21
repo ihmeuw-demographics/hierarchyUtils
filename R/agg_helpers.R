@@ -172,7 +172,12 @@ agg_interval <- function(dt,
     group_dt <- groups[col == g]
     group_dt[, col := NULL]
 
-    agg_dt <- dt[group_dt, on = names(group_dt), nomatch = 0]
+    if (nrow(group_dt) == 0 & length(unique_groups) == 1) {
+      # when only one group exists and the only id variables are `col`
+      agg_dt <- dt
+    } else {
+      agg_dt <- dt[group_dt, on = names(group_dt), nomatch = 0]
+    }
 
     dt_intervals <- unique(agg_dt[, .SD, .SDcols = cols])
 
