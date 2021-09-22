@@ -145,7 +145,9 @@
 #' `mapping` for numeric interval variables is only needed when aggregating data
 #' to define exactly which aggregates are needed. It must have columns for
 #' '`{col_stem}`_start' and '`{col_stem}`_end' defining the start and end of each
-#' aggregate interval that is need. When scaling data, `mapping` should be
+#' aggregate interval that is need. There can be an optional 'include_NA' logical
+#' column that allows 'NA' `col_stem` values to be included in the aggregate
+#' for certain requested aggregates. When scaling data, `mapping` should be
 #' `NULL` since the hierarchy can be inferred from the available intervals in
 #' `dt`.
 #'
@@ -494,11 +496,23 @@ assert_agg_scale_args <- function(dt,
   # check mapping argument
   if (!(functionality == "scale" & col_type == "interval")) {
     assertive::assert_is_data.table(mapping)
-    expected_mapping_cols <- c("parent", "child")
-    if (col_type == "interval") expected_mapping_cols <- cols
-    assertable::assert_colnames(mapping, expected_mapping_cols, only_colnames = T,
-                                quiet = T)
-    demUtils::assert_is_unique_dt(mapping, expected_mapping_cols)
+    if (col_type == "categorical") {
+      assertable::assert_colnames(
+        data = mapping,
+        colnames = c("parent", "child"),
+        only_colnames = T, quiet = T
+      )
+      demUtils::assert_is_unique_dt(mapping, c("parent", "child"))
+    } else if (col_type == "interval") {
+      if (!"include_NA" %in% names(mapping)) mapping[, include_NA := FALSE]
+      assertable::assert_colnames(
+        data = mapping,
+        colnames = c(cols, "include_NA"),
+        only_colnames = T, quiet = T
+      )
+      demUtils::assert_is_unique_dt(mapping, cols)
+
+    }
   } else {
     assertthat::assert_that(assertive::is_null(mapping),
                             msg = "When scaling an interval variable `mapping`

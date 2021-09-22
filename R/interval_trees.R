@@ -35,9 +35,11 @@ create_agg_interval_tree <- function(data_intervals_dt,
 
   # create the root of the interval tree that covers the full interval
   full_int_start <- min(data_intervals_dt[[cols[1]]],
-                        agg_intervals_dt[[cols[1]]])
+                        agg_intervals_dt[[cols[1]]],
+                        na.rm = TRUE)
   full_int_end <- max(data_intervals_dt[[cols[2]]],
-                      agg_intervals_dt[[cols[2]]])
+                      agg_intervals_dt[[cols[2]]],
+                      na.rm = TRUE)
   full_int_name <- paste0("[", full_int_start, ", ", full_int_end, ")")
   interval_tree <- create_interval_node(full_int_start, full_int_end,
                                         full_int_name)
@@ -50,6 +52,12 @@ create_agg_interval_tree <- function(data_intervals_dt,
     # subset to data intervals that are in the aggregate interval
     child_ints <- data_intervals_dt[get(cols[1]) >= new_agg_node$left &
                                       get(cols[2]) <= new_agg_node$right]
+    if (agg_intervals_dt[i_agg, include_NA]) {
+      child_ints <- rbind(
+        child_ints,
+        data_intervals_dt[is.na(get(cols[1])) & is.na(get(cols[2]))]
+      )
+    }
     if (nrow(child_ints) > 0) {
       for (i_sub in 1:nrow(child_ints)) {
         new_child_node <- create_interval_node(child_ints[i_sub, get(cols[1])],
@@ -75,8 +83,8 @@ create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
   cols <- paste0(col_stem, "_", c("start", "end"))
 
   # create the root of the interval tree that covers the full interval
-  full_int_start <- min(data_intervals_dt[[cols[1]]])
-  full_int_end <- max(data_intervals_dt[[cols[2]]])
+  full_int_start <- min(data_intervals_dt[[cols[1]]], na.rm = TRUE)
+  full_int_end <- max(data_intervals_dt[[cols[2]]], na.rm = TRUE)
   full_int_name <- paste0("[", full_int_start, ", ", full_int_end, ")")
   interval_tree <- create_interval_node(full_int_start, full_int_end,
                                         full_int_name)

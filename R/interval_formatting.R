@@ -246,14 +246,8 @@ gen_name <- function(dt,
   assertthat::assert_that(!name_col %in% names(dt),
                           msg = paste0("'", name_col,
                                        "' column already in `dt`"))
-  assertthat::assert_that(
-    assertive::is_numeric(dt[[start_col]]),
-    all(!is.na(dt[[start_col]]))
-  )
-  assertthat::assert_that(
-    assertive::is_numeric(dt[[end_col]]),
-    all(!is.na(dt[[end_col]]))
-  )
+  assertthat::assert_that(assertive::is_numeric(dt[[start_col]]))
+  assertthat::assert_that(assertive::is_numeric(dt[[end_col]]))
 
   # Calculate age name column -----------------------------------------------
 
@@ -310,7 +304,7 @@ name_to_start_end <- function(name) {
   # check `name` argument
   assertthat::assert_that(
     assertive::is_character(name),
-    all(grepl("^\\[((-Inf)|([-.0-9]+)),\\s((Inf)|([-.0-9]+))\\)$",
+    all(grepl("^\\[((NA)|(-Inf)|([-.0-9]+)),\\s((NA)|(Inf)|([-.0-9]+))\\)$",
               name)),
     msg = "`name` must be a character vector formatted in left-closed,
     right-open interval notation as described in `gen_name()`"
@@ -322,14 +316,16 @@ name_to_start_end <- function(name) {
   start <- gsub("^\\[", "", name)
   # remove ", ", right endpoint, right ")".
   # right endpoint can be positive infinity or any numeric
-  start <- gsub(",\\s((Inf)|([-.0-9]+))\\)$", "", start)
+  start <- gsub(",\\s((NA)|(Inf)|([-.0-9]+))\\)$", "", start)
+  start[start == "NA"] <- NA_character_
   start <- as.numeric(start)
 
   # remove right ")"
   end <- gsub("\\)$", "", name)
   # remove left "[", left endpoint, ", "
   # left endpoint can be negative infinity or any numeric
-  end <- gsub("^\\[((-Inf)|([-.0-9]+)),\\s", "", end)
+  end <- gsub("^\\[((NA)|(-Inf)|([-.0-9]+)),\\s", "", end)
+  end[end == "NA"] <- NA_character_
   end <- as.numeric(end)
 
   result <- list(start = start,

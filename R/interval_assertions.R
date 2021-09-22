@@ -48,25 +48,33 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
   assertthat::assert_that(
     assertive::is_data.table(ints_dt),
     ncol(ints_dt) == 2,
-    all(ints_dt[[1]] < ints_dt[[2]]),
+    assertive::is_numeric(ints_dt[[1]]),
+    assertive::is_numeric(ints_dt[[2]]),
+    all(ints_dt[[1]] < ints_dt[[2]], na.rm = TRUE),
     msg = paste("`ints_dt` must a 2-column data.table with the first column",
                 "representing the start of the interval and the second column",
                 "the end of each interval")
   )
   assertthat::assert_that(
     assertive::is_data.table(expected_ints_dt),
-    ncol(ints_dt) == 2,
-    all(ints_dt[[1]] < ints_dt[[2]]),
+    ncol(expected_ints_dt) == 2,
+    assertive::is_numeric(expected_ints_dt[[1]]),
+    assertive::is_numeric(expected_ints_dt[[2]]),
+    all(expected_ints_dt[[1]] < expected_ints_dt[[2]], na.rm = TRUE),
     msg = paste("`expected_ints_dt` must a 2-column data.table with the first",
                 "column representing the start of the interval and the second",
                 "column the end of each interval")
   )
 
   # create full interval that all sub intervals should span
+  col_names <- names(expected_ints_dt)
+  expected_ints_dt <- expected_ints_dt[!(is.na(get(col_names[1])) & is.na(get(col_names[2])))]
   expected_ints <- intervals::Intervals_full(as.matrix(expected_ints_dt),
                                              closed = c(TRUE, FALSE))
 
   # create left-closed, right-open intervals
+  col_names <- names(ints_dt)
+  ints_dt <- ints_dt[!(is.na(get(col_names[1])) & is.na(get(col_names[2])))]
   ints <- intervals::Intervals_full(as.matrix(ints_dt), closed = c(TRUE, FALSE))
 
   # identify missing intervals
@@ -125,7 +133,9 @@ identify_overlapping_intervals <- function(ints_dt, identify_all_possible = FALS
   assertthat::assert_that(
     assertive::is_data.table(ints_dt),
     ncol(ints_dt) == 2,
-    all(ints_dt[[1]] < ints_dt[[2]]),
+    assertive::is_numeric(ints_dt[[1]]),
+    assertive::is_numeric(ints_dt[[2]]),
+    all(ints_dt[[1]] < ints_dt[[2]], na.rm = TRUE),
     msg = paste("`ints_dt` must a 2-column data.table with the first column",
                 "representing the start of the interval and the second column",
                 "the end of each interval")

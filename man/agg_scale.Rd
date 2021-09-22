@@ -149,7 +149,9 @@ aggregated to.
 \code{mapping} for numeric interval variables is only needed when aggregating data
 to define exactly which aggregates are needed. It must have columns for
 '\code{{col_stem}}_start' and '\code{{col_stem}}_end' defining the start and end of each
-aggregate interval that is need. When scaling data, \code{mapping} should be
+aggregate interval that is need. There can be an optional 'include_NA' logical
+column that allows 'NA' \code{col_stem} values to be included in the aggregate
+for certain requested aggregates. When scaling data, \code{mapping} should be
 \code{NULL} since the hierarchy can be inferred from the available intervals in
 \code{dt}.
 
