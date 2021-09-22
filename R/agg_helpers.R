@@ -162,6 +162,7 @@ agg_interval <- function(dt,
   data.table::setkeyv(dt_intervals, cols)
   dt <- dt[dt_intervals, on = cols, nomatch = 0]
 
+  # identify unique combinations of intervals to be aggregated
   groups <- dt[, list(col = paste(get(col_stem), collapse = ",")), by = setdiff(names(dt), c(col_stem, cols, value_cols))]
   unique_groups <- unique(groups$col)
 
@@ -172,6 +173,7 @@ agg_interval <- function(dt,
     group_dt <- groups[col == g]
     group_dt[, col := NULL]
 
+    # get rows of data that have the same combination of intervals
     if (nrow(group_dt) == 0 & length(unique_groups) == 1) {
       # when only one group exists and the only id variables are `col`
       agg_dt <- dt
@@ -196,10 +198,12 @@ agg_interval <- function(dt,
                                msg = error_msg, severity = overlapping_dt_severity)
 
       # drop overlapping intervals
-      if (!quiet) message("Dropping overlapping intervals")
-      agg_dt <- merge(agg_dt, overlapping_dt, by = cols, all = T)
-      agg_dt <- agg_dt[is.na(issue)]
-      agg_dt[, issue := NULL]
+      if (nrow(overlapping_dt) > 0) {
+        if (!quiet) message("Dropping overlapping intervals")
+        agg_dt <- merge(agg_dt, overlapping_dt, by = cols, all = T)
+        agg_dt <- agg_dt[is.na(issue)]
+        agg_dt[, issue := NULL]
+      }
     }
 
     # create mapping from available interval variables and requested intervals
