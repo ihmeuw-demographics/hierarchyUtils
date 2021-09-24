@@ -26,10 +26,6 @@ Demographics data is often organized into different hierarchical groupings of va
 Iran census population counts included in the package are shown below and documented at `?hierarchyUtils::iran_pop`. Examples of categorical variables included in this dataset are `location`, `year`, `sex`, `source_name`, `nid` and `underlying_nid` while `age_start` and `age_end` are one numeric interval variable.
 
 ```{r iran_pop}
-iran_pop <- iran_pop[age_start == 999 & age_end == 999, c("age_start", "age_end") := list(NA, NA)]
-# TODO: fix underlying data
-iran_pop <- iran_pop[year == 2006 & location == "Tehran 1986-1995", 
-                     location := "Tehran 2006"]
 print(iran_pop)
 ```
 
@@ -45,6 +41,7 @@ The `hierarchyUtils` package provides a variety of utility functions that can be
 
 ```{r ages_available, echo = FALSE, fig.height = 5}
 plot_data <- iran_pop[grepl("Iran", location) & source_name == "DYB"]
+plot_data <- plot_data[!(age_start == 999 & age_end == 999)]
 ggplot(plot_data) +
   geom_point(aes(x = age_start, y = factor(year))) +
   ylab("Census Year") +
@@ -61,6 +58,9 @@ Here we can first aggregate the interval variable `age` which depends on `age_st
 ```{r aggregate_age}
 value_cols = "population"
 id_cols <- names(iran_pop)[!names(iran_pop) %in% value_cols]
+
+# reassign unknown age groups
+iran_pop <- iran_pop[age_start == 999 & age_end == 999, c("age_start", "age_end") := list(NA, NA)]
 
 # aggregate to aggregate age groups
 agg_age_mapping <- data.table(
