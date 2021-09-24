@@ -192,14 +192,18 @@ agg_interval <- function(dt,
       empty_dt <- function(dt) nrow(dt) == 0
       error_msg <-
         paste0("Some overlapping intervals were identified in `dt`.\n",
-               "These will be automatically dropped.\n",
+               "Will attempt to drop the larger intervals.\n",
                paste0(capture.output(overlapping_dt), collapse = "\n"))
       assertive::assert_engine(empty_dt, overlapping_dt,
                                msg = error_msg, severity = overlapping_dt_severity)
 
       # drop overlapping intervals
       if (nrow(overlapping_dt) > 0) {
-        if (!quiet) message("Dropping overlapping intervals")
+        overlapping_dt <- identify_overlapping_intervals(dt_intervals, identify_all_possible = FALSE)
+        data.table::setnames(overlapping_dt, c("start", "end"), cols)
+        overlapping_dt[, issue := "overlapping intervals identified"]
+        if (!quiet) message(paste0("Dropping overlapping intervals\n",
+                                   paste0(capture.output(overlapping_dt), collapse = "\n")))
         agg_dt <- merge(agg_dt, overlapping_dt, by = cols, all = T)
         agg_dt <- agg_dt[is.na(issue)]
         agg_dt[, issue := NULL]
