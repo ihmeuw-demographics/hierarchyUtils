@@ -244,7 +244,7 @@ vis_tree <- function(tree) {
 
   # determine whether this is an aggregate or scale tree
   type <- "agg"
-  if ("scale_possible" %in% tree$fields) type <- "scale"
+  if ("scale_possible" %in% tree$attributes) type <- "scale"
 
   # create node attribute for three types of nodes
   group_node <- function(x) {
