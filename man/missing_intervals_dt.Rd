@@ -5,9 +5,21 @@
 \alias{identify_missing_intervals_dt}
 \title{Check if the interval column in a data.table missing any expected intervals}
 \usage{
-assert_no_missing_intervals_dt(dt, id_cols, col_stem, expected_ints_dt)
+assert_no_missing_intervals_dt(
+  dt,
+  id_cols,
+  col_stem,
+  expected_ints_dt,
+  quiet = FALSE
+)
 
-identify_missing_intervals_dt(dt, id_cols, col_stem, expected_ints_dt)
+identify_missing_intervals_dt(
+  dt,
+  id_cols,
+  col_stem,
+  expected_ints_dt,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{dt}{[\code{data.table()}]\cr
@@ -26,6 +38,10 @@ The expected intervals that should be completely included in \code{ints_dt}.
 Should include only '{col_stem}_start' and '{col_stem}_end' columns. Can
 also be \code{NULL} in which case \code{expected_ints_dt} will automatically be set
 to the minimum and maximum of each unique set of intervals in \code{dt}.}
+
+\item{quiet}{[\code{logical(1)}]\cr
+Should progress messages be suppressed as the function is run? Default is
+False.}
 }
 \value{
 \code{identify_missing_intervals_dt} returns a [\code{data.table()}] with

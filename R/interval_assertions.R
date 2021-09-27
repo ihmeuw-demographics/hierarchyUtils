@@ -16,6 +16,9 @@
 #'   Should include only '{col_stem}_start' and '{col_stem}_end' columns. Can
 #'   also be `NULL` in which case `expected_ints_dt` will automatically be set
 #'   to the minimum and maximum of each unique set of intervals in `dt`.
+#' @param quiet \[`logical(1)`\]\cr
+#'   Should progress messages be suppressed as the function is run? Default is
+#'   False.
 #'
 #' @return  `identify_missing_intervals_dt` returns a \[`data.table()`\] with
 #'   `id_cols` that are missing expected intervals. If no intervals are missing
@@ -62,7 +65,8 @@
 assert_no_missing_intervals_dt <- function(dt,
                                            id_cols,
                                            col_stem,
-                                           expected_ints_dt) {
+                                           expected_ints_dt,
+                                           quiet = FALSE) {
 
   missing_intervals <- identify_missing_intervals_dt(dt,
                                                      id_cols,
@@ -81,13 +85,15 @@ assert_no_missing_intervals_dt <- function(dt,
 identify_missing_intervals_dt <- function(dt,
                                           id_cols,
                                           col_stem,
-                                          expected_ints_dt) {
+                                          expected_ints_dt,
+                                          quiet = FALSE) {
 
   # Check inputs ------------------------------------------------------------
 
   checkmate::assert_character(col_stem, len = 1)
   cols <- paste0(col_stem, "_", c("start", "end"))
 
+  checkmate::assert_logical(quiet, len = 1)
   checkmate::assert_character(id_cols)
   checkmate::assert_subset(cols, id_cols)
   checkmate::assert_data_table(dt)
@@ -115,6 +121,7 @@ identify_missing_intervals_dt <- function(dt,
 
   missing_intervals_dt <- lapply(1:length(unique_groups), function(i) {
     g <- unique_groups[i]
+    if (!quiet) message("Interval group ", i, " of ", length(unique_groups), ": ", g)
 
     group_dt <- groups[col == g]
     group_dt[, col := NULL]
