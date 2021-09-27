@@ -1,4 +1,175 @@
-#' @title Is the interval variable missing any expected intervals?
+#' @title Check if the interval column in a data.table missing any expected intervals
+#'
+#' @description Checks to see if the specified interval variable is missing any
+#' expected intervals.
+#'
+#' @param dt \[`data.table()`\]\cr
+#'   Data containing the interval variable to check. Should include all 'id_cols'.
+#' @param id_cols \[`character()`\]\cr
+#'   ID columns that uniquely identify each row of `dt`. Should include
+#'   '{col_stem}_start' and '{col_stem}_end'.
+#' @param col_stem \[`character(1)`\]\cr
+#'   The name of the interval variable to check, should not include the
+#'   '_start' or '_end' suffix.
+#' @param expected_ints_dt \[`data.table()`\]\cr
+#'   The expected intervals that should be completely included in `ints_dt`.
+#'   Should include only '{col_stem}_start' and '{col_stem}_end' columns. Can
+#'   also be `NULL` in which case `expected_ints_dt` will automatically be set
+#'   to the minimum and maximum of each unique set of intervals in `dt`.
+#'
+#' @return  `identify_missing_intervals_dt` returns a \[`data.table()`\] with
+#'   `id_cols` that are missing expected intervals. If no intervals are missing
+#'   then a zero-row \[`data.table()`\] is returned.
+#'   `assert_no_missing_intervals_dt` returns nothing but throws an error if
+#'   `identify_missing_intervals` returns a non-empty data.table.
+#'
+#' @details
+#' `identify_missing_intervals_dt` works by first identifying each unique set of
+#' intervals in `dt`. Then checks one at at a time the groups of rows of `dt`
+#' that match each set of intervals.
+#'
+#' `expected_ints_dt = NULL` will automatically check that there are no missing
+#' intervals between the minimum and maximum interval in each unique set. This
+#' may miss identifying missing intervals at the beginning or end of the range.
+#'
+#' @examples
+#' input_dt <- data.table::data.table(
+#'   year = c(rep(2010, 20), rep(2015, 96)),
+#'   age_start = c(seq(0, 95, 5), seq(0, 95, 1)),
+#'   age_end = c(seq(5, 95, 5), Inf, seq(1, 95, 1), Inf),
+#'   value = 1
+#' )
+#' input_dt <- input_dt[!age_start %in% c(0, 10, 95)]
+#'
+#' # expect intervals to cover the entire 0-Inf range
+#' missing_dt <- identify_missing_intervals_dt(
+#'   dt = input_dt,
+#'   id_cols = c("year", "age_start", "age_end"),
+#'   col_stem = "age",
+#'   expected_ints_dt = data.table::data.table(age_start = 0, age_end = Inf)
+#' )
+#'
+#' # expect intervals to cover between the minimum and maximum of each grouping
+#' missing_dt <- identify_missing_intervals_dt(
+#'   dt = input_dt,
+#'   id_cols = c("year", "age_start", "age_end"),
+#'   col_stem = "age",
+#'   expected_ints_dt = NULL
+#' )
+#'
+#' @export
+#' @rdname missing_intervals_dt
+assert_no_missing_intervals_dt <- function(dt,
+                                           id_cols,
+                                           col_stem,
+                                           expected_ints_dt) {
+
+  missing_intervals <- identify_missing_intervals_dt(dt,
+                                                     id_cols,
+                                                     col_stem,
+                                                     expected_ints_dt)
+  no_missing_intervals <- nrow(missing_intervals) == 0
+
+  error_msg <-
+    paste0("There are missing intervals in `dt`",
+           paste0(capture.output(missing_intervals), collapse = "\n"))
+  assertthat::assert_that(no_missing_intervals, msg = error_msg)
+}
+
+#' @export
+#' @rdname missing_intervals_dt
+identify_missing_intervals_dt <- function(dt,
+                                          id_cols,
+                                          col_stem,
+                                          expected_ints_dt) {
+
+  # Check inputs ------------------------------------------------------------
+
+  checkmate::assert_character(col_stem, len = 1)
+  cols <- paste0(col_stem, "_", c("start", "end"))
+
+  checkmate::assert_character(id_cols)
+  checkmate::assert_subset(cols, id_cols)
+  checkmate::assert_data_table(dt)
+  checkmate::assert_subset(id_cols, names(dt))
+
+  checkmate::assert_data_table(expected_ints_dt, ncols = 2, null.ok = TRUE)
+  if (!is.null(expected_ints_dt)) checkmate::assert_subset(cols, names(expected_ints_dt))
+
+  original_col_order <- copy(names(dt))
+  original_col_order <- original_col_order[original_col_order %in% id_cols]
+  original_keys <- copy(key(dt))
+
+  # Check for missing intervals ---------------------------------------------
+
+  # create one column to describe each interval
+  dt_intervals <- unique(dt[, .SD, .SDcols = cols])
+  gen_name(dt_intervals, col_stem = col_stem, format = "interval")
+  data.table::setnames(dt_intervals, paste0(col_stem, "_name"), col_stem)
+  data.table::setkeyv(dt_intervals, cols)
+  dt <- dt[dt_intervals, on = cols, nomatch = 0]
+
+  # identify unique combinations of intervals to be aggregated
+  groups <- dt[, list(col = paste(get(col_stem), collapse = ",")), by = setdiff(id_cols, c(col_stem, cols))]
+  unique_groups <- unique(groups$col)
+
+  missing_intervals_dt <- lapply(1:length(unique_groups), function(i) {
+    g <- unique_groups[i]
+
+    group_dt <- groups[col == g]
+    group_dt[, col := NULL]
+
+    # get rows of data that have the same combination of intervals
+    if (nrow(group_dt) == 0 & length(unique_groups) == 1) {
+      # when only one group exists and the only id variables are `col`
+      check_dt <- dt
+    } else {
+      check_dt <- dt[group_dt, on = names(group_dt), nomatch = 0]
+    }
+
+    # intervals in dt grouping
+    dt_intervals <- unique(check_dt[, .SD, .SDcols = cols])
+
+    # expected entire range of intervals in dt grouping
+    if (is.null(expected_ints_dt)) {
+      entire_interval <- data.table(
+        start = min(dt_intervals, na.rm = TRUE),
+        end = max(dt_intervals, na.rm = TRUE)
+      )
+      data.table::setnames(entire_interval, c("start", "end"), cols)
+    } else {
+      entire_interval <- expected_ints_dt
+    }
+
+    missing_ints <- identify_missing_intervals(
+      ints_dt = dt_intervals,
+      expected_ints_dt = entire_interval
+    )
+
+    # TODO: switch to official data.table CJ with data.table inputs once available
+    # https://github.com/Rdatatable/data.table/issues/1717
+    CJDT <- function(...)
+      Reduce(function(DT1, DT2) cbind(DT1, DT2[rep(1:.N, each=nrow(DT1))]), list(...))
+
+    # combine missing intervals with group dataset
+    if (nrow(missing_ints) > 0) {
+      data.table::setnames(missing_ints, c("start", "end"), cols)
+      missing_ints <- CJDT(group_dt, missing_ints)
+    } else {
+      missing_ints <- dt[0, id_cols, with = FALSE]
+    }
+
+    return(missing_ints)
+  })
+  missing_intervals_dt <- rbindlist(missing_intervals_dt, use.names = TRUE)
+
+  data.table::setcolorder(missing_intervals_dt, original_col_order)
+  data.table::setkeyv(missing_intervals_dt, original_keys)
+  return(missing_intervals_dt)
+}
+
+#' @title Helper function to check whether simple set of intervals is missing
+#'   any expected intervals?
 #'
 #' @description Checks to see if the input interval variable is missing any
 #' expected intervals.
@@ -22,12 +193,11 @@
 #'   start = seq(0, 95, 5),
 #'   end = c(seq(5, 95, 5), Inf)
 #' )
-#' missing_dt <- identify_missing_intervals(
+#' missing_dt <- hierarchyUtils:::identify_missing_intervals(
 #'   ints_dt = ints_dt[!start %in% c(0, 10, 95)],
 #'   expected_ints_dt = data.table::data.table(start = 0, end = Inf)
 #' )
 #'
-#' @export
 #' @rdname missing_intervals
 assert_no_missing_intervals <- function(ints_dt, expected_ints_dt) {
 
@@ -41,7 +211,6 @@ assert_no_missing_intervals <- function(ints_dt, expected_ints_dt) {
 
 }
 
-#' @export
 #' @rdname missing_intervals
 identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 

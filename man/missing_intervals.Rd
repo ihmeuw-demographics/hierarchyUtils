@@ -3,7 +3,8 @@
 \name{assert_no_missing_intervals}
 \alias{assert_no_missing_intervals}
 \alias{identify_missing_intervals}
-\title{Is the interval variable missing any expected intervals?}
+\title{Helper function to check whether simple set of intervals is missing
+any expected intervals?}
 \usage{
 assert_no_missing_intervals(ints_dt, expected_ints_dt)
 
@@ -35,7 +36,7 @@ ints_dt <- data.table::data.table(
   start = seq(0, 95, 5),
   end = c(seq(5, 95, 5), Inf)
 )
-missing_dt <- identify_missing_intervals(
+missing_dt <- hierarchyUtils:::identify_missing_intervals(
   ints_dt = ints_dt[!start \%in\% c(0, 10, 95)],
   expected_ints_dt = data.table::data.table(start = 0, end = Inf)
 )
