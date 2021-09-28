@@ -262,7 +262,167 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
   return(missing_ints_dt)
 }
 
-#' @title Does the interval variable have any overlapping intervals?
+#' @title Check if the interval column in a data.table has overlapping intervals
+#'
+#' @description Checks to see if the specified interval variable contains
+#'   overlapping intervals.
+#'
+#' @inheritParams identify_missing_intervals_dt
+#' @inheritParams identify_overlapping_intervals
+#' @param quiet \[`logical(1)`\]\cr
+#'   Should progress messages be suppressed as the function is run? Default is
+#'   False.
+#'
+#' @return  `identify_overlapping_intervals_dt` returns a \[`data.table()`\] with
+#'   `id_cols` that have overlapping intervals. If no intervals are overlapping
+#'   then a zero-row \[`data.table()`\] is returned.
+#'   `assert_no_overlapping_intervals_dt` returns nothing but throws an error if
+#'   `identify_overlapping_intervals_dt` returns a non-empty data.table.
+#'
+#' @details
+#' `identify_overlapping_intervals_dt` works by first identifying each unique
+#' set of intervals in `dt`. Then checks one at at a time the groups of rows
+#' of `dt` that match each set of intervals.
+#'
+#' @examples
+#' input_dt <- data.table::data.table(
+#'   age_start = seq(0, 95, 5),
+#'   age_end = c(seq(5, 95, 5), Inf)
+#' )
+#' input_dt <- rbind(input_dt, data.table(age_start = c(15), age_end = c(60)))
+#'
+#' # identify everything that is overlapping
+#' overlapping_dt <- identify_overlapping_intervals_dt(
+#'   dt = input_dt,
+#'   id_cols = id_cols,
+#'   col_stem = "age",
+#'   identify_all_possible = TRUE
+#' )
+#'
+#' # identify only the largest overlapping intervals
+#' overlapping_dt <- identify_overlapping_intervals_dt(
+#'   dt = input_dt,
+#'   id_cols = id_cols,
+#'   col_stem = "age",
+#'   identify_all_possible = FALSE
+#' )
+#'
+#' @export
+#' @rdname overlapping_intervals_dt
+assert_no_overlapping_intervals_dt <- function(dt,
+                                               id_cols,
+                                               col_stem,
+                                               identify_all_possible = FALSE,
+                                               queit = FALSE) {
+
+  overlapping_intervals <- identify_overlapping_intervals_dt(
+    dt,
+    id_cols,
+    col_stem,
+    identify_all_possible,
+    queit
+  )
+  no_overlapping_intervals <- nrow(overlapping_intervals) == 0
+
+  error_msg <-
+    paste0("There are overlapping intervals in `dt`",
+           paste0(capture.output(overlapping_intervals), collapse = "\n"))
+  assertthat::assert_that(no_overlapping_intervals, msg = error_msg)
+
+}
+
+#' @export
+#' @rdname overlapping_intervals_dt
+identify_overlapping_intervals_dt <- function(dt,
+                                              id_cols,
+                                              col_stem,
+                                              identify_all_possible = FALSE,
+                                              quiet = FALSE) {
+
+  # Check inputs ------------------------------------------------------------
+
+  checkmate::assert_character(col_stem, len = 1)
+  cols <- paste0(col_stem, "_", c("start", "end"))
+
+  checkmate::assert_logical(quiet, len = 1)
+  checkmate::assert_logical(identify_all_possible, len = 1)
+  checkmate::assert_character(id_cols)
+  checkmate::assert_subset(cols, id_cols)
+  checkmate::assert_data_table(dt)
+  checkmate::assert_subset(id_cols, names(dt))
+
+  original_col_order <- copy(names(dt))
+  original_col_order <- original_col_order[original_col_order %in% id_cols]
+  original_keys <- copy(key(dt))
+
+  # Check for missing intervals ---------------------------------------------
+
+  # create one column to describe each interval
+  dt_intervals <- unique(dt[, .SD, .SDcols = cols])
+  gen_name(dt_intervals, col_stem = col_stem, format = "interval")
+  data.table::setnames(dt_intervals, paste0(col_stem, "_name"), col_stem)
+  data.table::setkeyv(dt_intervals, cols)
+  dt <- dt[dt_intervals, on = cols, nomatch = 0]
+
+  # identify unique combinations of intervals to be aggregated
+  groups <- dt[, list(col = paste(get(col_stem), collapse = ",")), by = setdiff(id_cols, c(col_stem, cols))]
+  unique_groups <- unique(groups$col)
+
+  overlapping_intervals_dt <- lapply(1:length(unique_groups), function(i) {
+    g <- unique_groups[i]
+    if (!quiet) message("Interval group ", i, " of ", length(unique_groups), ": ", g)
+
+    group_dt <- groups[col == g]
+    group_dt[, col := NULL]
+
+    # get rows of data that have the same combination of intervals
+    if (nrow(group_dt) == 0 & length(unique_groups) == 1) {
+      # when only one group exists and the only id variables are `col`
+      check_dt <- dt
+    } else {
+      check_dt <- dt[group_dt, on = names(group_dt), nomatch = 0]
+    }
+
+    # intervals in dt grouping
+    dt_intervals <- unique(check_dt[, .SD, .SDcols = cols])
+
+    overlapping_ints <- identify_overlapping_intervals(
+      ints_dt = dt_intervals,
+      identify_all_possible = identify_all_possible
+    )
+
+    # TODO: switch to official data.table CJ with data.table inputs once available
+    # https://github.com/Rdatatable/data.table/issues/1717
+    CJDT <- function(...)
+      Reduce(function(DT1, DT2) cbind(DT1, DT2[rep(1:.N, each=nrow(DT1))]), list(...))
+
+    # combine missing intervals with group dataset
+    if (nrow(overlapping_ints) > 0) {
+      data.table::setnames(overlapping_ints, c("start", "end"), cols)
+
+      # get rows of data that have the same combination of intervals
+      if (nrow(group_dt) == 0 & length(unique_groups) == 1) {
+        # when only one group exists and the only id variables are `col`
+        agg_dt <- overlapping_ints
+      } else {
+        overlapping_ints <- CJDT(group_dt, overlapping_ints)
+      }
+    } else {
+      overlapping_ints <- dt[0, id_cols, with = FALSE]
+    }
+
+    return(overlapping_ints)
+  })
+  overlapping_intervals_dt <- rbindlist(overlapping_intervals_dt, use.names = TRUE)
+
+  data.table::setcolorder(overlapping_intervals_dt, original_col_order)
+  data.table::setkeyv(overlapping_intervals_dt, original_keys)
+  return(overlapping_intervals_dt)
+}
+
+
+#' @title Helper function to check ift he interval variable has any overlapping
+#'   intervals.
 #'
 #' @description Checks to see if the input interval variable has any
 #'   overlapping intervals.
@@ -288,7 +448,6 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #' overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = TRUE)
 #'
 #'
-#' @export
 #' @rdname overlapping_intervals
 assert_no_overlapping_intervals <- function(ints_dt) {
 
@@ -302,7 +461,6 @@ assert_no_overlapping_intervals <- function(ints_dt) {
 
 }
 
-#' @export
 #' @rdname overlapping_intervals
 identify_overlapping_intervals <- function(ints_dt, identify_all_possible = FALSE) {
 
