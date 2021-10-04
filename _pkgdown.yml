@@ -11,10 +11,10 @@ reference:
 - title: "Checking interval data"
   desc: "Functions for checking numeric interval columns"
 - contents:
-  - identify_missing_intervals
-  - assert_no_missing_intervals
-  - identify_overlapping_intervals
-  - assert_no_overlapping_intervals
+  - identify_missing_intervals_dt
+  - assert_no_missing_intervals_dt
+  - identify_overlapping_intervals_dt
+  - assert_no_overlapping_intervals_dt
 
 - title: "Aggregation and scaling"
   desc: "Functions for aggregating and scaling hierarchical data"
@@ -22,15 +22,12 @@ reference:
   - agg
   - scale
 
-- title: "Debugging aggregation and scaling"
-  desc: "Functions for debugging errors/warnings when aggregating and scaling
-  hierarchical data"
+- title: "Common intervals"
+  desc: "Functions for identifying/collapsing to the most detailed common set of intervals"
 - contents:
-  - identify_agg_dt_issues
-  - identify_scale_dt_issues
-  - create_agg_tree
-  - create_scale_tree
-  - vis_tree
+  - collapse_common_intervals
+  - identify_common_intervals
+  - merge_common_intervals
 
 - title: "Splitting hierarchical data"
   desc: "Functions for splitting hierarchical data into more detailed groupings"
@@ -42,3 +39,11 @@ reference:
 - contents:
   - iran_pop
   - iran_mapping
+
+- title: "Debugging aggregation and scaling"
+  desc: "Functions for debugging errors/warnings when aggregating and scaling
+  hierarchical data"
+- contents:
+  - create_agg_tree
+  - create_scale_tree
+  - vis_tree
