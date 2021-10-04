@@ -3,7 +3,8 @@
 \name{assert_no_overlapping_intervals}
 \alias{assert_no_overlapping_intervals}
 \alias{identify_overlapping_intervals}
-\title{Does the interval variable have any overlapping intervals?}
+\title{Helper function to check if the interval variable has any overlapping
+intervals.}
 \usage{
 assert_no_overlapping_intervals(ints_dt)
 
@@ -35,8 +36,13 @@ ints_dt <- data.table::data.table(
   start = c(seq(10, 50, 5), 0),
   end = c(seq(15, 55, 5), 11)
 )
-overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = FALSE)
-overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = TRUE)
-
+overlapping_dt <- hierarchyUtils:::identify_overlapping_intervals(
+  ints_dt,
+  identify_all_possible = FALSE
+)
+overlapping_dt <- hierarchyUtils:::identify_overlapping_intervals(
+  ints_dt,
+  identify_all_possible = TRUE
+)
 
 }
