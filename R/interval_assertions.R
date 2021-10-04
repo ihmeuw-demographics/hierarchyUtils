@@ -289,7 +289,7 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #'   age_start = seq(0, 95, 5),
 #'   age_end = c(seq(5, 95, 5), Inf)
 #' )
-#' input_dt <- rbind(input_dt, data.table(age_start = c(15), age_end = c(60)))
+#' input_dt <- rbind(input_dt, data.table::data.table(age_start = c(15), age_end = c(60)))
 #'
 #' # identify everything that is overlapping
 #' overlapping_dt <- identify_overlapping_intervals_dt(
@@ -313,14 +313,14 @@ assert_no_overlapping_intervals_dt <- function(dt,
                                                id_cols,
                                                col_stem,
                                                identify_all_possible = FALSE,
-                                               queit = FALSE) {
+                                               quiet = FALSE) {
 
   overlapping_intervals <- identify_overlapping_intervals_dt(
     dt,
     id_cols,
     col_stem,
     identify_all_possible,
-    queit
+    quiet
   )
   no_overlapping_intervals <- nrow(overlapping_intervals) == 0
 
@@ -444,9 +444,14 @@ identify_overlapping_intervals_dt <- function(dt,
 #'   start = c(seq(10, 50, 5), 0),
 #'   end = c(seq(15, 55, 5), 11)
 #' )
-#' overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = FALSE)
-#' overlapping_dt <- identify_overlapping_intervals(ints_dt, identify_all_possible = TRUE)
-#'
+#' overlapping_dt <- hierarchyUtils:::identify_overlapping_intervals(
+#'   ints_dt,
+#'   identify_all_possible = FALSE
+#' )
+#' overlapping_dt <- hierarchyUtils:::identify_overlapping_intervals(
+#'   ints_dt,
+#'   identify_all_possible = TRUE
+#' )
 #'
 #' @rdname overlapping_intervals
 assert_no_overlapping_intervals <- function(ints_dt) {

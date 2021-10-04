@@ -10,7 +10,7 @@ assert_no_overlapping_intervals_dt(
   id_cols,
   col_stem,
   identify_all_possible = FALSE,
-  queit = FALSE
+  quiet = FALSE
 )
 
 identify_overlapping_intervals_dt(
@@ -63,7 +63,7 @@ input_dt <- data.table::data.table(
   age_start = seq(0, 95, 5),
   age_end = c(seq(5, 95, 5), Inf)
 )
-input_dt <- rbind(input_dt, data.table(age_start = c(15), age_end = c(60)))
+input_dt <- rbind(input_dt, data.table::data.table(age_start = c(15), age_end = c(60)))
 
 # identify everything that is overlapping
 overlapping_dt <- identify_overlapping_intervals_dt(
