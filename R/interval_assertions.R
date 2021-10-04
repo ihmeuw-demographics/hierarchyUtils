@@ -294,7 +294,7 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #' # identify everything that is overlapping
 #' overlapping_dt <- identify_overlapping_intervals_dt(
 #'   dt = input_dt,
-#'   id_cols = id_cols,
+#'   id_cols = c("age_start", "age_end"),
 #'   col_stem = "age",
 #'   identify_all_possible = TRUE
 #' )
@@ -302,7 +302,7 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #' # identify only the largest overlapping intervals
 #' overlapping_dt <- identify_overlapping_intervals_dt(
 #'   dt = input_dt,
-#'   id_cols = id_cols,
+#'   id_cols = c("age_start", "age_end"),
 #'   col_stem = "age",
 #'   identify_all_possible = FALSE
 #' )

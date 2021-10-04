@@ -68,7 +68,7 @@ input_dt <- rbind(input_dt, data.table::data.table(age_start = c(15), age_end = 
 # identify everything that is overlapping
 overlapping_dt <- identify_overlapping_intervals_dt(
   dt = input_dt,
-  id_cols = id_cols,
+  id_cols = c("age_start", "age_end"),
   col_stem = "age",
   identify_all_possible = TRUE
 )
@@ -76,7 +76,7 @@ overlapping_dt <- identify_overlapping_intervals_dt(
 # identify only the largest overlapping intervals
 overlapping_dt <- identify_overlapping_intervals_dt(
   dt = input_dt,
-  id_cols = id_cols,
+  id_cols = c("age_start", "age_end"),
   col_stem = "age",
   identify_all_possible = FALSE
 )
