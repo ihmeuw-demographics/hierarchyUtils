@@ -99,12 +99,7 @@
 </ul>
 <p>Iran census population counts included in the package are shown below and documented at <code><a href="../reference/iran_pop.html">?hierarchyUtils::iran_pop</a></code>. Examples of categorical variables included in this dataset are <code>location</code>, <code>year</code>, <code>sex</code>, <code>source_name</code>, <code>nid</code> and <code>underlying_nid</code> while <code>age_start</code> and <code>age_end</code> are one numeric interval variable.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># TODO remove this once handling unknown age groups correctly</span>
-<span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">age_start</span> <span class="op">!=</span> <span class="fl">999</span><span class="op">]</span>
-<span class="co"># TODO: fix underlying data</span>
-<span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="va">location</span> <span class="op">==</span> <span class="st">"Tehran 1986-1995"</span>, 
-                     <span class="va">location</span> <span class="op">:=</span> <span class="st">"Tehran 2006"</span><span class="op">]</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span>
 <span class="co">#&gt;        location year    sex age_start age_end                source_name    nid</span>
 <span class="co">#&gt;     1:   Alborz 1986 female         0       1 Statistical Centre of Iran   6993</span>
 <span class="co">#&gt;     2:   Alborz 1986 female         1       2 Statistical Centre of Iran   6993</span>
@@ -112,11 +107,11 @@
 <span class="co">#&gt;     4:   Alborz 1986 female         3       4 Statistical Centre of Iran   6993</span>
 <span class="co">#&gt;     5:   Alborz 1986 female         4       5 Statistical Centre of Iran   6993</span>
 <span class="co">#&gt;    ---                                                                         </span>
-<span class="co">#&gt; 10760:   Zanjan 2016   male        80      85 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10761:   Zanjan 2016   male        85      90 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10762:   Zanjan 2016   male        90      95 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10763:   Zanjan 2016   male        95     100 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10764:   Zanjan 2016   male       100     Inf Statistical Centre of Iran 299134</span>
+<span class="co">#&gt; 10890:   Zanjan 2016   male        80      85 Statistical Centre of Iran 299134</span>
+<span class="co">#&gt; 10891:   Zanjan 2016   male        85      90 Statistical Centre of Iran 299134</span>
+<span class="co">#&gt; 10892:   Zanjan 2016   male        90      95 Statistical Centre of Iran 299134</span>
+<span class="co">#&gt; 10893:   Zanjan 2016   male        95     100 Statistical Centre of Iran 299134</span>
+<span class="co">#&gt; 10894:   Zanjan 2016   male       100     Inf Statistical Centre of Iran 299134</span>
 <span class="co">#&gt;        underlying_nid population</span>
 <span class="co">#&gt;     1:             NA      21564</span>
 <span class="co">#&gt;     2:             NA      21209</span>
@@ -124,11 +119,11 @@
 <span class="co">#&gt;     4:             NA      21233</span>
 <span class="co">#&gt;     5:             NA      20999</span>
 <span class="co">#&gt;    ---                          </span>
-<span class="co">#&gt; 10760:             NA       5434</span>
-<span class="co">#&gt; 10761:             NA       2391</span>
-<span class="co">#&gt; 10762:             NA        940</span>
-<span class="co">#&gt; 10763:             NA         90</span>
-<span class="co">#&gt; 10764:             NA         11</span></code></pre></div>
+<span class="co">#&gt; 10890:             NA       5434</span>
+<span class="co">#&gt; 10891:             NA       2391</span>
+<span class="co">#&gt; 10892:             NA        940</span>
+<span class="co">#&gt; 10893:             NA         90</span>
+<span class="co">#&gt; 10894:             NA         11</span></code></pre></div>
 <p>The <code>hierarchyUtils</code> package provides a variety of utility functions that can be used to work with this kind of data. There are functions included to:</p>
 <ul>
 <li><p>aggregate data to different levels of a defined hierarchy for the categorical or numeric intervals variables.</p></li>
@@ -145,14 +140,21 @@
 <code class="sourceCode R"><span class="va">value_cols</span> <span class="op">=</span> <span class="st">"population"</span>
 <span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span> <span class="op">%in%</span> <span class="va">value_cols</span><span class="op">]</span>
 
+<span class="co"># reassign unknown age groups</span>
+<span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">age_start</span> <span class="op">==</span> <span class="fl">999</span> <span class="op">&amp;</span> <span class="va">age_end</span> <span class="op">==</span> <span class="fl">999</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">]</span>
+
 <span class="co"># aggregate to aggregate age groups</span>
-<span class="va">agg_age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">60</span><span class="op">)</span>, age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span>
+<span class="va">agg_age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>
+  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">60</span><span class="op">)</span>,
+  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span>,
+  include_NA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">T</span>, <span class="cn">F</span>, <span class="cn">F</span>, <span class="cn">F</span><span class="op">)</span>
+<span class="op">)</span>
 <span class="va">agg_age_mapping</span>
-<span class="co">#&gt;    age_start age_end</span>
-<span class="co">#&gt; 1:         0     Inf</span>
-<span class="co">#&gt; 2:         0       5</span>
-<span class="co">#&gt; 3:        15      60</span>
-<span class="co">#&gt; 4:        60     Inf</span>
+<span class="co">#&gt;    age_start age_end include_NA</span>
+<span class="co">#&gt; 1:         0     Inf       TRUE</span>
+<span class="co">#&gt; 2:         0       5      FALSE</span>
+<span class="co">#&gt; 3:        15      60      FALSE</span>
+<span class="co">#&gt; 4:        60     Inf      FALSE</span>
 <span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg.html">agg</a></span><span class="op">(</span>
   dt <span class="op">=</span> <span class="va">iran_pop</span>,
   id_cols <span class="op">=</span> <span class="va">id_cols</span>,
@@ -165,84 +167,51 @@
   present_agg_severity <span class="op">=</span> <span class="st">"skip"</span>
 <span class="op">)</span>
 <span class="co">#&gt; Aggregating age</span>
-<span class="co">#&gt; Interval group 1 of 6: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span>
+<span class="co">#&gt; Interval group 1 of 9: [NA, NA),[0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span>
 <span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
-<span class="co">#&gt; Interval group 2 of 6: [0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span>
+<span class="co">#&gt; Interval group 2 of 9: [NA, NA),[0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span>
 <span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
-<span class="co">#&gt; Interval group 3 of 6: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, Inf)</span>
+<span class="co">#&gt; Interval group 3 of 9: [NA, NA),[0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span>
 <span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
-<span class="co">#&gt; Interval group 4 of 6: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, Inf)</span>
+<span class="co">#&gt; Interval group 4 of 9: [NA, NA),[0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, Inf)</span>
 <span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
-<span class="co">#&gt; Interval group 5 of 6: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span>
+<span class="co">#&gt; Interval group 5 of 9: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, Inf)</span>
 <span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
-<span class="co">#&gt; Interval group 6 of 6: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95),[95, 100),[100, Inf)</span>
+<span class="co">#&gt; Interval group 6 of 9: [0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span>
 <span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span></code></pre></div>
+<span class="co">#&gt; Interval group 7 of 9: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span>
+<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
+<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
+<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
+<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
+<span class="co">#&gt; Interval group 8 of 9: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95),[95, 100),[100, Inf)</span>
+<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
+<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
+<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
+<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
+<span class="co">#&gt; Interval group 9 of 9: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span>
+<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
+<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
+<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
+<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></code></pre></div>
 <p>Then we can aggregate the categorical variable <code>sex</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># aggregate to both sexes combined</span>
@@ -261,8 +230,6 @@
 <span class="op">)</span>
 <span class="co">#&gt; Aggregating sex</span>
 <span class="co">#&gt; Aggregate 1 of 1: both</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_both_sexes</span>, use.names <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 <p>The output dataset returns all the new aggregate rows made as can be seen below with the same columns as what was included originally in the dataset.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -297,10 +264,9 @@
   mapping <span class="op">=</span> <span class="va">iran_mapping</span>,
   exists <span class="op">=</span> <span class="va">iran_pop_aggs</span><span class="op">[</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="va">source_name</span> <span class="op">!=</span> <span class="st">"DYB"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">location</span><span class="op">)</span><span class="op">]</span>,
   col_type <span class="op">=</span> <span class="st">"categorical"</span><span class="op">)</span>
-<span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_agg_tree.html">vis_tree</a></span><span class="op">(</span><span class="va">agg_tree</span><span class="op">)</span>
-<span class="co">#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</span></code></pre></div>
-<div id="htmlwidget-8e8d120bc082cec60295" style="width:768px;height:480px;" class="diagonalNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-8e8d120bc082cec60295">{"x":{"root":{"name":"Iran (Islamic Republic of)","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1966-1976","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Tehran 1986-1995","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Tehran 2006","agg_possible":false,"exists":true,"vis_group_node":"Value Provided","children":[{"name":"Tehran","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"},{"name":"Alborz","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"}]},{"name":"Qom","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Semnan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Gilan 1956-1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Gilan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Zanjan 1976-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Zanjan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Qazvin","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Mazandaran 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Mazandaran","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Golestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"East Azarbayejan 1956-1986","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"East Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Ardebil","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"West Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshahan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Ilam","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshah","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hamadan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kurdistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khuzestan and Lorestan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khuzestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Lorestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Fars and Ports 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Fars","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hormozgan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Bushehr","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kohgiluyeh and Boyer-Ahmad","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kerman","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khorasan 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khorasan-e-Razavi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"North Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"South Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Isfahan and Yazd 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan and Yazd 1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Yazd","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Chahar Mahaal and Bakhtiari","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Sistan and Baluchistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},"options":{"height":null,"width":null,"fontSize":10,"fontFamily":"serif","linkColour":"#ccc","nodeColour":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","nodeStroke":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","textColour":"#111","margin":{"top":null,"right":null,"bottom":null,"left":null},"opacity":0.9}},"evals":["options.nodeColour","options.nodeStroke"],"jsHooks":[]}</script><p>Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. <code>present_agg_severity = 'none'</code> because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. <code>missing_dt_severity = "none"</code> because in some source-years we don’t have the present day provinces and its okay to just make the aggregates that are possible given the data that is available.</p>
+<span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_agg_tree.html">vis_tree</a></span><span class="op">(</span><span class="va">agg_tree</span><span class="op">)</span></code></pre></div>
+<div id="htmlwidget-e7693b8be5bc52d2cba0" style="width:768px;height:480px;" class="diagonalNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e7693b8be5bc52d2cba0">{"x":{"root":{"name":"Iran (Islamic Republic of)","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1966-1976","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Tehran 1986-1995","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Tehran 2006","agg_possible":false,"exists":true,"vis_group_node":"Value Provided","children":[{"name":"Tehran","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"},{"name":"Alborz","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"}]},{"name":"Qom","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Semnan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Gilan 1956-1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Gilan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Zanjan 1976-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Zanjan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Qazvin","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Mazandaran 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Mazandaran","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Golestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"East Azarbayejan 1956-1986","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"East Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Ardebil","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"West Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshahan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Ilam","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshah","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hamadan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kurdistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khuzestan and Lorestan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khuzestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Lorestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Fars and Ports 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Fars","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hormozgan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Bushehr","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kohgiluyeh and Boyer-Ahmad","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kerman","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khorasan 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khorasan-e-Razavi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"North Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"South Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Isfahan and Yazd 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan and Yazd 1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Yazd","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Chahar Mahaal and Bakhtiari","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Sistan and Baluchistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},"options":{"height":null,"width":null,"fontSize":10,"fontFamily":"serif","linkColour":"#ccc","nodeColour":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","nodeStroke":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","textColour":"#111","margin":{"top":null,"right":null,"bottom":null,"left":null},"opacity":0.9}},"evals":["options.nodeColour","options.nodeStroke"],"jsHooks":[]}</script><p>Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. <code>present_agg_severity = 'none'</code> because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. <code>missing_dt_severity = "none"</code> because in some source-years we don’t have the present day provinces and its okay to just make the aggregates that are possible given the data that is available.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">iran_pop_aggs_location</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg.html">agg</a></span><span class="op">(</span>
   dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,
@@ -314,50 +280,20 @@
 <span class="op">)</span>
 <span class="co">#&gt; Aggregating location</span>
 <span class="co">#&gt; Aggregate 1 of 15: Tehran 2006</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 2 of 15: Tehran 1986-1995</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 3 of 15: Markazi 1966-1976</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 4 of 15: Markazi 1956</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 5 of 15: Zanjan 1976-1996</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 6 of 15: Gilan 1956-1966</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 7 of 15: Mazandaran 1956-1996</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 8 of 15: East Azarbayejan 1956-1986</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 9 of 15: Kermanshahan 1956</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 10 of 15: Khuzestan and Lorestan 1956</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 11 of 15: Fars and Ports 1956</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 12 of 15: Khorasan 1956-1996</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 13 of 15: Isfahan and Yazd 1966</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 14 of 15: Isfahan and Yazd 1956</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="co">#&gt; Aggregate 15 of 15: Iran (Islamic Republic of)</span>
-<span class="co">#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'</span>
-<span class="co">#&gt; should be specified by the caller; using TRUE</span>
 <span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_location</span><span class="op">)</span></code></pre></div>
 <p>The population for these aggregates age groups at the national level can now be plotted over time.</p>
 <p><img src="hierarchyUtils_files/figure-html/plot_total_pop-1.png" width="768"></p>

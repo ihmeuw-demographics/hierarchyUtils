@@ -211,21 +211,21 @@ be scaled are colored blue and nodes without data directly provided</p>
 <span class='va'>agg_tree</span> <span class='op'>&lt;-</span> <span class='fu'>create_agg_tree</span><span class='op'>(</span><span class='va'>iran_mapping</span>, exists <span class='op'>=</span> <span class='va'>locations_present</span>,
                             col_type <span class='op'>=</span> <span class='st'>"categorical"</span><span class='op'>)</span>
 <span class='fu'>vis_tree</span><span class='op'>(</span><span class='va'>agg_tree</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</div><div class='input'>
+
 <span class='co'># scaling example where all present day locations exist without collapsing</span>
 <span class='va'>locations_present</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>iran_mapping</span><span class='op'>[</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/grep.html'>grepl</a></span><span class='op'>(</span><span class='st'>"[0-9]+"</span>, <span class='va'>child</span><span class='op'>)</span>, <span class='va'>child</span><span class='op'>]</span>, <span class='st'>"Iran"</span><span class='op'>)</span>
 <span class='va'>scale_tree</span> <span class='op'>&lt;-</span> <span class='fu'>create_scale_tree</span><span class='op'>(</span><span class='va'>iran_mapping</span>,
                                 exists <span class='op'>=</span> <span class='va'>locations_present</span>,
                                 col_type <span class='op'>=</span> <span class='st'>"categorical"</span><span class='op'>)</span>
 <span class='fu'>vis_tree</span><span class='op'>(</span><span class='va'>scale_tree</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</div><div class='input'>
+
 <span class='co'># scaling example where all present day locations exist and collapsing tree</span>
 <span class='va'>scale_tree</span> <span class='op'>&lt;-</span> <span class='fu'>create_scale_tree</span><span class='op'>(</span><span class='va'>iran_mapping</span>,
                                 exists <span class='op'>=</span> <span class='va'>locations_present</span>,
                                 col_type <span class='op'>=</span> <span class='st'>"categorical"</span>,
                                 collapse <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='fu'>vis_tree</span><span class='op'>(</span><span class='va'>scale_tree</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] "Node$fields will be deprecated in the next release. Please use Node$attributes instead."</div><div class='input'>
+
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

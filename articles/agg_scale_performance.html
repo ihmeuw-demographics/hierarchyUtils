@@ -93,194 +93,6 @@
     
     
 <p>Aggregations and scaling with <code>hierarchyUtils</code> should perform as fast as basic data.table code. For basic use cases there should only be slightly more overhead due to the assertions and added flexibility included in <code>hierarchyUtils</code>.</p>
-<pre><code>#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE
-
-#&gt; Warning in type.convert.default(x = expected_col_stem, col_value_type): 'as.is'
-#&gt; should be specified by the caller; using TRUE</code></pre>
 <div id="aggregation-timing-comparison" class="section level2">
 <h2 class="hasAnchor">
 <a href="#aggregation-timing-comparison" class="anchor"></a>Aggregation timing comparison</h2>
@@ -322,9 +134,9 @@
 <td align="right">1</td>
 <td align="left">data.table</td>
 <td align="left">13,632</td>
-<td align="right">0.062</td>
-<td align="right">0.001</td>
-<td align="right">0.062</td>
+<td align="right">0.066</td>
+<td align="right">0.000</td>
+<td align="right">0.067</td>
 </tr>
 <tr class="even">
 <td align="left">age</td>
@@ -332,9 +144,9 @@
 <td align="right">1</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">13,632</td>
-<td align="right">3.797</td>
+<td align="right">3.754</td>
 <td align="right">0.100</td>
-<td align="right">3.899</td>
+<td align="right">3.856</td>
 </tr>
 <tr class="odd">
 <td align="left">age</td>
@@ -342,9 +154,9 @@
 <td align="right">10</td>
 <td align="left">data.table</td>
 <td align="left">136,320</td>
-<td align="right">0.137</td>
-<td align="right">0.004</td>
-<td align="right">0.141</td>
+<td align="right">0.131</td>
+<td align="right">0.007</td>
+<td align="right">0.139</td>
 </tr>
 <tr class="even">
 <td align="left">age</td>
@@ -352,9 +164,9 @@
 <td align="right">10</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">136,320</td>
-<td align="right">3.627</td>
+<td align="right">3.595</td>
 <td align="right">0.052</td>
-<td align="right">3.679</td>
+<td align="right">3.649</td>
 </tr>
 <tr class="odd">
 <td align="left">age</td>
@@ -362,9 +174,9 @@
 <td align="right">100</td>
 <td align="left">data.table</td>
 <td align="left">1,363,200</td>
-<td align="right">0.722</td>
+<td align="right">0.663</td>
 <td align="right">0.000</td>
-<td align="right">0.723</td>
+<td align="right">0.664</td>
 </tr>
 <tr class="even">
 <td align="left">age</td>
@@ -372,9 +184,9 @@
 <td align="right">100</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">1,363,200</td>
-<td align="right">11.422</td>
-<td align="right">0.333</td>
-<td align="right">11.756</td>
+<td align="right">11.560</td>
+<td align="right">0.372</td>
+<td align="right">11.938</td>
 </tr>
 <tr class="odd">
 <td align="left">sex</td>
@@ -382,9 +194,9 @@
 <td align="right">1</td>
 <td align="left">data.table</td>
 <td align="left">13,632</td>
-<td align="right">0.009</td>
+<td align="right">0.011</td>
 <td align="right">0.000</td>
-<td align="right">0.009</td>
+<td align="right">0.011</td>
 </tr>
 <tr class="even">
 <td align="left">sex</td>
@@ -392,9 +204,9 @@
 <td align="right">1</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">13,632</td>
-<td align="right">0.091</td>
+<td align="right">0.086</td>
 <td align="right">0.000</td>
-<td align="right">0.091</td>
+<td align="right">0.087</td>
 </tr>
 <tr class="odd">
 <td align="left">sex</td>
@@ -402,9 +214,9 @@
 <td align="right">10</td>
 <td align="left">data.table</td>
 <td align="left">136,320</td>
-<td align="right">0.070</td>
+<td align="right">0.060</td>
 <td align="right">0.000</td>
-<td align="right">0.070</td>
+<td align="right">0.060</td>
 </tr>
 <tr class="even">
 <td align="left">sex</td>
@@ -412,9 +224,9 @@
 <td align="right">10</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">136,320</td>
-<td align="right">0.847</td>
-<td align="right">0.000</td>
-<td align="right">0.848</td>
+<td align="right">0.831</td>
+<td align="right">0.001</td>
+<td align="right">0.830</td>
 </tr>
 <tr class="odd">
 <td align="left">sex</td>
@@ -422,9 +234,9 @@
 <td align="right">100</td>
 <td align="left">data.table</td>
 <td align="left">1,363,200</td>
-<td align="right">0.743</td>
+<td align="right">0.652</td>
 <td align="right">0.000</td>
-<td align="right">0.743</td>
+<td align="right">0.653</td>
 </tr>
 <tr class="even">
 <td align="left">sex</td>
@@ -432,9 +244,9 @@
 <td align="right">100</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">1,363,200</td>
-<td align="right">7.978</td>
-<td align="right">0.033</td>
-<td align="right">8.012</td>
+<td align="right">6.764</td>
+<td align="right">0.020</td>
+<td align="right">6.784</td>
 </tr>
 </tbody>
 </table>
