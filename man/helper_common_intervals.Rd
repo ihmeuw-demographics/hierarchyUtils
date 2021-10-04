@@ -44,6 +44,8 @@ each row maps to.
 \code{\link[=identify_common_intervals]{identify_common_intervals()}} identifies the most detailed
 common set of intervals for a given interval variable and
 \code{\link[=merge_common_intervals]{merge_common_intervals()}} merges these on to the original dataset.
+\code{\link[=collapse_common_intervals]{collapse_common_intervals()}} calls both these functions internally to
+help collapse to the most detailed common intervals.
 }
 \examples{
 id_cols <- c("year_start", "year_end", "sex", "age_start", "age_end")
