@@ -244,7 +244,7 @@ vis_tree <- function(tree) {
 
   # determine whether this is an aggregate or scale tree
   type <- "agg"
-  if ("scale_possible" %in% tree$fields) type <- "scale"
+  if ("scale_possible" %in% tree$attributes) type <- "scale"
 
   # create node attribute for three types of nodes
   group_node <- function(x) {
@@ -693,7 +693,7 @@ check_agg_scale_subtree_dt <- function(dt,
 
   # preserve type in original dataset
   col_value_type <- typeof(dt[[col_stem]])
-  expected_col_stem <- utils::type.convert(x = expected_col_stem, col_value_type)
+  expected_col_stem <- utils::type.convert(x = expected_col_stem, as.is = TRUE, col_value_type)
 
   # determine the expected dataset
   # TODO: switch to official data.table CJ with data.table inputs once available
