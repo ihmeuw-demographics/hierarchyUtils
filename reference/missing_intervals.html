@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Is the interval variable missing any expected intervals? — assert_no_missing_intervals • hierarchyUtils</title>
+<title>Helper function to check whether simple set of intervals is missing
+any expected intervals? — assert_no_missing_intervals • hierarchyUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +40,8 @@
 
 
 
-<meta property="og:title" content="Is the interval variable missing any expected intervals? — assert_no_missing_intervals" />
+<meta property="og:title" content="Helper function to check whether simple set of intervals is missing
+any expected intervals? — assert_no_missing_intervals" />
 <meta property="og:description" content="Checks to see if the input interval variable is missing any
 expected intervals." />
 
@@ -124,7 +126,8 @@ expected intervals." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Is the interval variable missing any expected intervals?</h1>
+    <h1>Helper function to check whether simple set of intervals is missing
+any expected intervals?</h1>
     <small class="dont-index">Source: <a href='https://github.com/ihmeuw-demographics/hierarchyUtils/blob/master/R/interval_assertions.R'><code>R/interval_assertions.R</code></a></small>
     <div class="hidden name"><code>missing_intervals.Rd</code></div>
     </div>
@@ -169,7 +172,7 @@ are missing then a zero-row [<code>data.table()</code>] is returned.
   start <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>95</span>, <span class='fl'>5</span><span class='op'>)</span>,
   end <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>95</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='cn'>Inf</span><span class='op'>)</span>
 <span class='op'>)</span>
-<span class='va'>missing_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_missing_intervals</span><span class='op'>(</span>
+<span class='va'>missing_dt</span> <span class='op'>&lt;-</span> <span class='fu'>hierarchyUtils</span><span class='fu'>:::</span><span class='fu'>identify_missing_intervals</span><span class='op'>(</span>
   ints_dt <span class='op'>=</span> <span class='va'>ints_dt</span><span class='op'>[</span><span class='op'>!</span><span class='va'>start</span> <span class='op'>%in%</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>10</span>, <span class='fl'>95</span><span class='op'>)</span><span class='op'>]</span>,
   expected_ints_dt <span class='op'>=</span> <span class='fu'>data.table</span><span class='fu'>::</span><span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/data.table.html'>data.table</a></span><span class='op'>(</span>start <span class='op'>=</span> <span class='fl'>0</span>, end <span class='op'>=</span> <span class='cn'>Inf</span><span class='op'>)</span>
 <span class='op'>)</span>

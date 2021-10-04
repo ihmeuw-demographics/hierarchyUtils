@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Does the interval variable have any overlapping intervals? — assert_no_overlapping_intervals • hierarchyUtils</title>
+<title>Helper function to check if the interval variable has any overlapping
+intervals. — assert_no_overlapping_intervals • hierarchyUtils</title>
 
 
 <!-- jquery -->
@@ -39,7 +40,8 @@
 
 
 
-<meta property="og:title" content="Does the interval variable have any overlapping intervals? — assert_no_overlapping_intervals" />
+<meta property="og:title" content="Helper function to check if the interval variable has any overlapping
+intervals. — assert_no_overlapping_intervals" />
 <meta property="og:description" content="Checks to see if the input interval variable has any
 overlapping intervals." />
 
@@ -124,7 +126,8 @@ overlapping intervals." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Does the interval variable have any overlapping intervals?</h1>
+    <h1>Helper function to check if the interval variable has any overlapping
+intervals.</h1>
     <small class="dont-index">Source: <a href='https://github.com/ihmeuw-demographics/hierarchyUtils/blob/master/R/interval_assertions.R'><code>R/interval_assertions.R</code></a></small>
     <div class="hidden name"><code>overlapping_intervals.Rd</code></div>
     </div>
@@ -169,9 +172,14 @@ intervals are overlapping then a zero-row [<code>data.table()</code>] is returne
   start <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>10</span>, <span class='fl'>50</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='fl'>0</span><span class='op'>)</span>,
   end <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>15</span>, <span class='fl'>55</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='fl'>11</span><span class='op'>)</span>
 <span class='op'>)</span>
-<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span>, identify_all_possible <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span><span class='va'>ints_dt</span>, identify_all_possible <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-
+<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>hierarchyUtils</span><span class='fu'>:::</span><span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span>
+  <span class='va'>ints_dt</span>,
+  identify_all_possible <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span>
+<span class='va'>overlapping_dt</span> <span class='op'>&lt;-</span> <span class='fu'>hierarchyUtils</span><span class='fu'>:::</span><span class='fu'>identify_overlapping_intervals</span><span class='op'>(</span>
+  <span class='va'>ints_dt</span>,
+  identify_all_possible <span class='op'>=</span> <span class='cn'>TRUE</span>
+<span class='op'>)</span>
 
 </div></pre>
   </div>
