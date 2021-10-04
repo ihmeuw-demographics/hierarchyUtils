@@ -515,6 +515,49 @@ test_that(description, {
   expect_equal(output_dt, expected_dt)
 })
 
+# Include NA in interval mapping ------------------------------------------
+
+id_cols <- c("group", "age_start", "age_end")
+value_cols <- "value"
+
+input_dt <- data.table(
+  group = c(1, 1, 1, 2, 2, 2),
+  age_start = c(0, 1, NA, 0, 1, NA),
+  age_end = c(1, 2, NA, 1, 2, NA),
+  value = 1
+)
+setkeyv(input_dt, id_cols)
+
+expected_dt <- data.table(
+  group = c(1, 2),
+  age_start = c(0, 0),
+  age_end = c(2, 2),
+  value = 2
+)
+setkeyv(expected_dt, id_cols)
+
+description <- "aggregation correctly accounts for NA interval col_stem variables"
+test_that(description, {
+  output_dt <- agg(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "age", col_type = "interval",
+    mapping = data.table(age_start = 0, age_end = 2)
+  )
+  expect_equal(output_dt, expected_dt)
+
+  new_expected_dt <- copy(expected_dt)
+  new_expected_dt[, value := 3]
+  output_dt <- agg(
+    dt = input_dt,
+    id_cols = id_cols, value_cols = value_cols,
+    col_stem = "age", col_type = "interval",
+    mapping = data.table(age_start = 0, age_end = 2, include_NA = TRUE)
+  )
+  expect_equal(output_dt, new_expected_dt)
+})
+
+
 # Small special case tests ------------------------------------------------
 
 # set up test input data.table
