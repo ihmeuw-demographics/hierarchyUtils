@@ -3,7 +3,7 @@
 \name{assert_no_overlapping_intervals}
 \alias{assert_no_overlapping_intervals}
 \alias{identify_overlapping_intervals}
-\title{Helper function to check ift he interval variable has any overlapping
+\title{Helper function to check if the interval variable has any overlapping
 intervals.}
 \usage{
 assert_no_overlapping_intervals(ints_dt)

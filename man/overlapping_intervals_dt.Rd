@@ -55,7 +55,7 @@ overlapping intervals.
 }
 \details{
 \code{identify_overlapping_intervals_dt} works by first identifying each unique
-set of intervals in \code{dt}. Then checks one at at a time the groups of rows
+set of intervals in \code{dt}. Then checks one at a time the groups of rows
 of \code{dt} that match each set of intervals.
 }
 \examples{

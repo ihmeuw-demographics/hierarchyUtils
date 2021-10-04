@@ -56,7 +56,7 @@ expected intervals.
 }
 \details{
 \code{identify_missing_intervals_dt} works by first identifying each unique set of
-intervals in \code{dt}. Then checks one at at a time the groups of rows of \code{dt}
+intervals in \code{dt}. Then checks one at a time the groups of rows of \code{dt}
 that match each set of intervals.
 
 \code{expected_ints_dt = NULL} will automatically check that there are no missing

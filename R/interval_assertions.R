@@ -28,7 +28,7 @@
 #'
 #' @details
 #' `identify_missing_intervals_dt` works by first identifying each unique set of
-#' intervals in `dt`. Then checks one at at a time the groups of rows of `dt`
+#' intervals in `dt`. Then checks one at a time the groups of rows of `dt`
 #' that match each set of intervals.
 #'
 #' `expected_ints_dt = NULL` will automatically check that there are no missing
@@ -281,7 +281,7 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #'
 #' @details
 #' `identify_overlapping_intervals_dt` works by first identifying each unique
-#' set of intervals in `dt`. Then checks one at at a time the groups of rows
+#' set of intervals in `dt`. Then checks one at a time the groups of rows
 #' of `dt` that match each set of intervals.
 #'
 #' @examples
@@ -421,7 +421,7 @@ identify_overlapping_intervals_dt <- function(dt,
 }
 
 
-#' @title Helper function to check ift he interval variable has any overlapping
+#' @title Helper function to check if the interval variable has any overlapping
 #'   intervals.
 #'
 #' @description Checks to see if the input interval variable has any
