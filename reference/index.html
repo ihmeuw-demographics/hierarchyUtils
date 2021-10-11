@@ -167,17 +167,15 @@
       <tr>
         
         <td>
-          <p><code><a href="missing_intervals.html">assert_no_missing_intervals()</a></code> <code><a href="missing_intervals.html">identify_missing_intervals()</a></code> </p>
+          <p><code><a href="missing_intervals_dt.html">assert_no_missing_intervals_dt()</a></code> <code><a href="missing_intervals_dt.html">identify_missing_intervals_dt()</a></code> </p>
         </td>
-        <td><p>Helper function to check whether simple set of intervals is missing
-any expected intervals?</p></td>
+        <td><p>Check if the interval column in a data.table missing any expected intervals</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="overlapping_intervals.html">assert_no_overlapping_intervals()</a></code> <code><a href="overlapping_intervals.html">identify_overlapping_intervals()</a></code> </p>
+          <p><code><a href="overlapping_intervals_dt.html">assert_no_overlapping_intervals_dt()</a></code> <code><a href="overlapping_intervals_dt.html">identify_overlapping_intervals_dt()</a></code> </p>
         </td>
-        <td><p>Helper function to check if the interval variable has any overlapping
-intervals.</p></td>
+        <td><p>Check if the interval column in a data.table has overlapping intervals</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -202,8 +200,8 @@ aggregate level</p></td>
     </tbody><tbody>
       <tr>
         <th colspan="2">
-          <h2 id="section-debugging-aggregation-and-scaling" class="hasAnchor"><a href="#section-debugging-aggregation-and-scaling" class="anchor"></a>Debugging aggregation and scaling</h2>
-          <p class="section-desc"><p>Functions for debugging errors/warnings when aggregating and scaling hierarchical data</p></p>
+          <h2 id="section-common-intervals" class="hasAnchor"><a href="#section-common-intervals" class="anchor"></a>Common intervals</h2>
+          <p class="section-desc"><p>Functions for identifying/collapsing to the most detailed common set of intervals</p></p>
         </th>
       </tr>
       
@@ -214,43 +212,6 @@ aggregate level</p></td>
       <tr>
         
         <td>
-          <p><code><a href="agg_categorical.html">agg_categorical()</a></code> </p>
-        </td>
-        <td><p>Helper function to aggregate categorical variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="agg_interval.html">agg_interval()</a></code> </p>
-        </td>
-        <td><p>Helper function to aggregate interval variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="agg_scale.html">agg()</a></code> <code><a href="agg_scale.html">scale()</a></code> </p>
-        </td>
-        <td><p>Aggregate/Scale a detailed level of a hierarchical variable to an
-aggregate level</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="agg_scale_subtree.html">agg_subtree()</a></code> <code><a href="agg_scale_subtree.html">scale_subtree()</a></code> </p>
-        </td>
-        <td><p>Aggregate or scale one subtree's children values to the parent level</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="assert_agg_scale_args.html">assert_agg_scale_args()</a></code> </p>
-        </td>
-        <td><p>Check inputs to agg and scale functions</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="check_agg_scale_subtree_dt.html">check_agg_scale_subtree_dt()</a></code> </p>
-        </td>
-        <td><p>Check subtree data.table before aggregation and scaling</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="collapse_common_intervals.html">collapse_common_intervals()</a></code> </p>
         </td>
         <td><p>Collapse an interval variable to the most detailed common set of
@@ -258,130 +219,9 @@ intervals</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="collapse_tree.html">collapse_tree()</a></code> </p>
-        </td>
-        <td><p>Collapse the data.tree so that intermediate nodes without data are
-removed</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_base_tree.html">create_base_tree()</a></code> </p>
-        </td>
-        <td><p>Create a data.tree object using a mapping of levels of a categorical
-or interval variable</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_interval_node.html">create_interval_node()</a></code> </p>
-        </td>
-        <td><p>Create a node for an interval tree</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_interval_tree.html">create_agg_interval_tree()</a></code> <code><a href="create_interval_tree.html">create_scale_interval_tree()</a></code> </p>
-        </td>
-        <td><p>Create a data.tree object to be used for aggregating or scaling
-interval data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_subtrees.html">create_agg_subtrees()</a></code> <code><a href="create_subtrees.html">create_scale_subtrees()</a></code> </p>
-        </td>
-        <td><p>Create a list of subtrees that can be used during aggregation or
-scaling</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_tree.html">create_agg_tree()</a></code> <code><a href="create_tree.html">create_scale_tree()</a></code> <code><a href="create_tree.html">vis_tree()</a></code> </p>
-        </td>
-        <td><p>Create a data.tree object to be used for aggregating or scaling
-hierarchical categorical or interval data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="fill_missing_intervals.html">fill_missing_intervals()</a></code> </p>
-        </td>
-        <td><p>create new interval nodes for any missing interval nodes</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="gen_interval_cols.html">gen_end()</a></code> <code><a href="gen_interval_cols.html">gen_length()</a></code> <code><a href="gen_interval_cols.html">gen_name()</a></code> </p>
-        </td>
-        <td><p>Generate columns to help describe numeric variable intervals</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="helper_common_intervals.html">identify_common_intervals()</a></code> <code><a href="helper_common_intervals.html">merge_common_intervals()</a></code> </p>
         </td>
         <td><p>Helper functions for collapsing to the most detailed common intervals</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="hierarchyUtils.html">hierarchyUtils</a></code> </p>
-        </td>
-        <td><p>hierarchyUtils: Utility Functions for Hierarchically Structured Data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="iran_mapping.html">iran_mapping</a></code> </p>
-        </td>
-        <td><p>Iran Provinces Mapping from 1950 to Today</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="iran_pop.html">iran_pop</a></code> </p>
-        </td>
-        <td><p>Iran Census Population Counts</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="missing_intervals.html">assert_no_missing_intervals()</a></code> <code><a href="missing_intervals.html">identify_missing_intervals()</a></code> </p>
-        </td>
-        <td><p>Helper function to check whether simple set of intervals is missing
-any expected intervals?</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="missing_intervals_dt.html">assert_no_missing_intervals_dt()</a></code> <code><a href="missing_intervals_dt.html">identify_missing_intervals_dt()</a></code> </p>
-        </td>
-        <td><p>Check if the interval column in a data.table missing any expected intervals</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="name_to_start_end.html">name_to_start_end()</a></code> </p>
-        </td>
-        <td><p>Parse interval notation name to interval endpoints</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="overlapping_intervals.html">assert_no_overlapping_intervals()</a></code> <code><a href="overlapping_intervals.html">identify_overlapping_intervals()</a></code> </p>
-        </td>
-        <td><p>Helper function to check if the interval variable has any overlapping
-intervals.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="overlapping_intervals_dt.html">assert_no_overlapping_intervals_dt()</a></code> <code><a href="overlapping_intervals_dt.html">identify_overlapping_intervals_dt()</a></code> </p>
-        </td>
-        <td><p>Check if the interval column in a data.table has overlapping intervals</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="place_new_interval_node.html">place_new_interval_node()</a></code> </p>
-        </td>
-        <td><p>Place a new interval node in an interval tree</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="problematic_tree_nodes.html">identify_missing_agg()</a></code> <code><a href="problematic_tree_nodes.html">identify_missing_scale()</a></code> <code><a href="problematic_tree_nodes.html">identify_present_agg()</a></code> </p>
-        </td>
-        <td><p>Identify names of problematic nodes in categorical trees</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="split_unknown.html">split_unknown()</a></code> </p>
-        </td>
-        <td><p>Split unknown groupings</p></td>
       </tr>
     </tbody><tbody>
       <tr>
@@ -426,6 +266,26 @@ intervals.</p></td>
           <p><code><a href="iran_mapping.html">iran_mapping</a></code> </p>
         </td>
         <td><p>Iran Provinces Mapping from 1950 to Today</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-debugging-aggregation-and-scaling" class="hasAnchor"><a href="#section-debugging-aggregation-and-scaling" class="anchor"></a>Debugging aggregation and scaling</h2>
+          <p class="section-desc"><p>Functions for debugging errors/warnings when aggregating and scaling hierarchical data</p></p>
+        </th>
+      </tr>
+      
+      
+    </tbody><tbody>
+      
+      
+      <tr>
+        
+        <td>
+          <p><code><a href="create_tree.html">create_agg_tree()</a></code> <code><a href="create_tree.html">create_scale_tree()</a></code> <code><a href="create_tree.html">vis_tree()</a></code> </p>
+        </td>
+        <td><p>Create a data.tree object to be used for aggregating or scaling
+hierarchical categorical or interval data</p></td>
       </tr>
     </tbody>
     </table>
