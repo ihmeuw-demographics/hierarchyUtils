@@ -42,7 +42,9 @@
 <meta property="og:title" content="Helper functions for collapsing to the most detailed common intervals — identify_common_intervals" />
 <meta property="og:description" content="identify_common_intervals() identifies the most detailed
 common set of intervals for a given interval variable and
-merge_common_intervals() merges these on to the original dataset." />
+merge_common_intervals() merges these on to the original dataset.
+collapse_common_intervals() calls both these functions internally to
+help collapse to the most detailed common intervals." />
 
 
 
@@ -133,7 +135,9 @@ merge_common_intervals() merges these on to the original dataset." />
     <div class="ref-description">
     <p><code>identify_common_intervals()</code> identifies the most detailed
 common set of intervals for a given interval variable and
-<code>merge_common_intervals()</code> merges these on to the original dataset.</p>
+<code>merge_common_intervals()</code> merges these on to the original dataset.
+<code><a href='collapse_common_intervals.html'>collapse_common_intervals()</a></code> calls both these functions internally to
+help collapse to the most detailed common intervals.</p>
     </div>
 
     <pre class="usage"><span class='fu'>identify_common_intervals</span><span class='op'>(</span><span class='va'>dt</span>, <span class='va'>id_cols</span>, <span class='va'>col_stem</span>, include_missing <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
