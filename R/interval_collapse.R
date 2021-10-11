@@ -219,6 +219,8 @@ collapse_common_intervals <- function(dt,
 #' @description [`identify_common_intervals()`] identifies the most detailed
 #'   common set of intervals for a given interval variable and
 #'   [`merge_common_intervals()`] merges these on to the original dataset.
+#'   [`collapse_common_intervals()`] calls both these functions internally to
+#'   help collapse to the most detailed common intervals.
 #'
 #' @inheritParams collapse_common_intervals
 #' @param id_cols \[`character()`\]\cr
@@ -262,6 +264,7 @@ collapse_common_intervals <- function(dt,
 #'   col_stem = "year"
 #' )
 #'
+#' @export
 #' @rdname helper_common_intervals
 identify_common_intervals <- function(dt,
                                       id_cols,
@@ -348,6 +351,7 @@ identify_common_intervals <- function(dt,
 #'   'common_start' and 'common_end' defining the most detailed common interval
 #'   each row maps to.
 #'
+#' @export
 #' @rdname helper_common_intervals
 merge_common_intervals <- function(dt, common_intervals, col_stem) {
   cols <- paste0(col_stem, "_", c("start", "end"))
