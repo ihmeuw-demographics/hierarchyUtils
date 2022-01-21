@@ -161,7 +161,12 @@ identify_missing_intervals_dt <- function(dt,
     # combine missing intervals with group dataset
     if (nrow(missing_ints) > 0) {
       data.table::setnames(missing_ints, c("start", "end"), cols)
-      missing_ints <- CJDT(group_dt, missing_ints)
+
+      # as long as group dt includes other id_cols
+      if (!(nrow(group_dt) == 0 & ncol(group_dt) == 0)) {
+        missing_ints <- CJDT(group_dt, missing_ints)
+      }
+
     } else {
       missing_ints <- dt[0, id_cols, with = FALSE]
     }
