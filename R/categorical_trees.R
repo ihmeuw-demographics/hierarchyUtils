@@ -169,6 +169,8 @@ create_scale_tree <- function(mapping,
 #'
 #' @return \[`data.tree()`\] with field for whether each node has data
 #'   available ('exists').
+#'
+#' @noRd
 create_base_tree <- function(mapping, exists, col_type) {
 
   # create overall tree with entire mapping
@@ -209,6 +211,8 @@ create_base_tree <- function(mapping, exists, col_type) {
 #'
 #' @return \[`data.tree()`\] with field for whether each node has data
 #'   available ('exists').
+#'
+#' @noRd
 collapse_tree <- function(tree) {
 
   collapse <- function(x) {
@@ -299,6 +303,8 @@ vis_tree <- function(tree) {
 #' @return \[`character()`\] vector with the names of the problematic nodes.
 #'
 #' @rdname problematic_tree_nodes
+#'
+#' @noRd
 identify_missing_agg <- function(tree) {
 
   # identify each leaf node that is missing which makes aggregation to some
@@ -315,6 +321,8 @@ identify_missing_agg <- function(tree) {
 }
 
 #' @rdname problematic_tree_nodes
+#'
+#' @noRd
 identify_missing_scale <- function(tree) {
 
   if (all(c("left", "right") %in% tree$attributes)) {
@@ -337,6 +345,8 @@ identify_missing_scale <- function(tree) {
 }
 
 #' @rdname problematic_tree_nodes
+#'
+#' @noRd
 identify_present_agg <- function(tree) {
 
   # identify each non leaf node that is present already when any of its
@@ -378,7 +388,7 @@ identify_present_agg <- function(tree) {
 #'
 #' @inheritParams create_agg_tree
 #'
-#' @rdname create_subtrees
+#' @noRd
 create_agg_subtrees <- function(mapping, exists, col_type) {
 
   tree <- create_agg_tree(mapping, exists, col_type)
@@ -401,7 +411,7 @@ create_agg_subtrees <- function(mapping, exists, col_type) {
   return(subtrees)
 }
 
-#' @rdname create_subtrees
+#' @inheritParams create_agg_subtrees
 create_scale_subtrees <- function(mapping,
                                   exists,
                                   col_type,
@@ -429,7 +439,7 @@ create_scale_subtrees <- function(mapping,
 #' or with scaled values for the given `subtree`. [scale_subtree()] changes the
 #' name of the `value_cols` to `{value_cols}_scaled`.
 #'
-#' @rdname agg_scale_subtree
+#' @noRd
 agg_subtree <- function(dt,
                         id_cols,
                         value_cols,
@@ -510,6 +520,8 @@ agg_subtree <- function(dt,
 }
 
 #' @rdname agg_scale_subtree
+#'
+#' @noRd
 scale_subtree <- function(dt,
                           id_cols,
                           value_cols,
@@ -676,6 +688,8 @@ scale_subtree <- function(dt,
 #'   expected values for the `col_stem` variable in `dt`.
 #'
 #' @return `dt` with any missing data dropped.
+#'
+#' @noRd
 check_agg_scale_subtree_dt <- function(dt,
                                        id_cols,
                                        col_stem,

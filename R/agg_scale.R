@@ -447,6 +447,8 @@ scale <- function(dt,
 #'
 #' @return Invisibly returns `dt` but throws error if inputs are not formatted
 #'   correctly.
+#'
+#' @noRd
 assert_agg_scale_args <- function(dt,
                                   id_cols,
                                   value_cols,

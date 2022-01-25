@@ -26,7 +26,7 @@
 #'   notation and describes each left-closed, right-open interval. Each node
 #'   also includes a field for the 'left' and 'right' endpoint.
 #'
-#' @rdname create_interval_tree
+#' @noRd
 create_agg_interval_tree <- function(data_intervals_dt,
                                      agg_intervals_dt,
                                      col_stem) {
@@ -77,7 +77,7 @@ create_agg_interval_tree <- function(data_intervals_dt,
   return(interval_tree)
 }
 
-#' @rdname create_interval_tree
+#' @inheritParams create_agg_interval_tree
 create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
 
   cols <- paste0(col_stem, "_", c("start", "end"))
@@ -126,6 +126,8 @@ create_scale_interval_tree <- function(data_intervals_dt, col_stem) {
 #'   name of the node in interval notation.
 #'
 #' @return \[`data.tree()`\] node with 'name', 'left', 'right' attributes
+#'
+#' @noRd
 create_interval_node <- function(start, end, name) {
   new_node <- data.tree::Node$new(name)
   new_node$Set(left = start)
@@ -155,6 +157,8 @@ create_interval_node <- function(start, end, name) {
 #'
 #' @return Invisibly returns reference to modified `current_node` with
 #'   `new_node` placed as part of subtree.
+#'
+#' @noRd
 place_new_interval_node <- function(current_node, new_node) {
   if (data.tree::isLeaf(current_node)) {
     current_node$AddChildNode(new_node)
@@ -209,6 +213,8 @@ place_new_interval_node <- function(current_node, new_node) {
 #' @inheritParams agg
 #'
 #' @return invisibly return reference to modified subtrees.
+#'
+#' @noRd
 fill_missing_intervals <- function(interval_tree, subtrees, col_stem) {
 
   cols <- paste0(col_stem, "_", c("start", "end"))
