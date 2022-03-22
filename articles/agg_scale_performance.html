@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hierarchyUtils</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../articles/hierarchyUtils.html">Get started</a>
 </li>
@@ -50,7 +46,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -64,7 +60,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/">
+  <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -79,13 +75,13 @@
 
       
 
-      </header><script src="agg_scale_performance_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Aggregation/Scaling performance</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/blob/master/vignettes/agg_scale_performance.Rmd"><code>vignettes/agg_scale_performance.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ihmeuw-demographics/hierarchyUtils/blob/HEAD/vignettes/agg_scale_performance.Rmd" class="external-link"><code>vignettes/agg_scale_performance.Rmd</code></a></small>
       <div class="hidden name"><code>agg_scale_performance.Rmd</code></div>
 
     </div>
@@ -93,29 +89,29 @@
     
     
 <p>Aggregations and scaling with <code>hierarchyUtils</code> should perform as fast as basic data.table code. For basic use cases there should only be slightly more overhead due to the assertions and added flexibility included in <code>hierarchyUtils</code>.</p>
-<div id="aggregation-timing-comparison" class="section level2">
-<h2 class="hasAnchor">
-<a href="#aggregation-timing-comparison" class="anchor"></a>Aggregation timing comparison</h2>
+<div class="section level2">
+<h2 id="aggregation-timing-comparison">Aggregation timing comparison<a class="anchor" aria-label="anchor" href="#aggregation-timing-comparison"></a>
+</h2>
 <p>This vignette makes aggregation timing comparisons between <code>hierarchyUtils</code> and <code>data.table</code> for example input data when aggregating across an interval variable like ‘age’ or a categorical variable like ‘sex’. The example input data increases in size as more draws are added.</p>
-<div id="example-input-data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#example-input-data" class="anchor"></a>Example input data</h3>
-<pre><code>#&gt;        location year_start    sex age_start value1 value2 draw
-#&gt;     1:        1       1950 female         0      1      1    1
-#&gt;     2:        1       1950 female         1      1      1    1
-#&gt;     3:        1       1950 female         2      1      1    1
-#&gt;     4:        1       1950 female         3      1      1    1
-#&gt;     5:        1       1950 female         4      1      1    1
-#&gt;    ---                                                        
-#&gt; 13628:        1       2020   male        91      1      1    1
-#&gt; 13629:        1       2020   male        92      1      1    1
-#&gt; 13630:        1       2020   male        93      1      1    1
-#&gt; 13631:        1       2020   male        94      1      1    1
-#&gt; 13632:        1       2020   male        95      1      1    1</code></pre>
+<div class="section level3">
+<h3 id="example-input-data">Example input data<a class="anchor" aria-label="anchor" href="#example-input-data"></a>
+</h3>
+<pre><code><span class="co">#&gt;        location year_start    sex age_start value1 value2 draw</span>
+<span class="co">#&gt;     1:        1       1950 female         0      1      1    1</span>
+<span class="co">#&gt;     2:        1       1950 female         1      1      1    1</span>
+<span class="co">#&gt;     3:        1       1950 female         2      1      1    1</span>
+<span class="co">#&gt;     4:        1       1950 female         3      1      1    1</span>
+<span class="co">#&gt;     5:        1       1950 female         4      1      1    1</span>
+<span class="co">#&gt;    ---                                                        </span>
+<span class="co">#&gt; 13628:        1       2020   male        91      1      1    1</span>
+<span class="co">#&gt; 13629:        1       2020   male        92      1      1    1</span>
+<span class="co">#&gt; 13630:        1       2020   male        93      1      1    1</span>
+<span class="co">#&gt; 13631:        1       2020   male        94      1      1    1</span>
+<span class="co">#&gt; 13632:        1       2020   male        95      1      1    1</span></code></pre>
 </div>
-<div id="timing-comparison" class="section level3">
-<h3 class="hasAnchor">
-<a href="#timing-comparison" class="anchor"></a>Timing comparison</h3>
+<div class="section level3">
+<h3 id="timing-comparison">Timing comparison<a class="anchor" aria-label="anchor" href="#timing-comparison"></a>
+</h3>
 <table class="table">
 <thead><tr class="header">
 <th align="left">col_stem</th>
@@ -134,9 +130,9 @@
 <td align="right">1</td>
 <td align="left">data.table</td>
 <td align="left">13,632</td>
-<td align="right">0.064</td>
-<td align="right">0.000</td>
-<td align="right">0.064</td>
+<td align="right">0.068</td>
+<td align="right">0.008</td>
+<td align="right">0.076</td>
 </tr>
 <tr class="even">
 <td align="left">age</td>
@@ -144,9 +140,9 @@
 <td align="right">1</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">13,632</td>
-<td align="right">3.540</td>
-<td align="right">0.080</td>
-<td align="right">3.621</td>
+<td align="right">4.160</td>
+<td align="right">0.089</td>
+<td align="right">4.249</td>
 </tr>
 <tr class="odd">
 <td align="left">age</td>
@@ -154,9 +150,9 @@
 <td align="right">10</td>
 <td align="left">data.table</td>
 <td align="left">136,320</td>
-<td align="right">0.141</td>
+<td align="right">0.129</td>
 <td align="right">0.004</td>
-<td align="right">0.145</td>
+<td align="right">0.133</td>
 </tr>
 <tr class="even">
 <td align="left">age</td>
@@ -164,9 +160,9 @@
 <td align="right">10</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">136,320</td>
-<td align="right">3.473</td>
-<td align="right">0.064</td>
-<td align="right">3.538</td>
+<td align="right">4.000</td>
+<td align="right">0.080</td>
+<td align="right">4.082</td>
 </tr>
 <tr class="odd">
 <td align="left">age</td>
@@ -174,9 +170,9 @@
 <td align="right">100</td>
 <td align="left">data.table</td>
 <td align="left">1,363,200</td>
-<td align="right">0.709</td>
-<td align="right">0.000</td>
-<td align="right">0.709</td>
+<td align="right">0.729</td>
+<td align="right">0.003</td>
+<td align="right">0.733</td>
 </tr>
 <tr class="even">
 <td align="left">age</td>
@@ -184,9 +180,9 @@
 <td align="right">100</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">1,363,200</td>
-<td align="right">11.006</td>
-<td align="right">0.280</td>
-<td align="right">11.289</td>
+<td align="right">12.883</td>
+<td align="right">0.361</td>
+<td align="right">13.246</td>
 </tr>
 <tr class="odd">
 <td align="left">sex</td>
@@ -194,9 +190,9 @@
 <td align="right">1</td>
 <td align="left">data.table</td>
 <td align="left">13,632</td>
-<td align="right">0.009</td>
+<td align="right">0.011</td>
 <td align="right">0.000</td>
-<td align="right">0.009</td>
+<td align="right">0.011</td>
 </tr>
 <tr class="even">
 <td align="left">sex</td>
@@ -204,9 +200,9 @@
 <td align="right">1</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">13,632</td>
-<td align="right">0.080</td>
+<td align="right">0.100</td>
 <td align="right">0.000</td>
-<td align="right">0.080</td>
+<td align="right">0.100</td>
 </tr>
 <tr class="odd">
 <td align="left">sex</td>
@@ -214,9 +210,9 @@
 <td align="right">10</td>
 <td align="left">data.table</td>
 <td align="left">136,320</td>
-<td align="right">0.057</td>
+<td align="right">0.074</td>
 <td align="right">0.000</td>
-<td align="right">0.057</td>
+<td align="right">0.073</td>
 </tr>
 <tr class="even">
 <td align="left">sex</td>
@@ -224,9 +220,9 @@
 <td align="right">10</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">136,320</td>
-<td align="right">0.811</td>
-<td align="right">0.012</td>
-<td align="right">0.824</td>
+<td align="right">0.938</td>
+<td align="right">0.004</td>
+<td align="right">0.943</td>
 </tr>
 <tr class="odd">
 <td align="left">sex</td>
@@ -234,9 +230,9 @@
 <td align="right">100</td>
 <td align="left">data.table</td>
 <td align="left">1,363,200</td>
-<td align="right">0.624</td>
+<td align="right">0.771</td>
 <td align="right">0.000</td>
-<td align="right">0.624</td>
+<td align="right">0.771</td>
 </tr>
 <tr class="even">
 <td align="left">sex</td>
@@ -244,9 +240,9 @@
 <td align="right">100</td>
 <td align="left">hierarchyUtils</td>
 <td align="left">1,363,200</td>
-<td align="right">6.345</td>
-<td align="right">0.032</td>
-<td align="right">6.378</td>
+<td align="right">7.636</td>
+<td align="right">0.040</td>
+<td align="right">7.677</td>
 </tr>
 </tbody>
 </table>
@@ -265,11 +261,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Charlton Callender, Grant Nguyen, Katie Paulson, Spencer Pease, Haidong Wang, Institute for Health Metrics and Evaluation.</p>
+  <p></p>
+<p>Developed by Charlton Callender, Grant Nguyen, Katie Paulson, Spencer Pease, Haidong Wang, Institute for Health Metrics and Evaluation.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -277,6 +275,8 @@
 
   
 
+
+  
 
   </body>
 </html>
