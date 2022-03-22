@@ -47,3 +47,7 @@ reference:
   - create_agg_tree
   - create_scale_tree
   - vis_tree
+
+- title: internal
+- contents:
+  - hierarchyUtils

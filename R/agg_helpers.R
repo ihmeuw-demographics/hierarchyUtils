@@ -7,6 +7,8 @@
 #'
 #' @return Invisibly returns `dt` but throws error if inputs are not formatted
 #'   correctly.
+#'
+#' @noRd
 agg_categorical <- function(dt,
                             id_cols,
                             value_cols,
@@ -135,6 +137,8 @@ agg_categorical <- function(dt,
 #'
 #' @return Invisibly returns `dt` but throws error if inputs are not formatted
 #'   correctly.
+#'
+#' @noRd
 agg_interval <- function(dt,
                          id_cols,
                          value_cols,

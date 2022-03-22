@@ -211,6 +211,8 @@ identify_missing_intervals_dt <- function(dt,
 #' )
 #'
 #' @rdname missing_intervals
+#'
+#' @noRd
 assert_no_missing_intervals <- function(ints_dt, expected_ints_dt) {
 
   missing_intervals <- identify_missing_intervals(ints_dt, expected_ints_dt)
@@ -224,6 +226,8 @@ assert_no_missing_intervals <- function(ints_dt, expected_ints_dt) {
 }
 
 #' @rdname missing_intervals
+#'
+#' @noRd
 identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 
   assertthat::assert_that(
@@ -273,7 +277,10 @@ identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 #'   overlapping intervals.
 #'
 #' @inheritParams identify_missing_intervals_dt
-#' @inheritParams identify_overlapping_intervals
+#' @param identify_all_possible \[`logical(1)`\]\cr
+#'   Whether to return all overlapping intervals ('TRUE') or try to identify just
+#'   the less granular interval ('FALSE'). Default is 'FALSE'. Useful when it may
+#'   not be clear what is the less granular interval.
 #' @param quiet \[`logical(1)`\]\cr
 #'   Should progress messages be suppressed as the function is run? Default is
 #'   False.
@@ -433,10 +440,6 @@ identify_overlapping_intervals_dt <- function(dt,
 #'   overlapping intervals.
 #'
 #' @inheritParams identify_missing_intervals
-#' @param identify_all_possible \[`logical(1)`\]\cr
-#'   Whether to return all overlapping intervals ('TRUE') or try to identify just
-#'   the less granular interval ('FALSE'). Default is 'FALSE'. Useful when it may
-#'   not be clear what is the less granular interval.
 #'
 #' @return  `identify_overlapping_intervals` returns a \[`data.table()`\] with
 #'   columns for the 'start' and 'end' of the overlapping intervals. If no
@@ -458,7 +461,7 @@ identify_overlapping_intervals_dt <- function(dt,
 #'   identify_all_possible = TRUE
 #' )
 #'
-#' @rdname overlapping_intervals
+#' @noRd
 assert_no_overlapping_intervals <- function(ints_dt) {
 
   overlapping_intervals <- identify_overlapping_intervals(ints_dt)
@@ -471,7 +474,7 @@ assert_no_overlapping_intervals <- function(ints_dt) {
 
 }
 
-#' @rdname overlapping_intervals
+#' @inheritParams assert_no_overlapping_intervals
 identify_overlapping_intervals <- function(ints_dt, identify_all_possible = FALSE) {
 
   assertthat::assert_that(
