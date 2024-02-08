@@ -34,7 +34,7 @@ Imports:
     demUtils,
     data.table,
     assertthat,
-    assertive,
+    assertive.base,
     assertable (>= 0.2.7),
     checkmate,
     data.tree,

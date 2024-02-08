@@ -237,7 +237,7 @@ agg <- function(dt,
 
   # Validate arguments ------------------------------------------------------
 
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
@@ -307,7 +307,7 @@ scale <- function(dt,
 
   # Validate arguments ------------------------------------------------------
 
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   original_col_order <- copy(names(dt))
   original_keys <- copy(key(dt))
 
@@ -375,7 +375,7 @@ scale <- function(dt,
                    "* See `missing_dt_severity` argument if it is okay to only make ",
                    "aggregate/scale data that are possible given what is available.\n",
                    paste0(capture.output(missing_dt), collapse = "\n"))
-          assertive::assert_engine(empty_missing_dt, missing_dt,
+          assertive.base::assert_engine(empty_missing_dt, missing_dt,
                                    msg = error_msg, severity = missing_dt_severity)
         }
       } else { # additional check for overlapping intervals in the children nodes
@@ -388,7 +388,7 @@ scale <- function(dt,
             error_msg <-
               paste0("Some overlapping intervals are in `dt`.\n",
                      paste0(capture.output(overlapping_dt), collapse = "\n"))
-            assertive::assert_engine(empty_dt, overlapping_dt,
+            assertive.base::assert_engine(empty_dt, overlapping_dt,
                                      msg = error_msg, severity = overlapping_dt_severity)
           }
         }
@@ -497,7 +497,7 @@ assert_agg_scale_args <- function(dt,
 
   # check mapping argument
   if (!(functionality == "scale" & col_type == "interval")) {
-    assertive::assert_is_data.table(mapping)
+    checkmate::assert_data_table(mapping)
     if (col_type == "categorical") {
       assertable::assert_colnames(
         data = mapping,
@@ -516,7 +516,7 @@ assert_agg_scale_args <- function(dt,
 
     }
   } else {
-    assertthat::assert_that(assertive::is_null(mapping),
+    assertthat::assert_that(is.null(mapping),
                             msg = "When scaling an interval variable `mapping`
                                    must be Null. `mapping` is inferred from
                                    `dt`")
@@ -531,29 +531,29 @@ assert_agg_scale_args <- function(dt,
   }
 
   # check `agg_function` argument
-  assertthat::assert_that(assertive::is_function(agg_function),
+  assertthat::assert_that(is.function(agg_function),
                           identical(agg_function, sum) |
                             identical(agg_function, prod),
                           msg = "`agg_function` must be either the 'sum' or
                                  'prod' function")
 
   # check `id_cols` argument
-  assertive::assert_is_character(id_cols)
+  checkmate::assert_character(id_cols)
   error_msg <- paste0("`id_cols` must include '",
                       paste(cols, collapse = "', '"), "'")
   assertthat::assert_that(all(cols %in% id_cols), msg = error_msg)
 
   # check `value_cols` argument
-  assertive::assert_is_character(value_cols)
+  checkmate::assert_character(value_cols)
 
   # basic checks for `dt` argument
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   assertable::assert_colnames(
     data = dt, colnames = c(id_cols, value_cols),
     only_colnames = T, quiet = T
   )
   for (value_col in value_cols) {
-    assertive::assert_is_numeric(dt[[value_col]])
+    checkmate::assert_numeric(dt[[value_col]])
   }
   demUtils::assert_is_unique_dt(dt, id_cols)
 
@@ -568,7 +568,7 @@ assert_agg_scale_args <- function(dt,
              "* See `na_value_severity` argument if it is okay to propagate ",
              "NA values or to drop NA values and continue.\n",
              paste0(capture.output(na_value_dt), collapse = "\n"))
-    assertive::assert_engine(empty_na_value_dt, na_value_dt,
+    assertive.base::assert_engine(empty_na_value_dt, na_value_dt,
                              msg = error_msg, severity = na_value_severity)
 
     # drop na value rows and continue
@@ -578,7 +578,7 @@ assert_agg_scale_args <- function(dt,
   # check column to be aggregated in `dt`
   if (col_type == "interval") {
     for (col in cols) {
-      assertive::assert_is_numeric(dt[[col]])
+      checkmate::assert_numeric(dt[[col]])
     }
   } else {
     assertthat::assert_that(!any(grepl(",", dt[[col_stem]])),

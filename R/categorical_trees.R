@@ -733,7 +733,7 @@ check_agg_scale_subtree_dt <- function(dt,
              "* See `missing_dt_severity` argument if it is okay to only make ",
              "aggregate/scale data that are possible given what is available.\n",
              paste0(capture.output(missing_dt), collapse = "\n"))
-    assertive::assert_engine(empty_missing_dt, missing_dt,
+    assertive.base::assert_engine(empty_missing_dt, missing_dt,
                              msg = error_msg, severity = missing_dt_severity)
 
     # if missing data but `missing_dt_severity` is not 'error' then drop missing data

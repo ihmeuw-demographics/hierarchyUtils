@@ -85,18 +85,18 @@ gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
                           numeric")
 
   # check `id_cols` argument
-  assertive::assert_is_character(id_cols)
+  checkmate::assert_character(id_cols)
   assertthat::assert_that(start_col %in% id_cols,
                           msg = "`id_cols` must include '`{col_stem}`_start'")
 
   # check `dt` argument
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   assertable::assert_colnames(dt, id_cols, only_colnames = F, quiet = T)
   assertthat::assert_that(!end_col %in% names(dt),
                           msg = paste0("'", end_col,
                                        "' column already in `dt`"))
   assertthat::assert_that(
-    assertive::is_numeric(dt[[start_col]]),
+    is.numeric(dt[[start_col]]),
     all(!is.na(dt[[start_col]]))
   )
   demUtils::assert_is_unique_dt(dt, id_cols)
@@ -116,7 +116,7 @@ gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
   }
 
   data.table::setnames(dt, start_col, "start_col")
-  if (!assertive::is_integer(right_most_endpoint)) {
+  if (!is.integer(right_most_endpoint)) {
     dt[, start_col := as.numeric(start_col)]
   }
   dt[, end_col := data.table::shift(start_col, type = "lead",
@@ -131,7 +131,7 @@ gen_end <- function(dt, id_cols, col_stem, right_most_endpoint = Inf) {
 
   # check new column
   assertthat::assert_that(
-    assertive::is_numeric(dt[[end_col]]),
+    is.numeric(dt[[end_col]]),
     all(!is.na(dt[[end_col]]))
   )
 
@@ -160,18 +160,18 @@ gen_length <- function(dt, col_stem) {
   length_col <- paste0(col_stem, "_length")
 
   # check `dt` argument
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   assertable::assert_colnames(dt, c(start_col, end_col),
                               only_colnames = F, quiet = T)
   assertthat::assert_that(!length_col %in% names(dt),
                           msg = paste0("'", length_col,
                                        "' column already in `dt`"))
   assertthat::assert_that(
-    assertive::is_numeric(dt[[start_col]]),
+    is.numeric(dt[[start_col]]),
     all(!is.na(dt[[start_col]]))
   )
   assertthat::assert_that(
-    assertive::is_numeric(dt[[end_col]]),
+    is.numeric(dt[[end_col]]),
     all(!is.na(dt[[end_col]]))
   )
 
@@ -188,7 +188,7 @@ gen_length <- function(dt, col_stem) {
 
   # check new column
   assertthat::assert_that(
-    assertive::is_numeric(dt[[length_col]]),
+    is.numeric(dt[[length_col]]),
     all(!is.na(dt[[length_col]]))
   )
 
@@ -240,14 +240,14 @@ gen_name <- function(dt,
                           numeric")
 
   # check `dt` argument
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   assertable::assert_colnames(dt, c(start_col, end_col), only_colnames = F,
                               quiet = T)
   assertthat::assert_that(!name_col %in% names(dt),
                           msg = paste0("'", name_col,
                                        "' column already in `dt`"))
-  assertthat::assert_that(assertive::is_numeric(dt[[start_col]]))
-  assertthat::assert_that(assertive::is_numeric(dt[[end_col]]))
+  assertthat::assert_that(is.numeric(dt[[start_col]]))
+  assertthat::assert_that(is.numeric(dt[[end_col]]))
 
   # Calculate age name column -----------------------------------------------
 
@@ -276,7 +276,7 @@ gen_name <- function(dt,
   data.table::setnames(dt, "name_col", name_col)
 
   # check new column
-  assertive::assert_is_character(dt[[name_col]])
+  checkmate::assert_character(dt[[name_col]])
   assertthat::assert_that(
     all(!is.na(dt[[name_col]]))
   )
@@ -305,7 +305,7 @@ name_to_start_end <- function(name) {
 
   # check `name` argument
   assertthat::assert_that(
-    assertive::is_character(name),
+    is.character(name),
     all(grepl("^\\[((NA)|(-Inf)|([-.0-9]+)),\\s((NA)|(Inf)|([-.0-9]+))\\)$",
               name)),
     msg = "`name` must be a character vector formatted in left-closed,
