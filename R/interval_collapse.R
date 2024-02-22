@@ -77,31 +77,31 @@ collapse_common_intervals <- function(dt,
   cols <- paste0(col_stem, "_", c("start", "end"))
 
   # check `agg_function` argument
-  assertthat::assert_that(assertive::is_function(agg_function),
+  assertthat::assert_that(is.function(agg_function),
                           identical(agg_function, sum) |
                             identical(agg_function, prod),
                           msg = "`agg_function` must be either the 'sum' or
                           'prod' function")
 
   # check `id_cols` argument
-  assertive::assert_is_character(id_cols)
+  checkmate::assert_character(id_cols)
   error_msg <- paste0("`id_cols` must include '",
                       paste(cols, collapse = "', '"), "'")
   assertthat::assert_that(all(cols %in% id_cols), msg = error_msg)
 
   # check `value_cols` argument
-  assertive::assert_is_character(value_cols)
+  checkmate::assert_character(value_cols)
 
   # check `dt` argument
-  assertive::assert_is_data.table(dt)
+  checkmate::assert_data_table(dt)
   assertable::assert_colnames(dt, c(id_cols, value_cols), only_colnames = T,
                               quiet = T)
   for (value_col in value_cols) {
-    assertive::assert_is_numeric(dt[[value_col]])
+    checkmate::assert_numeric(dt[[value_col]])
   }
   demUtils::assert_is_unique_dt(dt, id_cols)
   for (col in cols) {
-    assertive::assert_is_numeric(dt[[col]])
+    checkmate::assert_numeric(dt[[col]])
   }
 
   # check `missing_dt_severity` argument
@@ -148,7 +148,7 @@ collapse_common_intervals <- function(dt,
       paste0("Some overlapping intervals were identified in `dt`.\n",
              "These will be automatically dropped.\n",
              paste0(capture.output(overlapping_dt), collapse = "\n"))
-    assertive::assert_engine(empty_dt, overlapping_dt,
+    assertive.base::assert_engine(empty_dt, overlapping_dt,
                              msg = error_msg, severity = overlapping_dt_severity)
 
     # drop overlapping intervals
@@ -178,7 +178,7 @@ collapse_common_intervals <- function(dt,
       paste0("Some intervals in `dt` are missing making it impossible to collapse ",
              "the desired column.\n",
              paste0(capture.output(missing_dt), collapse = "\n"))
-    assertive::assert_engine(empty_missing_dt, missing_dt,
+    assertive.base::assert_engine(empty_missing_dt, missing_dt,
                              msg = error_msg, severity = missing_dt_severity)
 
     # drop the common intervals that the missing intervals are part of

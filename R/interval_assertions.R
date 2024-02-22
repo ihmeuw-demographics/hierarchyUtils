@@ -231,20 +231,20 @@ assert_no_missing_intervals <- function(ints_dt, expected_ints_dt) {
 identify_missing_intervals <- function(ints_dt, expected_ints_dt) {
 
   assertthat::assert_that(
-    assertive::is_data.table(ints_dt),
+    is.data.table(ints_dt),
     ncol(ints_dt) == 2,
-    assertive::is_numeric(ints_dt[[1]]),
-    assertive::is_numeric(ints_dt[[2]]),
+    is.numeric(ints_dt[[1]]),
+    is.numeric(ints_dt[[2]]),
     all(ints_dt[[1]] < ints_dt[[2]], na.rm = TRUE),
     msg = paste("`ints_dt` must a 2-column data.table with the first column",
                 "representing the start of the interval and the second column",
                 "the end of each interval")
   )
   assertthat::assert_that(
-    assertive::is_data.table(expected_ints_dt),
+    is.data.table(expected_ints_dt),
     ncol(expected_ints_dt) == 2,
-    assertive::is_numeric(expected_ints_dt[[1]]),
-    assertive::is_numeric(expected_ints_dt[[2]]),
+    is.numeric(expected_ints_dt[[1]]),
+    is.numeric(expected_ints_dt[[2]]),
     all(expected_ints_dt[[1]] < expected_ints_dt[[2]], na.rm = TRUE),
     msg = paste("`expected_ints_dt` must a 2-column data.table with the first",
                 "column representing the start of the interval and the second",
@@ -478,10 +478,10 @@ assert_no_overlapping_intervals <- function(ints_dt) {
 identify_overlapping_intervals <- function(ints_dt, identify_all_possible = FALSE) {
 
   assertthat::assert_that(
-    assertive::is_data.table(ints_dt),
+    is.data.table(ints_dt),
     ncol(ints_dt) == 2,
-    assertive::is_numeric(ints_dt[[1]]),
-    assertive::is_numeric(ints_dt[[2]]),
+    is.numeric(ints_dt[[1]]),
+    is.numeric(ints_dt[[2]]),
     all(ints_dt[[1]] < ints_dt[[2]], na.rm = TRUE),
     msg = paste("`ints_dt` must a 2-column data.table with the first column",
                 "representing the start of the interval and the second column",

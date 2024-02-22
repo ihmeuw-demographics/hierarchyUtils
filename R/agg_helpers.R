@@ -61,7 +61,7 @@ agg_categorical <- function(dt,
                  "* See `missing_dt_severity` argument if it is okay to only make ",
                  "aggregate/scale data that are possible given what is available.\n",
                  paste0(capture.output(missing_dt), collapse = "\n"))
-        assertive::assert_engine(empty_missing_dt, missing_dt,
+        assertive.base::assert_engine(empty_missing_dt, missing_dt,
                                  msg = error_msg, severity = missing_dt_severity)
 
         # skip aggregation for this subtree
@@ -79,7 +79,7 @@ agg_categorical <- function(dt,
                "* See `present_agg_severity` argument if it is okay to aggregate
              multiple rows with the available data.\n",
                paste0(capture.output(parent_dt), collapse = "\n"))
-      assertive::assert_engine(empty_dt, parent_dt,
+      assertive.base::assert_engine(empty_dt, parent_dt,
                                msg = error_msg, severity = present_agg_severity)
 
       # drop parent data already present
@@ -198,7 +198,7 @@ agg_interval <- function(dt,
         paste0("Some overlapping intervals were identified in `dt`.\n",
                "Will attempt to drop the larger intervals.\n",
                paste0(capture.output(overlapping_dt), collapse = "\n"))
-      assertive::assert_engine(empty_dt, overlapping_dt,
+      assertive.base::assert_engine(empty_dt, overlapping_dt,
                                msg = error_msg, severity = overlapping_dt_severity)
 
       # drop overlapping intervals
