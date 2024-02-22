@@ -65,21 +65,21 @@ overlapping intervals.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">assert_no_overlapping_intervals_dt</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">id_cols</span>,
-  <span class="va">col_stem</span>,
-  identify_all_possible <span class="op">=</span> <span class="cn">FALSE</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu">identify_overlapping_intervals_dt</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">id_cols</span>,
-  <span class="va">col_stem</span>,
-  identify_all_possible <span class="op">=</span> <span class="cn">FALSE</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">assert_no_overlapping_intervals_dt</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">id_cols</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  identify_all_possible <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">identify_overlapping_intervals_dt</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">id_cols</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  identify_all_possible <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -87,27 +87,38 @@ overlapping intervals.</p>
     <dl><dt>dt</dt>
 <dd><p>[<code>data.table()</code>]<br>
 Data containing the interval variable to check. Should include all 'id_cols'.</p></dd>
+
+
 <dt>id_cols</dt>
 <dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br>
 ID columns that uniquely identify each row of <code>dt</code>. Should include
 'col_stem_start' and 'col_stem_end'.</p></dd>
+
+
 <dt>col_stem</dt>
 <dd><p>[<code>character(1)</code>]<br>
 The name of the interval variable to check, should not include the
 '_start' or '_end' suffix.</p></dd>
+
+
 <dt>identify_all_possible</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 Whether to return all overlapping intervals ('TRUE') or try to identify just
 the less granular interval ('FALSE'). Default is 'FALSE'. Useful when it may
 not be clear what is the less granular interval.</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 Should progress messages be suppressed as the function is run? Default is
 False.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>identify_overlapping_intervals_dt</code> returns a [<code>data.table()</code>] with
+    
+
+<p><code>identify_overlapping_intervals_dt</code> returns a [<code>data.table()</code>] with
 <code>id_cols</code> that have overlapping intervals. If no intervals are overlapping
 then a zero-row [<code>data.table()</code>] is returned.
 <code>assert_no_overlapping_intervals_dt</code> returns nothing but throws an error if
@@ -122,30 +133,30 @@ of <code>dt</code> that match each set of intervals.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span class="r-in">  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span class="r-in">  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span><span class="op">)</span>, age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># identify everything that is overlapping</span></span>
-<span class="r-in"><span class="va">overlapping_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_overlapping_intervals_dt</span><span class="op">(</span></span>
-<span class="r-in">  dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span>
-<span class="r-in">  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span>
-<span class="r-in">  identify_all_possible <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span class="r-in"><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span><span class="op">)</span>, age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">60</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># identify everything that is overlapping</span></span></span>
+<span class="r-in"><span><span class="va">overlapping_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_overlapping_intervals_dt</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>  identify_all_possible <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 1 of 1: [0, 5),[5, 10),[10, 15),[15, 20),[15, 60),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95),[95, Inf)</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># identify only the largest overlapping intervals</span></span>
-<span class="r-in"><span class="va">overlapping_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_overlapping_intervals_dt</span><span class="op">(</span></span>
-<span class="r-in">  dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span>
-<span class="r-in">  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span>
-<span class="r-in">  identify_all_possible <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span class="r-in"><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># identify only the largest overlapping intervals</span></span></span>
+<span class="r-in"><span><span class="va">overlapping_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_overlapping_intervals_dt</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>  identify_all_possible <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 1 of 1: [0, 5),[5, 10),[10, 15),[15, 20),[15, 60),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95),[95, Inf)</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -160,7 +171,7 @@ of <code>dt</code> that match each set of intervals.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

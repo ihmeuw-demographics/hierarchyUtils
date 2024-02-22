@@ -72,37 +72,37 @@ level.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">agg</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">id_cols</span>,
-  <span class="va">value_cols</span>,
-  <span class="va">col_stem</span>,
-  <span class="va">col_type</span>,
-  <span class="va">mapping</span>,
-  agg_function <span class="op">=</span> <span class="va">sum</span>,
-  missing_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  present_agg_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  overlapping_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  na_value_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  collapse_interval_cols <span class="op">=</span> <span class="cn">FALSE</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu">scale</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">id_cols</span>,
-  <span class="va">value_cols</span>,
-  <span class="va">col_stem</span>,
-  <span class="va">col_type</span>,
-  mapping <span class="op">=</span> <span class="cn">NULL</span>,
-  agg_function <span class="op">=</span> <span class="va">sum</span>,
-  missing_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  overlapping_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  na_value_severity <span class="op">=</span> <span class="st">"stop"</span>,
-  collapse_interval_cols <span class="op">=</span> <span class="cn">FALSE</span>,
-  collapse_missing <span class="op">=</span> <span class="cn">FALSE</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">agg</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">id_cols</span>,</span>
+<span>  <span class="va">value_cols</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  <span class="va">col_type</span>,</span>
+<span>  <span class="va">mapping</span>,</span>
+<span>  agg_function <span class="op">=</span> <span class="va">sum</span>,</span>
+<span>  missing_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  present_agg_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  overlapping_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  na_value_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  collapse_interval_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">scale</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">id_cols</span>,</span>
+<span>  <span class="va">value_cols</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  <span class="va">col_type</span>,</span>
+<span>  mapping <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  agg_function <span class="op">=</span> <span class="va">sum</span>,</span>
+<span>  missing_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  overlapping_dt_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  na_value_severity <span class="op">=</span> <span class="st">"stop"</span>,</span>
+<span>  collapse_interval_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  collapse_missing <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -110,53 +110,75 @@ level.</p>
     <dl><dt>dt</dt>
 <dd><p>[<code>data.table()</code>]<br>
 Data to be aggregated or scaled.</p></dd>
+
+
 <dt>id_cols</dt>
 <dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br>
 ID columns that uniquely identify each row of <code>dt</code>.</p></dd>
+
+
 <dt>value_cols</dt>
 <dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br>
 Value columns that should be aggregated.</p></dd>
+
+
 <dt>col_stem</dt>
 <dd><p>[<code>character(1)</code>]<br>
 The name of the variable to be aggregated or scaled over. If aggregating an
 'interval' variable should not include the '_start' or '_end' suffix.</p></dd>
+
+
 <dt>col_type</dt>
 <dd><p>[<code>character(1)</code>]<br>
 The type of variable that is being aggregated or scaled over. Can be either
 'categorical' or 'interval'.</p></dd>
+
+
 <dt>mapping</dt>
 <dd><p>[<code>data.table()</code>]<br>
 For 'categorical' variables, defines how different levels of the
 hierarchical variable relate to each other. For aggregating 'interval'
 variables, it is used to specify intervals to aggregate to, while when
 scaling the mapping is inferred from the available intervals in <code>dt</code>.</p></dd>
+
+
 <dt>agg_function</dt>
 <dd><p>[<code>function()</code>]<br>
 Function to use when aggregating, can be either <code>sum</code> (for counts) or
 <code>prod</code> (for probabilities).</p></dd>
+
+
 <dt>missing_dt_severity</dt>
 <dd><p>[<code>character(1)</code>]<br>
 What should happen when <code>dt</code> is missing levels of <code>col_stem</code> that
 prevent aggregation or scaling from occurring? Can be either 'skip',
 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See section on
 'Severity Arguments' for more information.</p></dd>
+
+
 <dt>present_agg_severity</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 What should happen when <code>dt</code> already has requested aggregates (from
 <code>mapping</code>)? Can be either 'skip', 'stop', 'warning', 'message',
 or 'none'. Default is 'stop'. See section on 'Severity Arguments' for more
 information.</p></dd>
+
+
 <dt>overlapping_dt_severity</dt>
 <dd><p>[<code>character(1)</code>]<br>
 When aggregating/scaling an interval variable or <code>collapse_interval_cols=TRUE</code>
 what should happen when overlapping intervals are identified? Can be either
 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'. See
 section on 'Severity Arguments' for more information.</p></dd>
+
+
 <dt>na_value_severity</dt>
 <dd><p>[<code>character(1)</code>]<br>
 What should happen when 'NA' values are present in <code>value_cols</code>? Can be
 either 'skip', 'stop', 'warning', 'message', or 'none'. Default is 'stop'.
 See section on 'Severity Arguments' for more information.</p></dd>
+
+
 <dt>collapse_interval_cols</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 Whether to collapse interval <code>id_cols</code> (not including <code>col_stem</code> if it is
@@ -164,19 +186,26 @@ an interval variable). Default is 'False'. If set to 'True' the interval
 columns are collapsed to the most detailed common intervals and will error
 out if there are overlapping intervals. See details or vignettes for more
 information.</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 Should progress messages be suppressed as the function is run? Default is
 False.</p></dd>
+
+
 <dt>collapse_missing</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 When scaling a <code>categorical</code> variable, whether to collapse missing
 intermediate levels in <code>mapping</code>. Default is 'False' and the function
 errors out due to missing data.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>[<code>data.table()</code>] with <code>id_cols</code> and <code>value_cols</code> columns for
+    
+
+<p>[<code>data.table()</code>] with <code>id_cols</code> and <code>value_cols</code> columns for
 requested aggregates or with scaled values.</p>
     </div>
     <div id="details">
@@ -281,18 +310,18 @@ error because of <code>missing_dt_severity</code>).</p></li>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># aggregate count data from present day Iran provinces to historical</span></span>
-<span class="r-in"><span class="co"># provinces and Iran as a whole</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>location <span class="op">=</span> <span class="va">iran_mapping</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"[0-9]+"</span>, <span class="va">child</span><span class="op">)</span>,</span>
-<span class="r-in">                                                   <span class="va">child</span><span class="op">]</span>,</span>
-<span class="r-in">                           year <span class="op">=</span> <span class="fl">2011</span>,</span>
-<span class="r-in">                           value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">output_dt</span> <span class="op">&lt;-</span> <span class="fu">agg</span><span class="op">(</span>dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">                 id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"year"</span><span class="op">)</span>,</span>
-<span class="r-in">                 value_cols <span class="op">=</span> <span class="st">"value"</span>,</span>
-<span class="r-in">                 col_stem <span class="op">=</span> <span class="st">"location"</span>,</span>
-<span class="r-in">                 col_type <span class="op">=</span> <span class="st">"categorical"</span>,</span>
-<span class="r-in">                 mapping <span class="op">=</span> <span class="va">iran_mapping</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># aggregate count data from present day Iran provinces to historical</span></span></span>
+<span class="r-in"><span><span class="co"># provinces and Iran as a whole</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>location <span class="op">=</span> <span class="va">iran_mapping</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"[0-9]+"</span>, <span class="va">child</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                                   <span class="va">child</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                           year <span class="op">=</span> <span class="fl">2011</span>,</span></span>
+<span class="r-in"><span>                           value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">output_dt</span> <span class="op">&lt;-</span> <span class="fu">agg</span><span class="op">(</span>dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>                 id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"year"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 value_cols <span class="op">=</span> <span class="st">"value"</span>,</span></span>
+<span class="r-in"><span>                 col_stem <span class="op">=</span> <span class="st">"location"</span>,</span></span>
+<span class="r-in"><span>                 col_type <span class="op">=</span> <span class="st">"categorical"</span>,</span></span>
+<span class="r-in"><span>                 mapping <span class="op">=</span> <span class="va">iran_mapping</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregating location</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 1 of 15: Tehran 2006</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 2 of 15: Tehran 1986-1995</span>
@@ -309,48 +338,48 @@ error because of <code>missing_dt_severity</code>).</p></li>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 13 of 15: Isfahan and Yazd 1966</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 14 of 15: Isfahan and Yazd 1956</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 15 of 15: Iran (Islamic Republic of)</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># scale count data from present day Iran provinces to Iran national value</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>location <span class="op">=</span> <span class="va">iran_mapping</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"[0-9]+"</span>, <span class="va">child</span><span class="op">)</span>,</span>
-<span class="r-in">                                                   <span class="va">child</span><span class="op">]</span>,</span>
-<span class="r-in">                           year <span class="op">=</span> <span class="fl">2011</span>,</span>
-<span class="r-in">                           value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">input_dt_agg</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span class="r-in">  location <span class="op">=</span> <span class="st">"Iran (Islamic Republic of)"</span>,</span>
-<span class="r-in">  year <span class="op">=</span> <span class="fl">2011</span>, value <span class="op">=</span> <span class="fl">62</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="va">input_dt_agg</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">output_dt</span> <span class="op">&lt;-</span> <span class="fu">scale</span><span class="op">(</span>dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">                   id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"year"</span><span class="op">)</span>,</span>
-<span class="r-in">                   value_cols <span class="op">=</span> <span class="st">"value"</span>,</span>
-<span class="r-in">                   col_stem <span class="op">=</span> <span class="st">"location"</span>,</span>
-<span class="r-in">                   col_type <span class="op">=</span> <span class="st">"categorical"</span>,</span>
-<span class="r-in">                   mapping <span class="op">=</span> <span class="va">iran_mapping</span>,</span>
-<span class="r-in">                   collapse_missing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># scale count data from present day Iran provinces to Iran national value</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>location <span class="op">=</span> <span class="va">iran_mapping</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"[0-9]+"</span>, <span class="va">child</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                                   <span class="va">child</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                           year <span class="op">=</span> <span class="fl">2011</span>,</span></span>
+<span class="r-in"><span>                           value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input_dt_agg</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  location <span class="op">=</span> <span class="st">"Iran (Islamic Republic of)"</span>,</span></span>
+<span class="r-in"><span>  year <span class="op">=</span> <span class="fl">2011</span>, value <span class="op">=</span> <span class="fl">62</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="va">input_dt_agg</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">output_dt</span> <span class="op">&lt;-</span> <span class="fu">scale</span><span class="op">(</span>dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>                   id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"year"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   value_cols <span class="op">=</span> <span class="st">"value"</span>,</span></span>
+<span class="r-in"><span>                   col_stem <span class="op">=</span> <span class="st">"location"</span>,</span></span>
+<span class="r-in"><span>                   col_type <span class="op">=</span> <span class="st">"categorical"</span>,</span></span>
+<span class="r-in"><span>                   mapping <span class="op">=</span> <span class="va">iran_mapping</span>,</span></span>
+<span class="r-in"><span>                   collapse_missing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Scaling location</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Scaling 1 of 1: Iran (Islamic Republic of)</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># aggregate age-specific count data</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2010</span>,</span>
-<span class="r-in">                        age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                        value1 <span class="op">=</span> <span class="fl">1</span>, value2 <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="gen_interval_cols.html">gen_end</a></span><span class="op">(</span><span class="va">input_dt</span>, id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span><span class="op">)</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">85</span><span class="op">)</span>,</span>
-<span class="r-in">                                      age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">output_dt</span> <span class="op">&lt;-</span> <span class="fu">agg</span><span class="op">(</span>dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">                 id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span>
-<span class="r-in">                 value_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"value1"</span>, <span class="st">"value2"</span><span class="op">)</span>,</span>
-<span class="r-in">                 col_stem <span class="op">=</span> <span class="st">"age"</span>,</span>
-<span class="r-in">                 col_type <span class="op">=</span> <span class="st">"interval"</span>,</span>
-<span class="r-in">                 mapping <span class="op">=</span> <span class="va">age_mapping</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># aggregate age-specific count data</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fl">2010</span>,</span></span>
+<span class="r-in"><span>                        age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        value1 <span class="op">=</span> <span class="fl">1</span>, value2 <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="gen_interval_cols.html">gen_end</a></span><span class="op">(</span><span class="va">input_dt</span>, id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span><span class="op">)</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">85</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                      age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">output_dt</span> <span class="op">&lt;-</span> <span class="fu">agg</span><span class="op">(</span>dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>                 id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 value_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"value1"</span>, <span class="st">"value2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 col_stem <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>                 col_type <span class="op">=</span> <span class="st">"interval"</span>,</span></span>
+<span class="r-in"><span>                 mapping <span class="op">=</span> <span class="va">age_mapping</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregating age</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 1 of 1: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, Inf)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 1 of 3: [0, 5)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 2 of 3: [15, 60)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Aggregate 3 of 3: [85, Inf)</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># scale age-specific probability data</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># scale age-specific probability data</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -365,7 +394,7 @@ error because of <code>missing_dt_severity</code>).</p></li>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

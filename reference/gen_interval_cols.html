@@ -69,46 +69,59 @@ formatted interval names can be created.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gen_end</span><span class="op">(</span><span class="va">dt</span>, <span class="va">id_cols</span>, <span class="va">col_stem</span>, right_most_endpoint <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span>
-
-<span class="fu">gen_length</span><span class="op">(</span><span class="va">dt</span>, <span class="va">col_stem</span><span class="op">)</span>
-
-<span class="fu">gen_name</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">col_stem</span>,
-  format <span class="op">=</span> <span class="st">"to"</span>,
-  format_infinite <span class="op">=</span> <span class="st">"plus"</span>,
-  right_most_endpoint <span class="op">=</span> <span class="cn">Inf</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gen_end</span><span class="op">(</span><span class="va">dt</span>, <span class="va">id_cols</span>, <span class="va">col_stem</span>, right_most_endpoint <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gen_length</span><span class="op">(</span><span class="va">dt</span>, <span class="va">col_stem</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gen_name</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"to"</span>,</span>
+<span>  format_infinite <span class="op">=</span> <span class="st">"plus"</span>,</span>
+<span>  right_most_endpoint <span class="op">=</span> <span class="cn">Inf</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>dt</dt>
 <dd><p>[<code>data.table()</code>]<br><code>col_stem</code>-specific data.</p></dd>
+
+
 <dt>id_cols</dt>
 <dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br>
 ID columns that uniquely identify each row of <code>dt</code>. This must include
 '<code>{col_stem}</code>_start'.</p></dd>
+
+
 <dt>col_stem</dt>
 <dd><p>[<code>character(1)</code>]<br>
 Base name of the numeric variable column. Does not include the '_start',
 '_end' etc. suffix.</p></dd>
+
+
 <dt>right_most_endpoint</dt>
 <dd><p>[<code>numeric(1)</code>]<br>
 Assumed right most endpoint of '<code>{col_stem}</code>_end'. Default is <code>Inf</code>.</p></dd>
+
+
 <dt>format</dt>
 <dd><p>[<code>character(1)</code>]<br>
 Formatting style for the interval names. Default is 'to'; can also be
 'interval' or 'dash'.</p></dd>
+
+
 <dt>format_infinite</dt>
 <dd><p>[<code>character(1)</code>]<br>
 Formatting style for infinite endpoint intervals. Default is 'plus'; can
 also be '+'. Ignored when <code>format = "interval"</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Invisibly returns reference to modified <code>dt</code>.</p>
+    
+
+<p>Invisibly returns reference to modified <code>dt</code>.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -137,15 +150,15 @@ each interval. Input data <code>dt</code> for <code>gen_length</code> must conta
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>location <span class="op">=</span> <span class="st">"France"</span>, year <span class="op">=</span> <span class="fl">2010</span>,</span>
-<span class="r-in">                                   sex <span class="op">=</span> <span class="st">"female"</span>,</span>
-<span class="r-in">                                   age_start <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">95</span>,</span>
-<span class="r-in">                                   value1 <span class="op">=</span> <span class="fl">1</span>, value2 <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"year"</span>, <span class="st">"sex"</span>, <span class="st">"age_start"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">gen_end</span><span class="op">(</span><span class="va">input_dt</span>, <span class="va">id_cols</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">gen_length</span><span class="op">(</span><span class="va">input_dt</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">gen_name</span><span class="op">(</span><span class="va">input_dt</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>location <span class="op">=</span> <span class="st">"France"</span>, year <span class="op">=</span> <span class="fl">2010</span>,</span></span>
+<span class="r-in"><span>                                   sex <span class="op">=</span> <span class="st">"female"</span>,</span></span>
+<span class="r-in"><span>                                   age_start <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">95</span>,</span></span>
+<span class="r-in"><span>                                   value1 <span class="op">=</span> <span class="fl">1</span>, value2 <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"year"</span>, <span class="st">"sex"</span>, <span class="st">"age_start"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">gen_end</span><span class="op">(</span><span class="va">input_dt</span>, <span class="va">id_cols</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">gen_length</span><span class="op">(</span><span class="va">input_dt</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">gen_name</span><span class="op">(</span><span class="va">input_dt</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -160,7 +173,7 @@ each interval. Input data <code>dt</code> for <code>gen_length</code> must conta
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

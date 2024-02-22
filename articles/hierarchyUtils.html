@@ -75,7 +75,7 @@
 
       
 
-      </header><script src="hierarchyUtils_files/htmlwidgets-1.5.4/htmlwidgets.js"></script><script src="hierarchyUtils_files/d3-4.5.0/d3.min.js"></script><script src="hierarchyUtils_files/diagonalNetwork-binding-0.4/diagonalNetwork.js"></script><div class="row">
+      </header><script src="hierarchyUtils_files/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="hierarchyUtils_files/d3-4.5.0/d3.min.js"></script><script src="hierarchyUtils_files/diagonalNetwork-binding-0.4/diagonalNetwork.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to hierarchyUtils</h1>
@@ -88,210 +88,272 @@
 
     
     
-<p>Demographics data is often organized into different hierarchical groupings of variables. These variables can either be:</p>
+<p>Demographics data is often organized into different hierarchical
+groupings of variables. These variables can either be:</p>
 <ul>
-<li><p>categorical: locations, sex, race, education groupings (high school, college, etc.), martial status etc.</p></li>
+<li><p>categorical: locations, sex, race, education groupings (high
+school, college, etc.), martial status etc.</p></li>
 <li><p>numeric intervals: age, income, education years etc.</p></li>
 </ul>
-<p>Iran census population counts included in the package are shown below and documented at <code><a href="../reference/iran_pop.html">?hierarchyUtils::iran_pop</a></code>. Examples of categorical variables included in this dataset are <code>location</code>, <code>year</code>, <code>sex</code>, <code>source_name</code>, <code>nid</code> and <code>underlying_nid</code> while <code>age_start</code> and <code>age_end</code> are one numeric interval variable.</p>
+<p>Iran census population counts included in the package are shown below
+and documented at <code><a href="../reference/iran_pop.html">?hierarchyUtils::iran_pop</a></code>. Examples of
+categorical variables included in this dataset are
+<code>location</code>, <code>year</code>, <code>sex</code>,
+<code>source_name</code>, <code>nid</code> and
+<code>underlying_nid</code> while <code>age_start</code> and
+<code>age_end</code> are one numeric interval variable.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span>
-<span class="co">#&gt;        location year    sex age_start age_end                source_name    nid</span>
-<span class="co">#&gt;     1:   Alborz 1986 female         0       1 Statistical Centre of Iran   6993</span>
-<span class="co">#&gt;     2:   Alborz 1986 female         1       2 Statistical Centre of Iran   6993</span>
-<span class="co">#&gt;     3:   Alborz 1986 female         2       3 Statistical Centre of Iran   6993</span>
-<span class="co">#&gt;     4:   Alborz 1986 female         3       4 Statistical Centre of Iran   6993</span>
-<span class="co">#&gt;     5:   Alborz 1986 female         4       5 Statistical Centre of Iran   6993</span>
-<span class="co">#&gt;    ---                                                                         </span>
-<span class="co">#&gt; 10890:   Zanjan 2016   male        80      85 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10891:   Zanjan 2016   male        85      90 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10892:   Zanjan 2016   male        90      95 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10893:   Zanjan 2016   male        95     100 Statistical Centre of Iran 299134</span>
-<span class="co">#&gt; 10894:   Zanjan 2016   male       100     Inf Statistical Centre of Iran 299134</span>
-<span class="co">#&gt;        underlying_nid population</span>
-<span class="co">#&gt;     1:             NA      21564</span>
-<span class="co">#&gt;     2:             NA      21209</span>
-<span class="co">#&gt;     3:             NA      21857</span>
-<span class="co">#&gt;     4:             NA      21233</span>
-<span class="co">#&gt;     5:             NA      20999</span>
-<span class="co">#&gt;    ---                          </span>
-<span class="co">#&gt; 10890:             NA       5434</span>
-<span class="co">#&gt; 10891:             NA       2391</span>
-<span class="co">#&gt; 10892:             NA        940</span>
-<span class="co">#&gt; 10893:             NA         90</span>
-<span class="co">#&gt; 10894:             NA         11</span></code></pre></div>
-<p>The <code>hierarchyUtils</code> package provides a variety of utility functions that can be used to work with this kind of data. There are functions included to:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        location  year    sex age_start age_end                source_name</span></span>
+<span><span class="co">#&gt;          &lt;char&gt; &lt;int&gt; &lt;char&gt;     &lt;num&gt;   &lt;num&gt;                     &lt;char&gt;</span></span>
+<span><span class="co">#&gt;     1:   Alborz  1986 female         0       1 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt;     2:   Alborz  1986 female         1       2 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt;     3:   Alborz  1986 female         2       3 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt;     4:   Alborz  1986 female         3       4 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt;     5:   Alborz  1986 female         4       5 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt;    ---                                                                   </span></span>
+<span><span class="co">#&gt; 10890:   Zanjan  2016   male        80      85 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt; 10891:   Zanjan  2016   male        85      90 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt; 10892:   Zanjan  2016   male        90      95 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt; 10893:   Zanjan  2016   male        95     100 Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt; 10894:   Zanjan  2016   male       100     Inf Statistical Centre of Iran</span></span>
+<span><span class="co">#&gt;           nid underlying_nid population</span></span>
+<span><span class="co">#&gt;         &lt;int&gt;          &lt;int&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;     1:   6993             NA      21564</span></span>
+<span><span class="co">#&gt;     2:   6993             NA      21209</span></span>
+<span><span class="co">#&gt;     3:   6993             NA      21857</span></span>
+<span><span class="co">#&gt;     4:   6993             NA      21233</span></span>
+<span><span class="co">#&gt;     5:   6993             NA      20999</span></span>
+<span><span class="co">#&gt;    ---                                 </span></span>
+<span><span class="co">#&gt; 10890: 299134             NA       5434</span></span>
+<span><span class="co">#&gt; 10891: 299134             NA       2391</span></span>
+<span><span class="co">#&gt; 10892: 299134             NA        940</span></span>
+<span><span class="co">#&gt; 10893: 299134             NA         90</span></span>
+<span><span class="co">#&gt; 10894: 299134             NA         11</span></span></code></pre></div>
+<p>The <code>hierarchyUtils</code> package provides a variety of utility
+functions that can be used to work with this kind of data. There are
+functions included to:</p>
 <ul>
-<li><p>aggregate data to different levels of a defined hierarchy for the categorical or numeric intervals variables.</p></li>
-<li><p>scale data so that the more detailed levels of a hierarchy in aggregate equal the aggregate level.</p></li>
+<li><p>aggregate data to different levels of a defined hierarchy for the
+categorical or numeric intervals variables.</p></li>
+<li><p>scale data so that the more detailed levels of a hierarchy in
+aggregate equal the aggregate level.</p></li>
 </ul>
 <div class="section level2">
 <h2 id="aggregate-ages-and-both-sexes-combined">Aggregate ages and both sexes combined<a class="anchor" aria-label="anchor" href="#aggregate-ages-and-both-sexes-combined"></a>
 </h2>
-<p><code><a href="../reference/iran_pop.html">hierarchyUtils::iran_pop</a></code> provides sex and age specific population counts for censuses between 1956 and 2016 in Iran. Each of these censuses includes a different set of most detailed age groups which can make comparisons across censuses more difficult without aggregation to common age groups first.</p>
+<p><code><a href="../reference/iran_pop.html">hierarchyUtils::iran_pop</a></code> provides sex and age specific
+population counts for censuses between 1956 and 2016 in Iran. Each of
+these censuses includes a different set of most detailed age groups
+which can make comparisons across censuses more difficult without
+aggregation to common age groups first.</p>
 <p><img src="hierarchyUtils_files/figure-html/ages_available-1.png" width="768"></p>
-<p>By aggregating to a common set of aggregate age groups using <code><a href="../reference/agg_scale.html">hierarchyUtils::agg</a></code> we can more easily compare population counts over time. One of the benefits of this function is that the input data does not need to be square, meaning the age groups in each census year for example can be different.</p>
-<p>Here we can first aggregate the interval variable <code>age</code> which depends on <code>age_start</code> and <code>age_end</code> columns in the input dataset. <code>present_agg_severity = "skip"</code> because some location-years most detailed age groups are equal to the aggregates specified in `agg_age_mapping so we need to include those in the resulting aggregates.</p>
+<p>By aggregating to a common set of aggregate age groups using
+<code><a href="../reference/agg_scale.html">hierarchyUtils::agg</a></code> we can more easily compare population
+counts over time. One of the benefits of this function is that the input
+data does not need to be square, meaning the age groups in each census
+year for example can be different.</p>
+<p>Here we can first aggregate the interval variable <code>age</code>
+which depends on <code>age_start</code> and <code>age_end</code> columns
+in the input dataset. <code>present_agg_severity = "skip"</code> because
+some location-years most detailed age groups are equal to the aggregates
+specified in `agg_age_mapping so we need to include those in the
+resulting aggregates.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">value_cols</span> <span class="op">=</span> <span class="st">"population"</span>
-<span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">value_cols</span><span class="op">]</span>
-
-<span class="co"># reassign unknown age groups</span>
-<span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">age_start</span> <span class="op">==</span> <span class="fl">999</span> <span class="op">&amp;</span> <span class="va">age_end</span> <span class="op">==</span> <span class="fl">999</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">]</span>
-
-<span class="co"># aggregate to aggregate age groups</span>
-<span class="va">agg_age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>
-  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">60</span><span class="op">)</span>,
-  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span>,
-  include_NA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">T</span>, <span class="cn">F</span>, <span class="cn">F</span>, <span class="cn">F</span><span class="op">)</span>
-<span class="op">)</span>
-<span class="va">agg_age_mapping</span>
-<span class="co">#&gt;    age_start age_end include_NA</span>
-<span class="co">#&gt; 1:         0     Inf       TRUE</span>
-<span class="co">#&gt; 2:         0       5      FALSE</span>
-<span class="co">#&gt; 3:        15      60      FALSE</span>
-<span class="co">#&gt; 4:        60     Inf      FALSE</span>
-<span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg_scale.html">agg</a></span><span class="op">(</span>
-  dt <span class="op">=</span> <span class="va">iran_pop</span>,
-  id_cols <span class="op">=</span> <span class="va">id_cols</span>,
-  value_cols <span class="op">=</span> <span class="va">value_cols</span>,
-  col_stem <span class="op">=</span> <span class="st">"age"</span>,
-  col_type <span class="op">=</span> <span class="st">"interval"</span>,
-  mapping <span class="op">=</span> <span class="va">agg_age_mapping</span>,
-  <span class="co"># this is specified since some location-years most detailed age groups are</span>
-  <span class="co"># equal to the aggregates specified in `agg_age_mapping`</span>
-  present_agg_severity <span class="op">=</span> <span class="st">"skip"</span>
-<span class="op">)</span>
-<span class="co">#&gt; Aggregating age</span>
-<span class="co">#&gt; Interval group 1 of 9: [NA, NA),[0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 2 of 9: [NA, NA),[0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 3 of 9: [NA, NA),[0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 4 of 9: [NA, NA),[0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 5 of 9: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 6 of 9: [0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 7 of 9: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 8 of 9: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95),[95, 100),[100, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span>
-<span class="co">#&gt; Interval group 9 of 9: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span>
-<span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span>
-<span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span>
-<span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span>
-<span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">value_cols</span> <span class="op">=</span> <span class="st">"population"</span></span>
+<span><span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iran_pop</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">value_cols</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># reassign unknown age groups</span></span>
+<span><span class="va">iran_pop</span> <span class="op">&lt;-</span> <span class="va">iran_pop</span><span class="op">[</span><span class="va">age_start</span> <span class="op">==</span> <span class="fl">999</span> <span class="op">&amp;</span> <span class="va">age_end</span> <span class="op">==</span> <span class="fl">999</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># aggregate to aggregate age groups</span></span>
+<span><span class="va">agg_age_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span></span>
+<span>  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">15</span>, <span class="fl">60</span><span class="op">)</span>,</span>
+<span>  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">5</span>, <span class="fl">60</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
+<span>  include_NA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">T</span>, <span class="cn">F</span>, <span class="cn">F</span>, <span class="cn">F</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">agg_age_mapping</span></span>
+<span><span class="co">#&gt;    age_start age_end include_NA</span></span>
+<span><span class="co">#&gt;        &lt;num&gt;   &lt;num&gt;     &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:         0     Inf       TRUE</span></span>
+<span><span class="co">#&gt; 2:         0       5      FALSE</span></span>
+<span><span class="co">#&gt; 3:        15      60      FALSE</span></span>
+<span><span class="co">#&gt; 4:        60     Inf      FALSE</span></span>
+<span><span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg_scale.html">agg</a></span><span class="op">(</span></span>
+<span>  dt <span class="op">=</span> <span class="va">iran_pop</span>,</span>
+<span>  id_cols <span class="op">=</span> <span class="va">id_cols</span>,</span>
+<span>  value_cols <span class="op">=</span> <span class="va">value_cols</span>,</span>
+<span>  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span>
+<span>  col_type <span class="op">=</span> <span class="st">"interval"</span>,</span>
+<span>  mapping <span class="op">=</span> <span class="va">agg_age_mapping</span>,</span>
+<span>  <span class="co"># this is specified since some location-years most detailed age groups are</span></span>
+<span>  <span class="co"># equal to the aggregates specified in `agg_age_mapping`</span></span>
+<span>  present_agg_severity <span class="op">=</span> <span class="st">"skip"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Aggregating age</span></span>
+<span><span class="co">#&gt; Interval group 1 of 9: [NA, NA),[0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 2 of 9: [NA, NA),[0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 3 of 9: [NA, NA),[0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 4 of 9: [NA, NA),[0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 5 of 9: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 6 of 9: [0, 1),[1, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 7 of 9: [0, 1),[1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[10, 11),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95),[95, 96),[96, 97),[97, 98),[98, 99),[99, 100),[100, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 8 of 9: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95),[95, 100),[100, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span>
+<span><span class="co">#&gt; Interval group 9 of 9: [0, 5),[5, 10),[10, 15),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 4: [0, Inf)</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 4: [0, 5)</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 4: [15, 60)</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 4: [60, Inf)</span></span></code></pre></div>
 <p>Then we can aggregate the categorical variable <code>sex</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># aggregate to both sexes combined</span>
-<span class="va">sex_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>parent <span class="op">=</span> <span class="st">"both"</span>, child <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">sex_mapping</span>
-<span class="co">#&gt;    parent  child</span>
-<span class="co">#&gt; 1:   both female</span>
-<span class="co">#&gt; 2:   both   male</span>
-<span class="va">iran_pop_aggs_both_sexes</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg_scale.html">agg</a></span><span class="op">(</span>
-  dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,
-  id_cols <span class="op">=</span> <span class="va">id_cols</span>,
-  value_cols <span class="op">=</span> <span class="va">value_cols</span>,
-  col_stem <span class="op">=</span> <span class="st">"sex"</span>,
-  col_type <span class="op">=</span> <span class="st">"categorical"</span>,
-  mapping <span class="op">=</span> <span class="va">sex_mapping</span>
-<span class="op">)</span>
-<span class="co">#&gt; Aggregating sex</span>
-<span class="co">#&gt; Aggregate 1 of 1: both</span>
-<span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_both_sexes</span>, use.names <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
-<p>The output dataset returns all the new aggregate rows made as can be seen below with the same columns as what was included originally in the dataset.</p>
+<code class="sourceCode R"><span><span class="co"># aggregate to both sexes combined</span></span>
+<span><span class="va">sex_mapping</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="op">(</span>parent <span class="op">=</span> <span class="st">"both"</span>, child <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sex_mapping</span></span>
+<span><span class="co">#&gt;    parent  child</span></span>
+<span><span class="co">#&gt;    &lt;char&gt; &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:   both female</span></span>
+<span><span class="co">#&gt; 2:   both   male</span></span>
+<span><span class="va">iran_pop_aggs_both_sexes</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg_scale.html">agg</a></span><span class="op">(</span></span>
+<span>  dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,</span>
+<span>  id_cols <span class="op">=</span> <span class="va">id_cols</span>,</span>
+<span>  value_cols <span class="op">=</span> <span class="va">value_cols</span>,</span>
+<span>  col_stem <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>  col_type <span class="op">=</span> <span class="st">"categorical"</span>,</span>
+<span>  mapping <span class="op">=</span> <span class="va">sex_mapping</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Aggregating sex</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 1: both</span></span>
+<span><span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_both_sexes</span>, use.names <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<p>The output dataset returns all the new aggregate rows made as can be
+seen below with the same columns as what was included originally in the
+dataset.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">iran_pop_aggs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Iran"</span>, <span class="va">location</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">year</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">age_start</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">age_end</span> <span class="op">==</span> <span class="cn">Inf</span><span class="op">]</span>
-<span class="co">#&gt;                      location year    sex age_start age_end</span>
-<span class="co">#&gt; 1: Iran (Islamic Republic of) 2016 female         0     Inf</span>
-<span class="co">#&gt; 2: Iran (Islamic Republic of) 2016   male         0     Inf</span>
-<span class="co">#&gt; 3: Iran (Islamic Republic of) 2016 female         0     Inf</span>
-<span class="co">#&gt; 4: Iran (Islamic Republic of) 2016   male         0     Inf</span>
-<span class="co">#&gt; 5: Iran (Islamic Republic of) 2016   both         0     Inf</span>
-<span class="co">#&gt; 6: Iran (Islamic Republic of) 2016   both         0     Inf</span>
-<span class="co">#&gt;                   source_name    nid underlying_nid population</span>
-<span class="co">#&gt; 1:                        DYB 140966         299134   39427828</span>
-<span class="co">#&gt; 2:                        DYB 140966         299134   40498442</span>
-<span class="co">#&gt; 3: Statistical Centre of Iran 299134             NA   39427828</span>
-<span class="co">#&gt; 4: Statistical Centre of Iran 299134             NA   40498442</span>
-<span class="co">#&gt; 5:                        DYB 140966         299134   79926270</span>
-<span class="co">#&gt; 6: Statistical Centre of Iran 299134             NA   79926270</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">iran_pop_aggs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Iran"</span>, <span class="va">location</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">year</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">age_start</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">age_end</span> <span class="op">==</span> <span class="cn">Inf</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                      location  year    sex age_start age_end</span></span>
+<span><span class="co">#&gt;                        &lt;char&gt; &lt;int&gt; &lt;char&gt;     &lt;num&gt;   &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: Iran (Islamic Republic of)  2016 female         0     Inf</span></span>
+<span><span class="co">#&gt; 2: Iran (Islamic Republic of)  2016   male         0     Inf</span></span>
+<span><span class="co">#&gt; 3: Iran (Islamic Republic of)  2016 female         0     Inf</span></span>
+<span><span class="co">#&gt; 4: Iran (Islamic Republic of)  2016   male         0     Inf</span></span>
+<span><span class="co">#&gt; 5: Iran (Islamic Republic of)  2016   both         0     Inf</span></span>
+<span><span class="co">#&gt; 6: Iran (Islamic Republic of)  2016   both         0     Inf</span></span>
+<span><span class="co">#&gt;                   source_name    nid underlying_nid population</span></span>
+<span><span class="co">#&gt;                        &lt;char&gt;  &lt;int&gt;          &lt;int&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:                        DYB 140966         299134   39427828</span></span>
+<span><span class="co">#&gt; 2:                        DYB 140966         299134   40498442</span></span>
+<span><span class="co">#&gt; 3: Statistical Centre of Iran 299134             NA   39427828</span></span>
+<span><span class="co">#&gt; 4: Statistical Centre of Iran 299134             NA   40498442</span></span>
+<span><span class="co">#&gt; 5:                        DYB 140966         299134   79926270</span></span>
+<span><span class="co">#&gt; 6: Statistical Centre of Iran 299134             NA   79926270</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aggregate-locations">Aggregate locations<a class="anchor" aria-label="anchor" href="#aggregate-locations"></a>
 </h2>
-<p>There are also some years in the dataset where data is only available at the province level and has not yet been aggregated to the national level.</p>
-<p>One difficulty with this data is that the province boundaries have changed over time in Iran so sometimes data is only available for historical locations (locations that existed in previous years but that have since been split into multiple locations).</p>
-<p>A mapping of how province boundaries have changed from the 1956 census to present day is included in the package and documented at <code><a href="../reference/iran_mapping.html">?hierarchyUtils::iran_mapping</a></code>.</p>
-<p><a href="https://en.wikipedia.org/wiki/Tree_(data_structure)" class="external-link">Tree data structures</a> are really useful for representing hierarchical data which is exactly the type of data that is being manipulated when aggregating or scaling data to different levels of a hierarchy. The mappings used to define the hierarchical structure of categorical data in <code>hierarchyUtils</code> must have a <code>parent</code> and <code>child</code> column defining relationships between nodes in the tree (like in <code><a href="../reference/iran_mapping.html">hierarchyUtils::iran_mapping</a></code>).</p>
-<p>The root node of the tree shown below is “Iran” at the national level. The leaf nodes of the tree are the present day provinces and all other nodes are the historical provinces. Colored in green is everywhere data is directly available for each location, blue are locations where aggregations are possible and red is where data is missing (or aggregation is not possible). Here we can see in 2006 that a historical province called “Tehran” included two present day provinces, “Tehran” and “Alborz”.</p>
+<p>There are also some years in the dataset where data is only available
+at the province level and has not yet been aggregated to the national
+level.</p>
+<p>One difficulty with this data is that the province boundaries have
+changed over time in Iran so sometimes data is only available for
+historical locations (locations that existed in previous years but that
+have since been split into multiple locations).</p>
+<p>A mapping of how province boundaries have changed from the 1956
+census to present day is included in the package and documented at
+<code><a href="../reference/iran_mapping.html">?hierarchyUtils::iran_mapping</a></code>.</p>
+<p><a href="https://en.wikipedia.org/wiki/Tree_(data_structure)" class="external-link">Tree
+data structures</a> are really useful for representing hierarchical data
+which is exactly the type of data that is being manipulated when
+aggregating or scaling data to different levels of a hierarchy. The
+mappings used to define the hierarchical structure of categorical data
+in <code>hierarchyUtils</code> must have a <code>parent</code> and
+<code>child</code> column defining relationships between nodes in the
+tree (like in <code><a href="../reference/iran_mapping.html">hierarchyUtils::iran_mapping</a></code>).</p>
+<p>The root node of the tree shown below is “Iran” at the national
+level. The leaf nodes of the tree are the present day provinces and all
+other nodes are the historical provinces. Colored in green is everywhere
+data is directly available for each location, blue are locations where
+aggregations are possible and red is where data is missing (or
+aggregation is not possible). Here we can see in 2006 that a historical
+province called “Tehran” included two present day provinces, “Tehran”
+and “Alborz”.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># this function is used internally by `hierarchyUtils::agg` but is available to help</span>
-<span class="co"># visualize why some aggregates can't be made, what data is missing, etc.</span>
-<span class="va">agg_tree</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_tree.html">create_agg_tree</a></span><span class="op">(</span>
-  mapping <span class="op">=</span> <span class="va">iran_mapping</span>,
-  exists <span class="op">=</span> <span class="va">iran_pop_aggs</span><span class="op">[</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="va">source_name</span> <span class="op">!=</span> <span class="st">"DYB"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">location</span><span class="op">)</span><span class="op">]</span>,
-  col_type <span class="op">=</span> <span class="st">"categorical"</span><span class="op">)</span>
-<span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_tree.html">vis_tree</a></span><span class="op">(</span><span class="va">agg_tree</span><span class="op">)</span></code></pre></div>
-<div id="htmlwidget-7a6cf9053baa88eee543" style="width:768px;height:480px;" class="diagonalNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-7a6cf9053baa88eee543">{"x":{"root":{"name":"Iran (Islamic Republic of)","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1966-1976","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Tehran 1986-1995","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Tehran 2006","agg_possible":false,"exists":true,"vis_group_node":"Value Provided","children":[{"name":"Tehran","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"},{"name":"Alborz","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"}]},{"name":"Qom","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Semnan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Gilan 1956-1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Gilan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Zanjan 1976-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Zanjan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Qazvin","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Mazandaran 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Mazandaran","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Golestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"East Azarbayejan 1956-1986","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"East Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Ardebil","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"West Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshahan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Ilam","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshah","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hamadan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kurdistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khuzestan and Lorestan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khuzestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Lorestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Fars and Ports 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Fars","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hormozgan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Bushehr","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kohgiluyeh and Boyer-Ahmad","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kerman","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khorasan 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khorasan-e-Razavi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"North Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"South Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Isfahan and Yazd 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan and Yazd 1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Yazd","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Chahar Mahaal and Bakhtiari","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Sistan and Baluchistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},"options":{"height":null,"width":null,"fontSize":10,"fontFamily":"serif","linkColour":"#ccc","nodeColour":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","nodeStroke":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","textColour":"#111","margin":{"top":null,"right":null,"bottom":null,"left":null},"opacity":0.9}},"evals":["options.nodeColour","options.nodeStroke"],"jsHooks":[]}</script><p>Now we can make location aggregates but need to use two arguments that are helpful when aggregating non-square data. <code>present_agg_severity = 'none'</code> because in some source-years Iran is already included so the function needs to drop the aggregate and recalculate it. <code>missing_dt_severity = "none"</code> because in some source-years we don’t have the present day provinces and its okay to just make the aggregates that are possible given the data that is available.</p>
+<code class="sourceCode R"><span><span class="co"># this function is used internally by `hierarchyUtils::agg` but is available to help</span></span>
+<span><span class="co"># visualize why some aggregates can't be made, what data is missing, etc.</span></span>
+<span><span class="va">agg_tree</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_tree.html">create_agg_tree</a></span><span class="op">(</span></span>
+<span>  mapping <span class="op">=</span> <span class="va">iran_mapping</span>,</span>
+<span>  exists <span class="op">=</span> <span class="va">iran_pop_aggs</span><span class="op">[</span><span class="va">year</span> <span class="op">==</span> <span class="fl">2006</span> <span class="op">&amp;</span> <span class="va">source_name</span> <span class="op">!=</span> <span class="st">"DYB"</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">location</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>  col_type <span class="op">=</span> <span class="st">"categorical"</span><span class="op">)</span></span>
+<span><span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/create_tree.html">vis_tree</a></span><span class="op">(</span><span class="va">agg_tree</span><span class="op">)</span></span></code></pre></div>
+<div class="diagonalNetwork html-widget html-fill-item" id="htmlwidget-1ac9899815e9b39db2d7" style="width:768px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-1ac9899815e9b39db2d7">{"x":{"root":{"name":"Iran (Islamic Republic of)","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi 1966-1976","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Markazi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Tehran 1986-1995","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Tehran 2006","agg_possible":false,"exists":true,"vis_group_node":"Value Provided","children":[{"name":"Tehran","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"},{"name":"Alborz","agg_possible":false,"exists":false,"vis_group_node":"Not Possible"}]},{"name":"Qom","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Semnan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Gilan 1956-1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Gilan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Zanjan 1976-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Zanjan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Qazvin","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]}]},{"name":"Mazandaran 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Mazandaran","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Golestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"East Azarbayejan 1956-1986","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"East Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Ardebil","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"West Azarbayejan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshahan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Ilam","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kermanshah","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hamadan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kurdistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khuzestan and Lorestan 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khuzestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Lorestan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Fars and Ports 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Fars","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Hormozgan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Bushehr","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Kohgiluyeh and Boyer-Ahmad","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Kerman","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Khorasan 1956-1996","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Khorasan-e-Razavi","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"North Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"South Khorasan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Isfahan and Yazd 1956","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan and Yazd 1966","agg_possible":true,"exists":false,"vis_group_node":"Possible","children":[{"name":"Isfahan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"},{"name":"Yazd","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Chahar Mahaal and Bakhtiari","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},{"name":"Sistan and Baluchistan","agg_possible":true,"exists":true,"vis_group_node":"Value Provided"}]},"options":{"height":null,"width":null,"fontSize":10,"fontFamily":"serif","linkColour":"#ccc","nodeColour":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","nodeStroke":"function(d, i) { return {\"Value Provided\" : \"green\", \"Possible\" : \"blue\", \"Not Possible\" : \"red\"} [d.data.vis_group_node]; }","textColour":"#111","margin":{"top":null,"right":null,"bottom":null,"left":null},"opacity":0.9}},"evals":["options.nodeColour","options.nodeStroke"],"jsHooks":[]}</script><p>Now we can make location aggregates but need to use two arguments
+that are helpful when aggregating non-square data.
+<code>present_agg_severity = 'none'</code> because in some source-years
+Iran is already included so the function needs to drop the aggregate and
+recalculate it. <code>missing_dt_severity = "none"</code> because in
+some source-years we don’t have the present day provinces and its okay
+to just make the aggregates that are possible given the data that is
+available.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">iran_pop_aggs_location</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg_scale.html">agg</a></span><span class="op">(</span>
-  dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,
-  id_cols <span class="op">=</span> <span class="va">id_cols</span>,
-  value_cols <span class="op">=</span> <span class="va">value_cols</span>,
-  col_stem <span class="op">=</span> <span class="st">"location"</span>,
-  col_type <span class="op">=</span> <span class="st">"categorical"</span>,
-  mapping <span class="op">=</span> <span class="va">iran_mapping</span>,
-  present_agg_severity <span class="op">=</span> <span class="st">"none"</span>,
-  missing_dt_severity <span class="op">=</span> <span class="st">"none"</span>
-<span class="op">)</span>
-<span class="co">#&gt; Aggregating location</span>
-<span class="co">#&gt; Aggregate 1 of 15: Tehran 2006</span>
-<span class="co">#&gt; Aggregate 2 of 15: Tehran 1986-1995</span>
-<span class="co">#&gt; Aggregate 3 of 15: Markazi 1966-1976</span>
-<span class="co">#&gt; Aggregate 4 of 15: Markazi 1956</span>
-<span class="co">#&gt; Aggregate 5 of 15: Zanjan 1976-1996</span>
-<span class="co">#&gt; Aggregate 6 of 15: Gilan 1956-1966</span>
-<span class="co">#&gt; Aggregate 7 of 15: Mazandaran 1956-1996</span>
-<span class="co">#&gt; Aggregate 8 of 15: East Azarbayejan 1956-1986</span>
-<span class="co">#&gt; Aggregate 9 of 15: Kermanshahan 1956</span>
-<span class="co">#&gt; Aggregate 10 of 15: Khuzestan and Lorestan 1956</span>
-<span class="co">#&gt; Aggregate 11 of 15: Fars and Ports 1956</span>
-<span class="co">#&gt; Aggregate 12 of 15: Khorasan 1956-1996</span>
-<span class="co">#&gt; Aggregate 13 of 15: Isfahan and Yazd 1966</span>
-<span class="co">#&gt; Aggregate 14 of 15: Isfahan and Yazd 1956</span>
-<span class="co">#&gt; Aggregate 15 of 15: Iran (Islamic Republic of)</span>
-<span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_location</span><span class="op">)</span></code></pre></div>
-<p>The population for these aggregates age groups at the national level can now be plotted over time.</p>
+<code class="sourceCode R"><span><span class="va">iran_pop_aggs_location</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">::</span><span class="fu"><a href="../reference/agg_scale.html">agg</a></span><span class="op">(</span></span>
+<span>  dt <span class="op">=</span> <span class="va">iran_pop_aggs</span>,</span>
+<span>  id_cols <span class="op">=</span> <span class="va">id_cols</span>,</span>
+<span>  value_cols <span class="op">=</span> <span class="va">value_cols</span>,</span>
+<span>  col_stem <span class="op">=</span> <span class="st">"location"</span>,</span>
+<span>  col_type <span class="op">=</span> <span class="st">"categorical"</span>,</span>
+<span>  mapping <span class="op">=</span> <span class="va">iran_mapping</span>,</span>
+<span>  present_agg_severity <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>  missing_dt_severity <span class="op">=</span> <span class="st">"none"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Aggregating location</span></span>
+<span><span class="co">#&gt; Aggregate 1 of 15: Tehran 2006</span></span>
+<span><span class="co">#&gt; Aggregate 2 of 15: Tehran 1986-1995</span></span>
+<span><span class="co">#&gt; Aggregate 3 of 15: Markazi 1966-1976</span></span>
+<span><span class="co">#&gt; Aggregate 4 of 15: Markazi 1956</span></span>
+<span><span class="co">#&gt; Aggregate 5 of 15: Zanjan 1976-1996</span></span>
+<span><span class="co">#&gt; Aggregate 6 of 15: Gilan 1956-1966</span></span>
+<span><span class="co">#&gt; Aggregate 7 of 15: Mazandaran 1956-1996</span></span>
+<span><span class="co">#&gt; Aggregate 8 of 15: East Azarbayejan 1956-1986</span></span>
+<span><span class="co">#&gt; Aggregate 9 of 15: Kermanshahan 1956</span></span>
+<span><span class="co">#&gt; Aggregate 10 of 15: Khuzestan and Lorestan 1956</span></span>
+<span><span class="co">#&gt; Aggregate 11 of 15: Fars and Ports 1956</span></span>
+<span><span class="co">#&gt; Aggregate 12 of 15: Khorasan 1956-1996</span></span>
+<span><span class="co">#&gt; Aggregate 13 of 15: Isfahan and Yazd 1966</span></span>
+<span><span class="co">#&gt; Aggregate 14 of 15: Isfahan and Yazd 1956</span></span>
+<span><span class="co">#&gt; Aggregate 15 of 15: Iran (Islamic Republic of)</span></span>
+<span><span class="va">iran_pop_aggs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">iran_pop_aggs</span>, <span class="va">iran_pop_aggs_location</span><span class="op">)</span></span></code></pre></div>
+<p>The population for these aggregates age groups at the national level
+can now be plotted over time.</p>
 <p><img src="hierarchyUtils_files/figure-html/plot_total_pop-1.png" width="768"></p>
 </div>
   </div>
@@ -313,7 +375,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

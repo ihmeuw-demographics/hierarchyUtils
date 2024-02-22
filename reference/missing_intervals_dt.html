@@ -65,21 +65,21 @@ expected intervals.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">assert_no_missing_intervals_dt</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">id_cols</span>,
-  <span class="va">col_stem</span>,
-  <span class="va">expected_ints_dt</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu">identify_missing_intervals_dt</span><span class="op">(</span>
-  <span class="va">dt</span>,
-  <span class="va">id_cols</span>,
-  <span class="va">col_stem</span>,
-  <span class="va">expected_ints_dt</span>,
-  quiet <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">assert_no_missing_intervals_dt</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">id_cols</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  <span class="va">expected_ints_dt</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">identify_missing_intervals_dt</span><span class="op">(</span></span>
+<span>  <span class="va">dt</span>,</span>
+<span>  <span class="va">id_cols</span>,</span>
+<span>  <span class="va">col_stem</span>,</span>
+<span>  <span class="va">expected_ints_dt</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -87,28 +87,39 @@ expected intervals.</p>
     <dl><dt>dt</dt>
 <dd><p>[<code>data.table()</code>]<br>
 Data containing the interval variable to check. Should include all 'id_cols'.</p></dd>
+
+
 <dt>id_cols</dt>
 <dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br>
 ID columns that uniquely identify each row of <code>dt</code>. Should include
 'col_stem_start' and 'col_stem_end'.</p></dd>
+
+
 <dt>col_stem</dt>
 <dd><p>[<code>character(1)</code>]<br>
 The name of the interval variable to check, should not include the
 '_start' or '_end' suffix.</p></dd>
+
+
 <dt>expected_ints_dt</dt>
 <dd><p>[<code>data.table()</code>]<br>
 The expected intervals that should be completely included in <code>ints_dt</code>.
 Should include only 'col_stem_start' and 'col_stem_end' columns. Can
 also be <code>NULL</code> in which case <code>expected_ints_dt</code> will automatically be set
 to the minimum and maximum of each unique set of intervals in <code>dt</code>.</p></dd>
+
+
 <dt>quiet</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 Should progress messages be suppressed as the function is run? Default is
 False.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>identify_missing_intervals_dt</code> returns a [<code>data.table()</code>] with
+    
+
+<p><code>identify_missing_intervals_dt</code> returns a [<code>data.table()</code>] with
 <code>id_cols</code> that are missing expected intervals. If no intervals are missing
 then a zero-row [<code>data.table()</code>] is returned.
 <code>assert_no_missing_intervals_dt</code> returns nothing but throws an error if
@@ -126,34 +137,34 @@ may miss identifying missing intervals at the beginning or end of the range.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span class="r-in">  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2010</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2015</span>, <span class="fl">96</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>, <span class="cn">Inf</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span>,</span>
-<span class="r-in">  value <span class="op">=</span> <span class="fl">1</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="va">input_dt</span><span class="op">[</span><span class="op">!</span><span class="va">age_start</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">95</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># expect intervals to cover the entire 0-Inf range</span></span>
-<span class="r-in"><span class="va">missing_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_missing_intervals_dt</span><span class="op">(</span></span>
-<span class="r-in">  dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span>
-<span class="r-in">  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span>
-<span class="r-in">  expected_ints_dt <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age_start <span class="op">=</span> <span class="fl">0</span>, age_end <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2010</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2015</span>, <span class="fl">96</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  age_end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>, <span class="cn">Inf</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span>, <span class="cn">Inf</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  value <span class="op">=</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="va">input_dt</span><span class="op">[</span><span class="op">!</span><span class="va">age_start</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">95</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># expect intervals to cover the entire 0-Inf range</span></span></span>
+<span class="r-in"><span><span class="va">missing_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_missing_intervals_dt</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>  expected_ints_dt <span class="op">=</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>age_start <span class="op">=</span> <span class="fl">0</span>, age_end <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 1 of 2: [1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 2 of 2: [5, 10),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95)</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># expect intervals to cover between the minimum and maximum of each grouping</span></span>
-<span class="r-in"><span class="va">missing_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_missing_intervals_dt</span><span class="op">(</span></span>
-<span class="r-in">  dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span>
-<span class="r-in">  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span>
-<span class="r-in">  expected_ints_dt <span class="op">=</span> <span class="cn">NULL</span></span>
-<span class="r-in"><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># expect intervals to cover between the minimum and maximum of each grouping</span></span></span>
+<span class="r-in"><span><span class="va">missing_dt</span> <span class="op">&lt;-</span> <span class="fu">identify_missing_intervals_dt</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>  id_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  col_stem <span class="op">=</span> <span class="st">"age"</span>,</span></span>
+<span class="r-in"><span>  expected_ints_dt <span class="op">=</span> <span class="cn">NULL</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 1 of 2: [1, 2),[2, 3),[3, 4),[4, 5),[5, 6),[6, 7),[7, 8),[8, 9),[9, 10),[11, 12),[12, 13),[13, 14),[14, 15),[15, 16),[16, 17),[17, 18),[18, 19),[19, 20),[20, 21),[21, 22),[22, 23),[23, 24),[24, 25),[25, 26),[26, 27),[27, 28),[28, 29),[29, 30),[30, 31),[31, 32),[32, 33),[33, 34),[34, 35),[35, 36),[36, 37),[37, 38),[38, 39),[39, 40),[40, 41),[41, 42),[42, 43),[43, 44),[44, 45),[45, 46),[46, 47),[47, 48),[48, 49),[49, 50),[50, 51),[51, 52),[52, 53),[53, 54),[54, 55),[55, 56),[56, 57),[57, 58),[58, 59),[59, 60),[60, 61),[61, 62),[62, 63),[63, 64),[64, 65),[65, 66),[66, 67),[67, 68),[68, 69),[69, 70),[70, 71),[71, 72),[72, 73),[73, 74),[74, 75),[75, 76),[76, 77),[77, 78),[78, 79),[79, 80),[80, 81),[81, 82),[82, 83),[83, 84),[84, 85),[85, 86),[86, 87),[87, 88),[88, 89),[89, 90),[90, 91),[91, 92),[92, 93),[93, 94),[94, 95)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Interval group 2 of 2: [5, 10),[15, 20),[20, 25),[25, 30),[30, 35),[35, 40),[40, 45),[45, 50),[50, 55),[55, 60),[60, 65),[65, 70),[70, 75),[75, 80),[80, 85),[85, 90),[90, 95)</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -168,7 +179,7 @@ may miss identifying missing intervals at the beginning or end of the range.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

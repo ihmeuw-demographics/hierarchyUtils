@@ -71,9 +71,9 @@ help collapse to the most detailed common intervals.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">identify_common_intervals</span><span class="op">(</span><span class="va">dt</span>, <span class="va">id_cols</span>, <span class="va">col_stem</span>, include_missing <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">merge_common_intervals</span><span class="op">(</span><span class="va">dt</span>, <span class="va">common_intervals</span>, <span class="va">col_stem</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">identify_common_intervals</span><span class="op">(</span><span class="va">dt</span>, <span class="va">id_cols</span>, <span class="va">col_stem</span>, include_missing <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">merge_common_intervals</span><span class="op">(</span><span class="va">dt</span>, <span class="va">common_intervals</span>, <span class="va">col_stem</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -81,29 +81,42 @@ help collapse to the most detailed common intervals.</p>
     <dl><dt>dt</dt>
 <dd><p>[<code>data.table()</code>]<br>
 Dataset containing the interval variable.</p></dd>
+
+
 <dt>id_cols</dt>
 <dd><p>[<code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code>]<br>
 ID columns that uniquely identify each row of <code>dt</code>. If 'NULL' then common
 intervals across entire dataset are identified.</p></dd>
+
+
 <dt>col_stem</dt>
 <dd><p>[<code>character(1)</code>]<br>
 The name of the variable to collapse, should not include the '_start' or
 '_end' suffix for the interval variable.</p></dd>
+
+
 <dt>include_missing</dt>
 <dd><p>[<code>logical(1)</code>]<br>
 Whether to include missing intervals in the identified most detailed common
 intervals. These missing intervals are not present in all combinations of
 <code>id_cols</code>. Default is "FALSE".</p></dd>
+
+
 <dt>common_intervals</dt>
 <dd><p>[<code>data.table()</code>]<br>
 Common intervals returned by <code>identify_common_intervals()</code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>identify_common_intervals()</code> returns a [<code>data.table()</code>] with two
+    
+
+<p><code>identify_common_intervals()</code> returns a [<code>data.table()</code>] with two
 columns called 'col_stem_start' and 'col_stem_end' defining the most
-detailed common set of intervals for the <code>col_stem</code> interval variable.
-<code>identify_common_intervals()</code> returns a [<code>data.table()</code>] with the
+detailed common set of intervals for the <code>col_stem</code> interval variable.</p>
+
+
+<p><code>identify_common_intervals()</code> returns a [<code>data.table()</code>] with the
 same columns and rows as originally in <code>dt</code>, with two additional columns
 merged on from <code>common_intervals</code>. These new columns are called
 'common_start' and 'common_end' defining the most detailed common interval
@@ -112,59 +125,63 @@ each row maps to.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year_start"</span>, <span class="st">"year_end"</span>, <span class="st">"sex"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># set up test input data.table</span></span>
-<span class="r-in"><span class="va">input_dt_male</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>year_start <span class="op">=</span> <span class="fl">2005</span>, year_end <span class="op">=</span> <span class="fl">2010</span>,</span>
-<span class="r-in">                                sex <span class="op">=</span> <span class="st">"male"</span>,</span>
-<span class="r-in">                                age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span class="r-in">                                value <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">input_dt_male</span><span class="op">[</span><span class="va">age_start</span> <span class="op">==</span> <span class="fl">95</span>, <span class="va">value</span> <span class="op">:=</span> <span class="fl">5</span><span class="op">]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     year_start year_end  sex age_start value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:       2005     2010 male         0    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:       2005     2010 male         5    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:       2005     2010 male        10    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:       2005     2010 male        15    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:       2005     2010 male        20    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       2005     2010 male        25    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:       2005     2010 male        30    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:       2005     2010 male        35    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:       2005     2010 male        40    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:       2005     2010 male        45    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:       2005     2010 male        50    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:       2005     2010 male        55    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:       2005     2010 male        60    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       2005     2010 male        65    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:       2005     2010 male        70    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:       2005     2010 male        75    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:       2005     2010 male        80    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:       2005     2010 male        85    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:       2005     2010 male        90    25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20:       2005     2010 male        95     5</span>
-<span class="r-in"><span class="va">input_dt_female</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>year_start <span class="op">=</span> <span class="fl">2005</span><span class="op">:</span><span class="fl">2009</span>,</span>
-<span class="r-in">                                  sex <span class="op">=</span> <span class="st">"female"</span>,</span>
-<span class="r-in">                                  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                                  value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="gen_interval_cols.html">gen_end</a></span><span class="op">(</span><span class="va">input_dt_female</span>, <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">id_cols</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year_end"</span>, <span class="st">"age_end"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">        col_stem <span class="op">=</span> <span class="st">"year"</span>, right_most_endpoint <span class="op">=</span> <span class="fl">2010</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">input_dt_male</span>, <span class="va">input_dt_female</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="gen_interval_cols.html">gen_end</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">id_cols</span>, <span class="st">"age_end"</span><span class="op">)</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setkey.html" class="external-link">setkeyv</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="va">id_cols</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">common_intervals</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">:::</span><span class="fu">identify_common_intervals</span><span class="op">(</span></span>
-<span class="r-in">  dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">  id_cols <span class="op">=</span> <span class="va">id_cols</span>,</span>
-<span class="r-in">  col_stem <span class="op">=</span> <span class="st">"year"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">common_intervals</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year_start"</span>, <span class="st">"year_end"</span><span class="op">)</span>,</span>
-<span class="r-in">                     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"common_start"</span>, <span class="st">"common_end"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">result_dt</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">:::</span><span class="fu">merge_common_intervals</span><span class="op">(</span></span>
-<span class="r-in">  dt <span class="op">=</span> <span class="va">input_dt</span>,</span>
-<span class="r-in">  common_intervals <span class="op">=</span> <span class="va">common_intervals</span>,</span>
-<span class="r-in">  col_stem <span class="op">=</span> <span class="st">"year"</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">id_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year_start"</span>, <span class="st">"year_end"</span>, <span class="st">"sex"</span>, <span class="st">"age_start"</span>, <span class="st">"age_end"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># set up test input data.table</span></span></span>
+<span class="r-in"><span><span class="va">input_dt_male</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>year_start <span class="op">=</span> <span class="fl">2005</span>, year_end <span class="op">=</span> <span class="fl">2010</span>,</span></span>
+<span class="r-in"><span>                                sex <span class="op">=</span> <span class="st">"male"</span>,</span></span>
+<span class="r-in"><span>                                age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                value <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input_dt_male</span><span class="op">[</span><span class="va">age_start</span> <span class="op">==</span> <span class="fl">95</span>, <span class="va">value</span> <span class="op">:=</span> <span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;year_start, year_end, sex, age_start&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Index: &lt;age_start&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     year_start year_end    sex age_start value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;num&gt;    &lt;num&gt; &lt;char&gt;     &lt;num&gt; &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:       2005     2010   male         0    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:       2005     2010   male         5    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:       2005     2010   male        10    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:       2005     2010   male        15    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:       2005     2010   male        20    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:       2005     2010   male        25    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:       2005     2010   male        30    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:       2005     2010   male        35    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:       2005     2010   male        40    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:       2005     2010   male        45    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:       2005     2010   male        50    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:       2005     2010   male        55    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:       2005     2010   male        60    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:       2005     2010   male        65    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:       2005     2010   male        70    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:       2005     2010   male        75    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:       2005     2010   male        80    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:       2005     2010   male        85    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:       2005     2010   male        90    25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20:       2005     2010   male        95     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     year_start year_end    sex age_start value</span>
+<span class="r-in"><span><span class="va">input_dt_female</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/J.html" class="external-link">CJ</a></span><span class="op">(</span>year_start <span class="op">=</span> <span class="fl">2005</span><span class="op">:</span><span class="fl">2009</span>,</span></span>
+<span class="r-in"><span>                                  sex <span class="op">=</span> <span class="st">"female"</span>,</span></span>
+<span class="r-in"><span>                                  age_start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">95</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                  value <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="gen_interval_cols.html">gen_end</a></span><span class="op">(</span><span class="va">input_dt_female</span>, <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">id_cols</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year_end"</span>, <span class="st">"age_end"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        col_stem <span class="op">=</span> <span class="st">"year"</span>, right_most_endpoint <span class="op">=</span> <span class="fl">2010</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">input_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">input_dt_male</span>, <span class="va">input_dt_female</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="gen_interval_cols.html">gen_end</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">id_cols</span>, <span class="st">"age_end"</span><span class="op">)</span>, col_stem <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setkey.html" class="external-link">setkeyv</a></span><span class="op">(</span><span class="va">input_dt</span>, <span class="va">id_cols</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">common_intervals</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">:::</span><span class="fu">identify_common_intervals</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>  id_cols <span class="op">=</span> <span class="va">id_cols</span>,</span></span>
+<span class="r-in"><span>  col_stem <span class="op">=</span> <span class="st">"year"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setattr.html" class="external-link">setnames</a></span><span class="op">(</span><span class="va">common_intervals</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year_start"</span>, <span class="st">"year_end"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"common_start"</span>, <span class="st">"common_end"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">result_dt</span> <span class="op">&lt;-</span> <span class="fu">hierarchyUtils</span><span class="fu">:::</span><span class="fu">merge_common_intervals</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  dt <span class="op">=</span> <span class="va">input_dt</span>,</span></span>
+<span class="r-in"><span>  common_intervals <span class="op">=</span> <span class="va">common_intervals</span>,</span></span>
+<span class="r-in"><span>  col_stem <span class="op">=</span> <span class="st">"year"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -179,7 +196,7 @@ each row maps to.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
