@@ -148,8 +148,12 @@ collapse_common_intervals <- function(dt,
       paste0("Some overlapping intervals were identified in `dt`.\n",
              "These will be automatically dropped.\n",
              paste0(capture.output(overlapping_dt), collapse = "\n"))
-    assertive.base::assert_engine(empty_dt, overlapping_dt,
-                             msg = error_msg, severity = overlapping_dt_severity)
+    assert_engine_copy(
+      predicate = empty_dt,
+      overlapping_dt,
+      msg = error_msg,
+      severity = overlapping_dt_severity
+    )
 
     # drop overlapping intervals
     dt <- merge(dt, overlapping_dt, by = id_cols, all = T)
@@ -178,8 +182,12 @@ collapse_common_intervals <- function(dt,
       paste0("Some intervals in `dt` are missing making it impossible to collapse ",
              "the desired column.\n",
              paste0(capture.output(missing_dt), collapse = "\n"))
-    assertive.base::assert_engine(empty_missing_dt, missing_dt,
-                             msg = error_msg, severity = missing_dt_severity)
+    assert_engine_copy(
+      predicate = empty_missing_dt,
+      missing_dt,
+      msg = error_msg,
+      severity = missing_dt_severity
+    )
 
     # drop the common intervals that the missing intervals are part of
     if (nrow(missing_dt) > 0) {
