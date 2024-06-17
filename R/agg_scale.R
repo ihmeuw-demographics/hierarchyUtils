@@ -375,8 +375,12 @@ scale <- function(dt,
                    "* See `missing_dt_severity` argument if it is okay to only make ",
                    "aggregate/scale data that are possible given what is available.\n",
                    paste0(capture.output(missing_dt), collapse = "\n"))
-          assertive.base::assert_engine(empty_missing_dt, missing_dt,
-                                   msg = error_msg, severity = missing_dt_severity)
+          assert_engine_copy(
+            predicate = empty_missing_dt,
+            missing_dt,
+            msg = error_msg,
+            severity = missing_dt_severity
+          )
         }
       } else { # additional check for overlapping intervals in the children nodes
         if (col_type == "interval") {
@@ -388,8 +392,12 @@ scale <- function(dt,
             error_msg <-
               paste0("Some overlapping intervals are in `dt`.\n",
                      paste0(capture.output(overlapping_dt), collapse = "\n"))
-            assertive.base::assert_engine(empty_dt, overlapping_dt,
-                                     msg = error_msg, severity = overlapping_dt_severity)
+            assert_engine_copy(
+              predicate = empty_dt,
+              overlapping_dt,
+              msg = error_msg,
+              severity = overlapping_dt_severity
+            )
           }
         }
       }
@@ -568,8 +576,12 @@ assert_agg_scale_args <- function(dt,
              "* See `na_value_severity` argument if it is okay to propagate ",
              "NA values or to drop NA values and continue.\n",
              paste0(capture.output(na_value_dt), collapse = "\n"))
-    assertive.base::assert_engine(empty_na_value_dt, na_value_dt,
-                             msg = error_msg, severity = na_value_severity)
+    assert_engine_copy(
+      predicate = empty_na_value_dt,
+      na_value_dt,
+      msg = error_msg,
+      severity = na_value_severity
+    )
 
     # drop na value rows and continue
     if (!empty_na_value_dt(na_value_dt)) dt <- na.omit(dt, cols = value_cols)

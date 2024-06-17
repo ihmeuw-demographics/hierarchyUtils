@@ -26,7 +26,7 @@ Suggests:
     ggplot2,
     scales
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Language: en-US
 Depends: R (>= 2.10)
@@ -34,7 +34,6 @@ Imports:
     demUtils,
     data.table,
     assertthat,
-    assertive.base,
     assertable (>= 0.2.7),
     checkmate,
     data.tree,
